@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .overlay{
+      z-index: 88;
+      background-color: #000000a5;
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      display:flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modalConf{
+      z-index: 100;
+      background: #000;
+      color: #fff;
+    display: flex;
+    padding: 1rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    }
+ 
+  </style>
+</head>
+<body>
+  <button id="logout-btn">deconnexion</button>
+</body>
+<script>
+
+const logoutBtn = document.getElementById("logout-btn");
+const modalConfirm = document.createElement("div");
+modalConfirm.innerHTML= `
+<div class = "overlay"> 
+<div class = "modalConf"> 
+  <h2>Voulez vous deconnectez?</h2>
+  <div class = "btns"> 
+    <button id='yesBtn'>oui</button>
+    <button id='noBtn'>non</button>
+    </div>
+  </div>
+  </div>
+`
+
+logoutBtn.addEventListener("click",(e) =>{
+e.preventDefault();
+logout();
+})
+
+
+
+
+
+function logout(){
+ 
+
+if(modalConfirm.parentElement){modalConfirm.remove()}
+document.body.appendChild(modalConfirm)
+console.log("Modal attached?", !!modalConfirm.parentElement);
+
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+noBtn.addEventListener("click",(e)=> {
+  e.preventDefault();
+  Toclose()
+ })
+}
+
+
+function Toclose () {
+
+modalConfirm.remove();
+
+}
+
+</script>
+</html>

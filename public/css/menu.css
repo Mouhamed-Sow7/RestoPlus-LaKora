@@ -1,0 +1,497 @@
+/* QR Scanner Section */
+.qr-scanner-section {
+  background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+}
+
+.scanner-card {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.scanner-card h3 {
+  color: #8b4513;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.scanner-card p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.scanner-container {
+  position: relative;
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1rem;
+  border: 2px dashed #8b4513;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#qr-reader-menu {
+  width: 100%;
+  max-width: 400px;
+}
+
+.scanner-result {
+  margin-top: 1rem;
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.scanner-result p {
+  margin: 0;
+}
+
+/* Responsive design for QR scanner */
+@media (max-width: 768px) {
+  .scanner-card {
+    padding: 1.5rem;
+    margin: 0 1rem;
+  }
+
+  .scanner-container {
+    min-height: 250px;
+  }
+
+  #qr-reader-menu {
+    max-width: 300px;
+  }
+}
+
+.modalHistory {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+}
+
+.modalHistory.ResteHistoryhidden {
+  display: none;
+}
+
+.modal-historyReset {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 350px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-historyActions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+}
+.modal-historyActions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+#modalYesHistoryReset {
+  background: #e74c3c;
+  color: white;
+}
+#modalNoHistoryReset {
+  background: #bdc3c7;
+}
+
+/* modal-historique */
+
+/* Overlay du modal */
+.oh-modal {
+  position: fixed;
+  inset: 0;
+  display: none; /* par défaut caché */
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+/* Contenu du modal */
+.oh-modal-content {
+  width: 95%;
+  max-width: 650px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  animation: popup-scale 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Animation légère */
+@keyframes popup-scale {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Header */
+.oh-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 12px;
+}
+.oh-actions button {
+  margin-left: 8px;
+}
+
+.oh-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #5a2d0c; /* Marron du site */
+}
+
+.oh-close {
+  background: transparent;
+  border: 0;
+  font-size: 22px;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+}
+.oh-close:hover {
+  color: #ff6600; /* Orange accent */
+}
+
+/* Body */
+.oh-modal-body {
+  padding: 16px;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+/* Liste d'items */
+.oh-item {
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: #fdfdfd;
+  border: 1px solid #eee;
+  transition: background 0.2s;
+}
+.oh-item:hover {
+  background: #f9f9f9;
+}
+
+.oh-item-top {
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.oh-item-meta {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+/* Status styles for order history */
+.status {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-confirmed {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-preparing {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.status-ready {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-served {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.status-cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-default {
+  background: #f8f9fa;
+  color: #6c757d;
+}
+
+/* Actions */
+.oh-item-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.oh-item-actions .btn-primary {
+  background: #ff6600; /* Orange */
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+.oh-item-actions .btn-primary:hover {
+  background: #e65500;
+}
+
+.oh-item-actions .btn-secondary {
+  background: #5a2d0c; /* Marron */
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+.oh-item-actions .btn-secondary:hover {
+  background: #3d1f08;
+}
+
+/* Vide */
+.oh-empty {
+  text-align: center;
+  color: #999;
+  padding: 30px 0;
+  font-size: 15px;
+}
+
+/* Confirm Modal (QR close) */
+.confirm-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3100;
+}
+.confirm-modal-content {
+  width: 92%;
+  max-width: 520px;
+  background: #1f1f1f;
+  color: #eaeaea;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+.confirm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.confirm-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.confirm-close {
+  background: transparent;
+  border: 0;
+  color: #bbb;
+  font-size: 20px;
+  cursor: pointer;
+}
+.confirm-close:hover {
+  color: #fff;
+}
+.confirm-body {
+  padding: 16px;
+}
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  justify-content: flex-end;
+}
+.btn-accept {
+  background: #28a745;
+  color: #fff;
+  border: 0;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-accept:hover {
+  background: #218838;
+}
+.btn-decline {
+  background: #dc3545;
+  color: #fff;
+  border: 0;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-decline:hover {
+  background: #c82333;
+}
+
+/* History filter buttons styling */
+.history-controls .filter-btn {
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #f5f5f5;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.history-controls .filter-btn.active[data-filter="all"] {
+  background: #ececec;
+  color: #333;
+}
+.history-controls .filter-btn[data-filter="pending"].active {
+  background: #fff3cd;
+  color: #856404;
+  border-color: #ffeaa7;
+}
+.history-controls .filter-btn[data-filter="served"].active {
+  background: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+.history-controls .filter-btn[data-filter="cancelled"].active {
+  background: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
+}
+.history-controls .filter-btn:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 480px) {
+  .oh-modal-content {
+    width: 94%;
+    max-width: 560px;
+  }
+  .confirm-modal-content {
+    width: 94%;
+  }
+}
+
+/* Menu grid and item cards */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.menu-item {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-item .thumb {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: #f4f4f4;
+}
+
+.menu-item .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.menu-item .item-content {
+  padding: 12px 14px;
+  flex: 1 0 auto;
+}
+
+.menu-item h3 { margin: 0 0 6px 0; font-size: 1.05rem; }
+.menu-item .price { color: #6b6b6b; margin: 0; font-weight: 500; }
+
+.menu-item .menu-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.menu-item .menu-actions .voir-btn,
+.menu-item .menu-actions .add-btn {
+  background: #ff6600;
+  color: #fff;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.menu-item .menu-actions .voir-btn { background: #5a2d0c; }
+
+.menu-item .menu-actions .qty {
+  width: 56px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #e6e6e6;
+}
+
+/* Modal image responsive */
+.modal .img-box { text-align: center; margin-bottom: 12px; }
+.modal .img-box img { max-width: 100%; height: auto; border-radius: 8px; object-fit: cover; }
+
+@media (max-width: 600px) {
+  .menu-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .menu-item .menu-actions { gap: 6px; }
+}
