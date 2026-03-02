@@ -7,6 +7,7 @@ const path      = require("path");
 const config    = require("./config");
 
 const app = express();
+app.set("trust proxy", 1); // Render est derrière un reverse proxy
 
 // For local development relax CSP to avoid blocking external fonts/images.
 // In production, re-enable a strict CSP.
