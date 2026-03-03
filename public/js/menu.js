@@ -200,6 +200,18 @@ class MenuManager {
     if (!statusSpan) return;
     statusSpan.textContent = this.getStatusLabel(order.status);
     statusSpan.className = `status-badge status-${order.status}`;
+
+    // Toast visuel + son quand le statut change
+    if (window.NotificationManager) {
+      const label = this.getStatusLabel(order.status);
+      window.NotificationManager.showSuccess(
+        order.orderId || order.id,
+        "Statut mis à jour",
+        `Votre commande est maintenant : ${label}`,
+        4000
+      );
+    }
+    this.playNotificationSound();
   }
 
   getStatusLabel(status) {
@@ -214,6 +226,24 @@ class MenuManager {
       cancelled: "Annulée",
     };
     return labels[status] || status;
+  }
+
+  playNotificationSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.value = 880;
+      o.connect(g);
+      g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.2, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      o.start();
+      o.stop(ctx.currentTime + 0.3);
+    } catch (e) {
+      // AudioContext non supporté ou bloqué : on ignore simplement
+    }
   }
 }
 
