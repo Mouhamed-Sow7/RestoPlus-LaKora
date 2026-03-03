@@ -154,6 +154,13 @@ class LoginManager {
     this.errorBox.classList.add("error");
   }
 }
+function togglePassword() {
+  const passwordInput = document.getElementById("password");
+  passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+  const iconEye = document.getElementById("password-icon");
+  iconEye.classList.toggle('fa-eye-slash');
+  iconEye.classList.toggle('fa-eye');
+}
 
 // Initialize login manager when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
