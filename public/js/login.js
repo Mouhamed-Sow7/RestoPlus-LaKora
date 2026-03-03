@@ -86,12 +86,13 @@ class LoginManager {
         throw new Error(data.message || "Erreur de connexion");
       }
 
-      // Store authentication data
+      // Store authentication data — compatibilité API v2 (accessToken) + v1 (token)
+      const token = data.accessToken || data.token;
       if (remember) {
-        localStorage.setItem("adminToken", data.token);
+        localStorage.setItem("adminToken", token);
         localStorage.setItem("adminUser", JSON.stringify(data.user));
       } else {
-        sessionStorage.setItem("adminToken", data.token);
+        sessionStorage.setItem("adminToken", token);
         sessionStorage.setItem("adminUser", JSON.stringify(data.user));
       }
 
