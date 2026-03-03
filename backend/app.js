@@ -15,12 +15,14 @@ app.set("trust proxy", 1); // Render est derrière un reverse proxy
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc:  ["'self'", "'unsafe-inline'"],
-      styleSrc:   ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc:    ["'self'", "https://fonts.gstatic.com"],
-      imgSrc:     ["'self'", "data:", "https://images.unsplash.com", "https://source.unsplash.com", "https://picsum.photos"],
-      connectSrc: ["'self'"],
+      defaultSrc:   ["'self'"],
+      scriptSrc:    ["'self'", "'unsafe-inline'", "https://unpkg.com"],
+      scriptSrcAttr:["'unsafe-inline'"],
+      styleSrc:     ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc:      ["'self'", "https://fonts.gstatic.com"],
+      imgSrc:       ["'self'", "data:", "blob:"],
+      connectSrc:   ["'self'"],
+      mediaSrc:     ["'self'", "blob:"],
     },
   },
 }));
