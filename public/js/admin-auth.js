@@ -9,13 +9,57 @@ class AdminAuthManager {
   }
 
   init() {
+    // Affiche le loading IMMÉDIATEMENT — avant toute vérification
+    this.showLoadingScreen();
     this.checkAuthentication();
     this.setupLogoutHandler();
     this.setupTokenRefresh();
   }
 
+  // ─── Loading screen ────────────────────────────────────────────────────────
+
+  showLoadingScreen() {
+    // Crée un overlay de chargement par-dessus le contenu admin
+    if (document.getElementById("auth-loading-overlay")) return;
+
+    const overlay = document.createElement("div");
+    overlay.id = "auth-loading-overlay";
+    overlay.style.cssText = `
+      position: fixed; inset: 0; z-index: 99999;
+      background: #1a1a2e;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px;
+    `;
+    overlay.innerHTML = `
+      <div style="
+        width: 48px; height: 48px; border-radius: 50%;
+        border: 4px solid rgba(255,255,255,0.15);
+        border-top-color: #c0873f;
+        animation: spin 0.8s linear infinite;
+      "></div>
+      <p style="color: rgba(255,255,255,0.7); font-family: sans-serif; font-size: 14px; margin: 0;">
+        Vérification en cours…
+      </p>
+      <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+      </style>
+    `;
+    document.body.appendChild(overlay);
+  }
+
+  hideLoadingScreen() {
+    const overlay = document.getElementById("auth-loading-overlay");
+    if (overlay) {
+      overlay.style.opacity = "0";
+      overlay.style.transition = "opacity 0.2s";
+      setTimeout(() => overlay.remove(), 200);
+    }
+  }
+
+  // ─── Auth ──────────────────────────────────────────────────────────────────
+
   checkAuthentication() {
-    // Check for token in sessionStorage first, then localStorage
     this.token =
       sessionStorage.getItem("adminToken") ||
       localStorage.getItem("adminToken");
@@ -30,42 +74,48 @@ class AdminAuthManager {
       return;
     }
 
-    // Verify token is still valid
     this.verifyToken();
   }
 
   async verifyToken() {
     try {
+      // Timeout de 10 secondes — tolère le réveil de Render (free tier)
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+
       const response = await fetch("/api/auth/verify", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${this.token}`,
           "Content-Type": "application/json",
         },
+        signal: controller.signal,
       });
 
-      if (!response.ok) {
-        throw new Error("Token invalid");
-      }
+      clearTimeout(timeout);
+
+      if (!response.ok) throw new Error("Token invalid");
 
       const data = await response.json();
       this.user = data.user;
 
-      // Update stored user data
       sessionStorage.setItem("adminUser", JSON.stringify(this.user));
       if (localStorage.getItem("adminToken")) {
         localStorage.setItem("adminUser", JSON.stringify(this.user));
       }
 
+      // ✅ Auth OK — on révèle le contenu
+      this.hideLoadingScreen();
       this.displayUserInfo();
+
     } catch (error) {
+      // Timeout ou token invalide → login
       this.clearAuth();
       this.redirectToLogin();
     }
   }
 
   displayUserInfo() {
-    // Update any user info displays in the admin panel
     const userElements = document.querySelectorAll("[data-user-info]");
     userElements.forEach((element) => {
       const infoType = element.getAttribute("data-user-info");
@@ -79,7 +129,6 @@ class AdminAuthManager {
       }
     });
 
-    // Role-based UI restrictions for 'server' role
     const role = this.user?.role;
     if (role === "server") {
       document.querySelectorAll(".admin-nav .nav-link").forEach((link) => {
@@ -93,7 +142,6 @@ class AdminAuthManager {
   }
 
   setupLogoutHandler() {
-    // Handle logout button clicks
     document.addEventListener("click", (e) => {
       if (e.target.matches("#logout-btn, .logout-btn, [data-logout]")) {
         e.preventDefault();
@@ -101,7 +149,6 @@ class AdminAuthManager {
       }
     });
 
-    // Handle logout via keyboard shortcut (Ctrl+Shift+L)
     document.addEventListener("keydown", (e) => {
       if (e.ctrlKey && e.shiftKey && e.key === "L") {
         e.preventDefault();
@@ -111,23 +158,16 @@ class AdminAuthManager {
   }
 
   setupTokenRefresh() {
-    // Refresh token every 30 minutes
     setInterval(() => {
-      if (this.token) {
-        this.verifyToken();
-      }
-    }, 30 * 60 * 1000); // 30 minutes
+      if (this.token) this.verifyToken();
+    }, 30 * 60 * 1000);
 
-    // Check token validity when page becomes visible
     document.addEventListener("visibilitychange", () => {
-      if (!document.hidden && this.token) {
-        this.verifyToken();
-      }
+      if (!document.hidden && this.token) this.verifyToken();
     });
   }
 
   logout() {
-    // Show confirmation dialog
     if (confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {
       this.clearAuth();
       this.redirectToLogin();
@@ -135,62 +175,42 @@ class AdminAuthManager {
   }
 
   clearAuth() {
-    // Clear all authentication data
     sessionStorage.removeItem("adminToken");
     sessionStorage.removeItem("adminUser");
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
-
     this.token = null;
     this.user = null;
   }
 
   redirectToLogin() {
-    // Add a small delay to show any loading states
-    setTimeout(() => {
-      window.location.href = "login.html";
-    }, 100);
+    // Cache le contenu admin avant de rediriger
+    this.hideLoadingScreen();
+    window.location.href = "login.html";
   }
 
-  // Method to get current token for API calls
   getAuthHeaders() {
-    if (!this.token) {
-      throw new Error("No authentication token available");
-    }
-
+    if (!this.token) throw new Error("No authentication token available");
     return {
       Authorization: `Bearer ${this.token}`,
       "Content-Type": "application/json",
     };
   }
 
-  // Method to make authenticated API calls
   async authenticatedFetch(url, options = {}) {
-    const headers = {
-      ...this.getAuthHeaders(),
-      ...options.headers,
-    };
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
-
-    // If token is invalid, redirect to login
+    const headers = { ...this.getAuthHeaders(), ...options.headers };
+    const response = await fetch(url, { ...options, headers });
     if (response.status === 401) {
       this.clearAuth();
       this.redirectToLogin();
       throw new Error("Authentication required");
     }
-
     return response;
   }
 }
 
-// Initialize authentication manager when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   window.adminAuth = new AdminAuthManager();
 });
 
-// Export for use in other scripts
 window.AdminAuthManager = AdminAuthManager;
