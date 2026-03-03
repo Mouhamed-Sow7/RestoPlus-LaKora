@@ -3,7 +3,7 @@
 // Backend helpers (real order creation)
 async function createBackendOrder(orderPayload) {
   try {
-    const res = await fetch("http://localhost:4001/api/orders", {
+    const res = await fetch("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(orderPayload),
