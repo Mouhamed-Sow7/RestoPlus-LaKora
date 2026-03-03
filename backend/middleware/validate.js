@@ -54,7 +54,7 @@ const schemas = {
 
   queryOrders: Joi.object({
     page:                  Joi.number().integer().min(1).default(1),
-    limit:                 Joi.number().integer().min(1).max(100).default(20),
+    limit:                 Joi.number().integer().min(1).max(500).default(20),
     status:                Joi.string().optional(),
     paymentStatus:         Joi.string().valid("pending", "paid", "failed").optional(),
     table:                 Joi.number().integer().optional(),
