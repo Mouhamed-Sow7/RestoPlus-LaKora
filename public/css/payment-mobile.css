@@ -1,0 +1,141 @@
+
+/* ─── Payment Modal — Wave / Orange Money ─────────────────────────────── */
+
+.payment-modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 5000;
+    backdrop-filter: blur(3px);
+  }
+  
+  .payment-modal-content {
+    background: #fff; border-radius: 16px;
+    width: 92%; max-width: 420px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    animation: popup-scale 0.2s ease;
+  }
+  
+  .payment-modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .payment-modal-header h3 { margin: 0; font-size: 1.1rem; color: #1a1a1a; }
+  .payment-close {
+    background: none; border: none; font-size: 1.4rem;
+    cursor: pointer; color: #999; line-height: 1;
+  }
+  .payment-close:hover { color: #333; }
+  
+  .payment-modal-body { padding: 1.25rem 1.5rem; }
+  
+  .payment-total-banner {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #f8f6f3; border-radius: 10px;
+    padding: 0.9rem 1.1rem; margin-bottom: 1.25rem;
+    border-left: 4px solid #c0873f;
+  }
+  .payment-total-banner span { color: #888; font-size: 0.85rem; }
+  .payment-total-banner strong { color: #1a1a1a; font-size: 1.2rem; }
+  
+  .payment-methods { display: flex; flex-direction: column; gap: 10px; }
+  
+  .payment-option input[type="radio"] { display: none; }
+  
+  .payment-option-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 0.85rem 1rem; border-radius: 10px;
+    border: 2px solid #e8e8e8; cursor: pointer;
+    transition: all 0.2s; background: #fafafa;
+  }
+  .payment-option-card:hover { border-color: #c0873f; background: #fdf9f5; }
+  .payment-option-card.selected { border-color: #c0873f; background: #fdf9f5; }
+  .payment-wave.selected  { border-color: #1DC8EF; background: #f0fbff; }
+  .payment-om.selected    { border-color: #FF6600; background: #fff5f0; }
+  
+  .payment-option-icon { font-size: 1.5rem; width: 36px; text-align: center; }
+  .payment-option-info { flex: 1; }
+  .payment-option-info strong { display: block; font-size: 0.95rem; color: #1a1a1a; }
+  .payment-option-info small  { color: #999; font-size: 0.78rem; }
+  
+  .payment-option-check {
+    color: #c0873f; font-weight: 700; font-size: 1rem;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .payment-option-card.selected .payment-option-check { opacity: 1; }
+  .payment-wave.selected  .payment-option-check { color: #1DC8EF; }
+  .payment-om.selected    .payment-option-check { color: #FF6600; }
+  
+  .payment-modal-footer {
+    display: flex; gap: 10px; padding: 1rem 1.5rem;
+    border-top: 1px solid #f0f0f0;
+  }
+  .payment-modal-footer .btn { flex: 1; padding: 0.75rem; border-radius: 9px; font-size: 0.95rem; font-weight: 600; border: none; cursor: pointer; }
+  .payment-modal-footer .btn-secondary { background: #f0f0f0; color: #333; }
+  .payment-modal-footer .btn-primary   { background: #c0873f; color: #fff; }
+  .payment-modal-footer .btn-primary:hover { background: #a0722d; }
+  
+  /* ─── Mobile payment flow (Wave/OM) ──────────────────────────────────── */
+  
+  .payment-mobile-content { max-width: 400px; }
+  
+  .payment-mobile-body { padding: 1.25rem 1.5rem; }
+  
+  .mobile-pay-amount {
+    text-align: center; padding: 1.5rem 1rem;
+    background: linear-gradient(135deg, #1a1a2e, #2d2d4e);
+    border-radius: 12px; margin-bottom: 1rem; color: #fff;
+  }
+  .mobile-pay-label { display: block; font-size: 0.8rem; opacity: 0.7; margin-bottom: 6px; }
+  .mobile-pay-value { font-size: 2rem; font-weight: 700; }
+  .mobile-pay-value small { font-size: 1rem; opacity: 0.8; }
+  
+  .mobile-pay-number {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #f8f6f3; border-radius: 10px;
+    padding: 0.85rem 1rem; margin-bottom: 1rem;
+    border: 1px solid #e8e0d5;
+  }
+  .mobile-pay-number-label { font-size: 0.8rem; color: #888; }
+  .mobile-pay-number-value { font-size: 1.1rem; font-weight: 700; color: #1a1a1a; letter-spacing: 1px; }
+  
+  .mobile-pay-steps { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+  .mobile-pay-step {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 0.87rem; color: #444;
+  }
+  .step-num {
+    min-width: 22px; height: 22px;
+    background: #c0873f; color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700;
+  }
+  
+  .mobile-pay-test-notice {
+    text-align: center; font-size: 0.78rem;
+    color: #999; background: #f5f5f5;
+    border-radius: 8px; padding: 8px 12px;
+    border: 1px dashed #ddd;
+  }
+  
+  .payment-mobile-footer {
+    display: flex; gap: 8px; padding: 1rem 1.5rem;
+    border-top: 1px solid #f0f0f0; flex-wrap: wrap;
+  }
+  .btn-mobile-back {
+    flex: 0 0 auto; padding: 0.7rem 1rem;
+    background: #f0f0f0; color: #333;
+    border: none; border-radius: 9px; cursor: pointer; font-size: 0.9rem;
+  }
+  .btn-mobile-open {
+    flex: 1; padding: 0.7rem 1rem; text-align: center;
+    color: #fff; border-radius: 9px; text-decoration: none;
+    font-weight: 600; font-size: 0.9rem;
+  }
+  .btn-mobile-paid {
+    flex: 1; padding: 0.7rem 1rem;
+    color: #fff; border: none; border-radius: 9px;
+    font-weight: 600; font-size: 0.9rem; cursor: pointer;
+  }

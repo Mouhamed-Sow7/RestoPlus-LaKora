@@ -23,6 +23,7 @@ app.use(helmet({
       imgSrc:       ["'self'", "data:", "blob:", "https://api.qrserver.com"],
       connectSrc:   ["'self'"],
       mediaSrc:     ["'self'", "blob:"],
+      connectSrc: ["'self'", "https://api.qrserver.com"],
     },
   },
 }));
