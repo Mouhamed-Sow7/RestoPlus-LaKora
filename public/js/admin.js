@@ -1527,58 +1527,45 @@ function initAdminSPA() {
   const navLinks = document.querySelectorAll(".admin-nav .nav-link[href^='#']");
   if (!navLinks.length) return;
 
-  const scannerSection = document.querySelector(".scanner-section");
+  const scannerSection   = document.querySelector(".scanner-section");
   const orderDetailsSection = document.getElementById("order-details");
-  const ordersSection = document.getElementById("orders");
-  const tablesSection = document.getElementById("tables");
+  const ordersSection    = document.getElementById("orders");
+  const tablesSection    = document.getElementById("tables");
+  const statsSection     = document.getElementById("stats");
 
   function showSection(target) {
-    // Dashboard: only scanner (and optional order details when used)
-    if (scannerSection) {
-      scannerSection.style.display = target === "dashboard" ? "block" : "none";
-    }
-    if (orderDetailsSection) {
-      // Keep order-details hidden on tab switches; it is controlled by scanner flow
-      if (target === "dashboard") {
-        // let scanner logic decide when to show/hide details
-      } else {
-        orderDetailsSection.style.display = "none";
-      }
-    }
-
-    if (ordersSection) {
-      ordersSection.style.display = target === "orders" ? "block" : "none";
-    }
-    if (tablesSection) {
-      tablesSection.style.display = target === "tables" ? "block" : "none";
-    }
+    if (scannerSection)      scannerSection.style.display      = target === "dashboard" ? "block" : "none";
+    if (orderDetailsSection) orderDetailsSection.style.display = "none";
+    if (ordersSection)       ordersSection.style.display       = target === "orders"    ? "block" : "none";
+    if (tablesSection)       tablesSection.style.display       = target === "tables"    ? "block" : "none";
+    if (statsSection)        statsSection.style.display        = target === "stats"     ? "block" : "none";
   }
 
   async function handleTabClick(e) {
     e.preventDefault();
-    const link = e.currentTarget;
-    const hash = link.getAttribute("href") || "#dashboard";
+    const link   = e.currentTarget;
+    const hash   = link.getAttribute("href") || "#dashboard";
     const target = hash.replace("#", "") || "dashboard";
 
     navLinks.forEach((l) => l.classList.remove("active"));
     link.classList.add("active");
-
     showSection(target);
 
     if (target === "orders") {
       await loadOrdersTab();
     } else if (target === "tables") {
       await loadTablesTab();
+    } else if (target === "stats") {
+      // Charge le dashboard stats à chaque visite
+      if (window.statsManager) await window.statsManager.load();
     }
   }
 
   navLinks.forEach((link) => {
-    const hash = link.getAttribute("href") || "#dashboard";
+    const hash   = link.getAttribute("href") || "#dashboard";
     const target = hash.replace("#", "") || "dashboard";
     link.addEventListener("click", handleTabClick);
-    if (target === "dashboard") {
-      link.classList.add("active");
-    }
+    if (target === "dashboard") link.classList.add("active");
   });
 
   showSection("dashboard");

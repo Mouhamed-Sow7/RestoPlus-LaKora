@@ -6,6 +6,7 @@
     <title>Admin - La Kora</title>
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/admin.css" />
+    <link rel="stylesheet" href="css/admin-stats.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,10 +19,7 @@
     <header class="admin-header">
       <div class="container">
         <div class="admin-logo">
-          <a
-            href="index.html"
-            style="text-decoration: none; color: white"
-          >
+          <a href="index.html" style="text-decoration: none; color: white">
             <h1>La Kora - Admin</h1>
           </a>
         </div>
@@ -31,20 +29,18 @@
           <span class="hamburger-line"></span>
         </button>
         <nav class="admin-nav" id="admin-nav">
-          <!-- <a href="index.html" class="nav-link">Accueil</a> -->
-          <!-- <a href="menu.html" class="nav-link">Menu</a> -->
           <a href="#dashboard" class="nav-link active">Dashboard</a>
-          <a href="#orders" class="nav-link">Commandes</a>
-          <a href="#tables" class="nav-link">Tables</a>
-          <button id="logout-btn" class="nav-link logout-btn">
-            Déconnexion
-          </button>
+          <a href="#orders"    class="nav-link">Commandes</a>
+          <a href="#stats"     class="nav-link">📊 Statistiques</a>
+          <a href="#tables"    class="nav-link">Tables</a>
+          <button id="logout-btn" class="nav-link logout-btn">Déconnexion</button>
         </nav>
       </div>
     </header>
 
     <!-- Admin Dashboard -->
     <main class="admin-dashboard" id="admin-dashboard">
+
       <!-- QR Scanner -->
       <section class="scanner-section">
         <div class="container">
@@ -69,15 +65,10 @@
                         <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/>
                       </svg>
                     </div>
-                 
                   </div>
                 </div>
                 <div id="qr-reader" class="qr-camera-zone"></div>
-                <div
-                  class="scan-loader"
-                  id="scan-loader-admin"
-                  style="display: none"
-                >
+                <div class="scan-loader" id="scan-loader-admin" style="display: none">
                   <div class="scan-spinner"></div>
                   <div class="scan-message">Scan en cours...</div>
                 </div>
@@ -90,31 +81,13 @@
                 >
                   🎥 Activer Caméra
                 </button>
-                <div
-                  class="camera-selection"
-                  id="camera-selection-admin"
-                  style="display: none"
-                >
-                  <label for="camera-select-admin"
-                    >Sélectionner la caméra:</label
-                  >
+                <div class="camera-selection" id="camera-selection-admin" style="display: none">
+                  <label for="camera-select-admin">Sélectionner la caméra:</label>
                   <select id="camera-select-admin" class="camera-select">
                     <option value="">Chargement...</option>
                   </select>
                 </div>
               </div>
-              <!-- <div class="scanner-result" id="scanner-result">
-                <p>
-                  Pointez la caméra vers le QR code de la table ou de la
-                  commande
-                </p>
-                <p>
-                  <small
-                    >Les QR codes de table redirigent vers le menu, les QR codes
-                    de commande affichent les détails</small
-                  >
-                </p>
-              </div> -->
             </div>
           </div>
         </div>
@@ -135,23 +108,15 @@
                 <p><strong>Commande:</strong> <span id="order-id"></span></p>
                 <p><strong>Table:</strong> <span id="order-table"></span></p>
                 <p><strong>Mode:</strong> <span id="order-mode"></span></p>
-                <p>
-                  <strong>Total:</strong> <span id="order-total"></span> CFA
-                </p>
+                <p><strong>Total:</strong> <span id="order-total"></span> CFA</p>
               </div>
-              <div class="order-items" id="order-items">
-                <!-- Order items will be loaded here -->
-              </div>
+              <div class="order-items" id="order-items"></div>
             </div>
             <div class="order-actions">
-              <button class="btn btn-success" id="accept-order">
-                Accepter
-              </button>
-              <button class="btn btn-warning" id="preparing-order">
-                En préparation
-              </button>
-              <button class="btn btn-info" id="ready-order">Prêt</button>
-              <button class="btn btn-danger" id="cancel-order">Annuler</button>
+              <button class="btn btn-success"  id="accept-order">Accepter</button>
+              <button class="btn btn-warning"  id="preparing-order">En préparation</button>
+              <button class="btn btn-info"     id="ready-order">Prêt</button>
+              <button class="btn btn-danger"   id="cancel-order">Annuler</button>
             </div>
           </div>
         </div>
@@ -171,9 +136,7 @@
               </button>
             </div>
           </div>
-          <div class="tables-grid" id="table-qr-codes">
-            <!-- Table QR codes will be loaded here -->
-          </div>
+          <div class="tables-grid" id="table-qr-codes"></div>
         </div>
       </section>
 
@@ -183,9 +146,7 @@
           <div class="orders-header">
             <h2>Commandes Récentes</h2>
             <div class="orders-filters">
-              <label for="status-filter" class="visually-hidden"
-                >Filtrer par statut</label
-              >
+              <label for="status-filter" class="visually-hidden">Filtrer par statut</label>
               <select id="status-filter" title="Filtrer par statut">
                 <option value="all">Toutes</option>
                 <option value="pending_scan">En attente (scan)</option>
@@ -198,11 +159,139 @@
               </select>
             </div>
           </div>
-          <div class="orders-list" id="orders-list">
-            <!-- Orders will be loaded here -->
-          </div>
+          <div class="orders-list" id="orders-list"></div>
         </div>
       </section>
+
+      <!-- ─── Statistiques ─────────────────────────────────────────────── -->
+      <section class="stats-section" id="stats" style="display:none;">
+        <div class="container">
+
+          <!-- Header -->
+          <div class="stats-header">
+            <div class="stats-title-block">
+              <h2>📊 Statistiques & Revenus</h2>
+              <p class="stats-subtitle">Tableau de bord financier — La Kora</p>
+            </div>
+            <div class="stats-controls">
+              <div class="stats-filter-group">
+                <button class="stats-filter-btn active" data-period="day">Aujourd'hui</button>
+                <button class="stats-filter-btn" data-period="week">Semaine</button>
+                <button class="stats-filter-btn" data-period="month">Mois</button>
+                <button class="stats-filter-btn" data-period="year">Année</button>
+              </div>
+              <button class="stats-export-btn" id="stats-export-btn">
+                ⬇ Exporter Excel
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="stats-kpi-grid">
+            <div class="kpi-card kpi-revenue">
+              <div class="kpi-icon">💰</div>
+              <div class="kpi-body">
+                <span class="kpi-label">Chiffre d'affaires</span>
+                <span class="kpi-value" id="kpi-revenue">—</span>
+                <span class="kpi-unit">CFA</span>
+              </div>
+            </div>
+            <div class="kpi-card kpi-paid">
+              <div class="kpi-icon">✅</div>
+              <div class="kpi-body">
+                <span class="kpi-label">Encaissé</span>
+                <span class="kpi-value" id="kpi-paid">—</span>
+                <span class="kpi-unit">CFA</span>
+              </div>
+            </div>
+            <div class="kpi-card kpi-pending">
+              <div class="kpi-icon">⏳</div>
+              <div class="kpi-body">
+                <span class="kpi-label">En attente</span>
+                <span class="kpi-value" id="kpi-pending">—</span>
+                <span class="kpi-unit">CFA</span>
+              </div>
+            </div>
+            <div class="kpi-card kpi-orders">
+              <div class="kpi-icon">🧾</div>
+              <div class="kpi-body">
+                <span class="kpi-label">Commandes</span>
+                <span class="kpi-value" id="kpi-orders">—</span>
+                <span class="kpi-unit">total</span>
+              </div>
+            </div>
+            <div class="kpi-card kpi-avg">
+              <div class="kpi-icon">📈</div>
+              <div class="kpi-body">
+                <span class="kpi-label">Panier moyen</span>
+                <span class="kpi-value" id="kpi-avg">—</span>
+                <span class="kpi-unit">CFA</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts -->
+          <div class="stats-charts-grid">
+            <div class="chart-card chart-large">
+              <div class="chart-card-header">
+                <h3>Évolution des revenus</h3>
+                <div class="chart-legend">
+                  <span class="legend-dot" style="background:#c0873f"></span> Total
+                  <span class="legend-dot" style="background:#27ae60"></span> Encaissé
+                </div>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-revenue-line"></canvas>
+              </div>
+            </div>
+            <div class="chart-card chart-medium">
+              <div class="chart-card-header">
+                <h3>Tickets par statut</h3>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-status-bar"></canvas>
+              </div>
+            </div>
+            <div class="chart-card chart-small">
+              <div class="chart-card-header">
+                <h3>Méthodes de paiement</h3>
+              </div>
+              <div class="chart-wrapper chart-wrapper-donut">
+                <canvas id="chart-payment-donut"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tableau détaillé -->
+          <div class="stats-table-card">
+            <div class="stats-table-header">
+              <h3>Détail des tickets</h3>
+              <span class="stats-table-count" id="stats-table-count">0 tickets</span>
+            </div>
+            <div class="stats-table-wrapper">
+              <table class="stats-table" id="stats-table">
+                <thead>
+                  <tr>
+                    <th>Ticket</th>
+                    <th>Table</th>
+                    <th>Date & Heure</th>
+                    <th>Articles</th>
+                    <th>Montant</th>
+                    <th>Paiement</th>
+                    <th>Statut</th>
+                  </tr>
+                </thead>
+                <tbody id="stats-table-body">
+                  <tr><td colspan="7" class="stats-table-empty">Chargement...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+      <!-- ─── /Statistiques ────────────────────────────────────────────── -->
+
     </main>
 
     <!-- Success Notification Popup -->
@@ -237,60 +326,34 @@
             <p id="modal-order-details">Table 1 • 2 articles • 15000 CFA</p>
             <p id="modal-order-date">10/8/2025, 8:39:07 PM</p>
           </div>
-          <div class="action-buttons">
-            <button class="action-btn preparing-btn" data-action="preparing">
-              <span class="btn-icon">👨‍🍳</span>
-              <span class="btn-text">Préparer</span>
-            </button>
-            <button class="action-btn ready-btn" data-action="ready">
-              <span class="btn-icon">✅</span>
-              <span class="btn-text">Prêt</span>
-            </button>
-            <button class="action-btn served-btn" data-action="served">
-              <span class="btn-icon">🍽️</span>
-              <span class="btn-text">Servie</span>
-            </button>
-            <button class="action-btn cancelled-btn" data-action="cancelled">
-              <span class="btn-icon">❌</span>
-              <span class="btn-text">Annuler</span>
-            </button>
-            <button class="action-btn delete-btn" data-action="delete">
-              <span class="btn-icon">🗑️</span>
-              <span class="btn-text">Supprimer</span>
-            </button>
+          <div class="modal-actions">
+            <!-- Injecté dynamiquement par setupModalEventListeners() -->
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Charger QRCode d'abord -->
+    <!-- QRCode lib -->
     <script>
-      // Fallback si CDN principal échoue
       function loadQRCodeFallback() {
-        console.log("Loading QRCode fallback...");
         const script = document.createElement("script");
         script.src = "https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js";
         script.onload = function () {
-          console.log("QRCode fallback loaded successfully");
-          if (window.tableManager) {
-            window.tableManager.generateAllTableQRs();
-          }
-        };
-        script.onerror = function () {
-          console.error("Failed to load QRCode from both CDNs");
-          console.log("Using fallback QR generation instead");
+          if (window.tableManager) window.tableManager.generateAllTableQRs();
         };
         document.head.appendChild(script);
       }
     </script>
-
     <script src="js/qrcode.min.js" onerror="loadQRCodeFallback()"></script>
 
     <!-- HTML5 QR Code Scanner -->
-    <script
-      src="https://unpkg.com/html5-qrcode"
-      type="text/javascript"
-    ></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+    <!-- SheetJS (export Excel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <!-- Authentication first -->
     <script src="js/admin-auth.js"></script>
@@ -301,21 +364,13 @@
     <script src="js/order-history.js"></script>
     <script src="js/qr-scanner-manager.js"></script>
     <script src="js/admin.js"></script>
+    <script src="js/admin-stats.js"></script>
+
     <script>
       // Global toggle function for admin page
       window.toggleCamAdmin = function () {
-        if (
-          window.qrScannerAdmin &&
-          typeof window.qrScannerAdmin.toggle === "function"
-        ) {
+        if (window.qrScannerAdmin && typeof window.qrScannerAdmin.toggle === "function") {
           return window.qrScannerAdmin.toggle();
-        } else {
-          console.warn("QRScannerManager not available yet");
-          NotificationManager.showSuccess(
-            "Erreur",
-            "Caméra non disponible pour le moment",
-            3000
-          );
         }
       };
     </script>
