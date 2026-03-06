@@ -178,41 +178,60 @@ class OrderHistoryUI {
     document.body.insertAdjacentHTML("beforeend", `
       <!-- Historique -->
       <div id="order-history-modal" class="oh-modal" aria-hidden="true" style="display:none;">
-        <div class="oh-modal-content">
+        <div class="oh-modal-content" role="dialog" aria-modal="true" aria-label="Historique des commandes">
           <div class="oh-modal-header">
-            <h3>📋 Historique des commandes</h3>
-            <div class="oh-actions">
-              <button id="oh-refresh" class="btn-secondary" title="Rafraîchir">🔄</button>
-              <button id="oh-close" class="oh-close" aria-label="Fermer">×</button>
+            <div class="oh-header-left">
+              <div class="oh-title">
+                <span class="oh-title-dot" aria-hidden="true"></span>
+                <span>Historique</span>
+              </div>
+              <span class="oh-count-badge" id="oh-count-badge">0</span>
             </div>
+            <button id="oh-close" class="oh-close" aria-label="Fermer">×</button>
           </div>
-          <div class="history-controls">
-            <button class="filter-btn active" data-filter="all">Toutes</button>
-            <button class="filter-btn" data-filter="pending">En cours</button>
-            <button class="filter-btn" data-filter="ready">Prêtes</button>
-            <button class="filter-btn" data-filter="served">Servies</button>
-            <button class="filter-btn" data-filter="cancelled">Annulées</button>
+
+          <div class="oh-tabs" role="tablist" aria-label="Filtres commandes">
+            <button class="oh-tab is-active" data-filter="all" role="tab" aria-selected="true">Toutes</button>
+            <button class="oh-tab" data-filter="pending" role="tab" aria-selected="false">En cours</button>
+            <button class="oh-tab" data-filter="ready" role="tab" aria-selected="false">Prêtes</button>
+            <button class="oh-tab" data-filter="served" role="tab" aria-selected="false">Servies</button>
+            <button class="oh-tab" data-filter="cancelled" role="tab" aria-selected="false">Annulées</button>
           </div>
+
           <div class="oh-modal-body">
-            <div id="oh-list" class="oh-list">
-              <div class="oh-loading">⏳ Chargement...</div>
+            <div id="oh-list" class="oh-list"></div>
+          </div>
+
+          <!-- Details panel (slides over history) -->
+          <div class="oh-details" id="oh-details" aria-hidden="true">
+            <div class="oh-details-header">
+              <button id="oh-details-back" class="oh-details-back" aria-label="Retour">←</button>
+              <div class="oh-details-title" id="oh-details-title">Détails</div>
+              <button id="oh-details-close" class="oh-close" aria-label="Fermer">×</button>
             </div>
+            <div class="oh-details-body" id="oh-details-body"></div>
           </div>
         </div>
       </div>
 
-      <!-- Modal QR réouverture -->
+      <!-- QR Viewer -->
       <div id="qr-reopen-modal" class="oh-modal" aria-hidden="true" style="display:none;">
-        <div class="oh-modal-content">
+        <div class="oh-modal-content" role="dialog" aria-modal="true" aria-label="QR Code de la commande">
           <div class="oh-modal-header">
-            <h3>📱 QR Code de la commande</h3>
+            <div class="oh-header-left">
+              <div class="oh-title">
+                <span class="oh-title-dot" aria-hidden="true"></span>
+                <span>QR Code</span>
+              </div>
+              <span class="oh-count-badge" id="qr-order-badge">—</span>
+            </div>
             <button id="qr-reopen-close" class="oh-close" aria-label="Fermer">×</button>
           </div>
-          <div class="oh-modal-body" style="text-align:center;padding:2rem;">
-            <img id="qr-reopen-img" src="" alt="QR Code"
-                 style="max-width:280px;border-radius:8px;">
-            <div id="qr-order-info"
-                 style="margin-top:1rem;font-size:0.9rem;color:#666;"></div>
+          <div class="oh-modal-body">
+            <div class="oh-qr-wrap">
+              <img id="qr-reopen-img" src="" alt="QR Code de la commande" class="oh-qr-img">
+              <div id="qr-order-info" class="oh-qr-info"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -227,19 +246,20 @@ class OrderHistoryUI {
       if (t.id === "oh-close")          this.hideModal();
       if (t.id === "qr-reopen-close")   this.hideQRModal();
       if (t.id === "history-toggle")    this.showModal();
-      if (t.id === "oh-refresh")        this.refresh();
+      if (t.id === "oh-details-back")   this.hideDetails();
+      if (t.id === "oh-details-close")  this.hideDetails();
 
-      if (t.classList.contains("reopen-qr")) {
+      if (t.classList.contains("oh-action-qr")) {
         const oid = t.dataset.orderId;
         if (oid) this.reopenQR(oid);
       }
 
-      if (t.classList.contains("view-details")) {
+      if (t.classList.contains("oh-action-details")) {
         const oid = t.dataset.orderId;
         if (oid) this.viewDetails(oid);
       }
 
-      if (t.classList.contains("filter-btn")) {
+      if (t.classList.contains("oh-tab")) {
         this.setFilter(t.dataset.filter || "all");
       }
     });
@@ -274,7 +294,7 @@ class OrderHistoryUI {
 
   async refresh() {
     const list = document.getElementById("oh-list");
-    if (list) list.innerHTML = `<div class="oh-loading">⏳ Chargement...</div>`;
+    if (list) list.innerHTML = this._renderSkeletons(3);
     await this.manager.refreshFromBackend();
     await this.loadList();
   }
@@ -300,52 +320,36 @@ class OrderHistoryUI {
         }
       }
 
+      const countBadge = document.getElementById("oh-count-badge");
+      if (countBadge) countBadge.textContent = String(hist.length);
+
       if (!hist.length) {
-        list.innerHTML = `<div class="oh-empty">Aucune commande trouvée</div>`;
+        list.innerHTML = `
+          <div class="oh-empty">
+            <div class="oh-empty-illu" aria-hidden="true">
+              <svg viewBox="0 0 120 90" width="120" height="90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 70c0-20 16-36 36-36h44c6 0 10-4 10-10V18c0-6-4-10-10-10H50C24 8 4 28 4 54v10c0 6 4 10 10 10h0z" fill="#f5ede6"/>
+                <path d="M32 64h64" stroke="#8b4513" stroke-width="5" stroke-linecap="round"/>
+                <path d="M42 74h44" stroke="#c09070" stroke-width="5" stroke-linecap="round"/>
+                <circle cx="92" cy="26" r="8" fill="#8b4513" opacity="0.15"/>
+              </svg>
+            </div>
+            <div class="oh-empty-title">Aucune commande pour cette table</div>
+            <div class="oh-empty-sub">Quand vous passerez une commande, elle apparaîtra ici automatiquement.</div>
+          </div>`;
         this._rendering = false;
         return;
       }
 
-      list.innerHTML = hist.map((h) => {
-        const d          = new Date(h.timestamp || h.createdAt);
-        const dateStr    = d.toLocaleDateString("fr-FR");
-        const timeStr    = d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-        const statusInfo = this._statusInfo(h.status);
-        const payBadge   = h.paymentStatus === "paid"
-          ? `<span class="badge badge-success">💳 Payé</span>`
-          : `<span class="badge badge-warning">⏳ Impayé</span>`;
-
-        return `
-          <div class="oh-item oh-item-${h.status}">
-            <div class="oh-item-top">
-              <strong>#${h.orderId}</strong>
-              <span class="oh-table-badge">Table ${h.table}</span>
-              ${payBadge}
-            </div>
-            <div class="oh-item-meta">
-              <span>${dateStr} ${timeStr}</span>
-              <span class="oh-status-badge" style="background:${statusInfo.bg};color:${statusInfo.color};">
-                ${statusInfo.icon} ${statusInfo.label}
-              </span>
-              <strong>${this.formatPrice(h.total)} CFA</strong>
-            </div>
-            <div class="oh-item-actions">
-              ${h.canReopen
-                ? `<button class="btn-primary reopen-qr" data-order-id="${h.orderId}">
-                     🔄 Rouvrir QR
-                   </button>`
-                : ""}
-              <button class="btn-secondary view-details" data-order-id="${h.orderId}">
-                👁 Détails
-              </button>
-            </div>
-          </div>`;
-      }).join("");
+      list.innerHTML = hist.map((h) => this._renderOrderCard(h)).join("");
 
     } catch (err) {
-      list.innerHTML = `<div class="oh-empty" style="color:#c00;">
-        Erreur de chargement. <button class="btn-secondary" id="oh-retry">Réessayer</button>
-      </div>`;
+      list.innerHTML = `
+        <div class="oh-empty oh-empty--error">
+          <div class="oh-empty-title">Impossible de charger l'historique</div>
+          <div class="oh-empty-sub">Vérifiez votre connexion et réessayez.</div>
+          <button class="oh-btn oh-btn--secondary" id="oh-retry">Réessayer</button>
+        </div>`;
       document.getElementById("oh-retry")?.addEventListener("click", () => this.refresh());
     } finally {
       this._rendering = false;
@@ -354,16 +358,111 @@ class OrderHistoryUI {
 
   _statusInfo(status) {
     const map = {
-      pending_approval: { label: "En attente",    icon: "🔔", bg: "#fff3e0", color: "#e65100" },
-      pending_scan:     { label: "Scan requis",   icon: "🔍", bg: "#fff3e0", color: "#e65100" },
-      pending:          { label: "En attente",    icon: "⏳", bg: "#fff3e0", color: "#f57c00" },
-      accepted:         { label: "Acceptée",      icon: "✅", bg: "#e3f2fd", color: "#1565c0" },
-      preparing:        { label: "En prépa",      icon: "👨‍🍳", bg: "#f3e5f5", color: "#6a1b9a" },
-      ready:            { label: "Prête !",       icon: "🍽️", bg: "#e8f5e9", color: "#2e7d32" },
-      served:           { label: "Servie",        icon: "🎉", bg: "#eceff1", color: "#546e7a" },
-      cancelled:        { label: "Annulée",       icon: "❌", bg: "#ffebee", color: "#c62828" },
+      pending_approval: { label: "En attente",      color: "#ff9800" },
+      pending_scan:     { label: "Scan requis",     color: "#ff9800" },
+      pending:          { label: "En attente",      color: "#ff9800" },
+      accepted:         { label: "Acceptée",        color: "#2196f3" },
+      preparing:        { label: "En préparation",  color: "#9c27b0" },
+      ready:            { label: "Prête",           color: "#4caf50" },
+      served:           { label: "Servie",          color: "#607d8b" },
+      cancelled:        { label: "Annulée",         color: "#f44336" },
     };
-    return map[status] || { label: status, icon: "•", bg: "#f5f5f5", color: "#666" };
+    return map[status] || { label: status, color: "#9e9e9e" };
+  }
+
+  _shortId(orderId) {
+    const id = String(orderId || "");
+    if (!id) return "—";
+    return id.length > 12 ? id.slice(-12) : id;
+  }
+
+  _formatTime(ts) {
+    try {
+      const d = new Date(ts);
+      return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+    } catch {
+      return "—";
+    }
+  }
+
+  _renderSkeletons(count = 3) {
+    return Array.from({ length: count }).map(() => `
+      <div class="oh-skeleton-card">
+        <div class="oh-skel-row">
+          <span class="oh-skel oh-skel--id"></span>
+          <span class="oh-skel oh-skel--badge"></span>
+          <span class="oh-skel oh-skel--time"></span>
+        </div>
+        <div class="oh-skel-row">
+          <span class="oh-skel oh-skel--pill"></span>
+          <span class="oh-skel oh-skel--pill"></span>
+        </div>
+        <div class="oh-skel-row">
+          <span class="oh-skel oh-skel--line"></span>
+        </div>
+        <div class="oh-skel-row">
+          <span class="oh-skel oh-skel--total"></span>
+        </div>
+        <div class="oh-skel-row">
+          <span class="oh-skel oh-skel--btn"></span>
+          <span class="oh-skel oh-skel--btn"></span>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  _renderOrderCard(order) {
+    const id = order.orderId || order.id || order._id;
+    const shortId = this._shortId(id);
+    const timeStr = this._formatTime(order.timestamp || order.createdAt);
+    const table = typeof order.table !== "undefined" ? order.table : "—";
+
+    const statusInfo = this._statusInfo(order.status);
+    const statusLabel = statusInfo.label;
+    const statusColor = statusInfo.color;
+
+    const paymentPaid = order.paymentStatus === "paid";
+    const paymentLabel = paymentPaid ? "Payé" : "Impayé";
+
+    const items = Array.isArray(order.items) ? order.items : [];
+    const preview = items.slice(0, 2).map((i) => i?.name).filter(Boolean).join(", ");
+    const moreCount = items.length > 2 ? items.length - 2 : 0;
+    const previewText = preview
+      ? `${preview}${moreCount ? ` +${moreCount} autres` : ""}`
+      : "—";
+
+    const total = this.formatPrice(order.total);
+
+    const canReopen = !!order.canReopen;
+    const readyPulse = order.status === "ready" ? " is-ready" : "";
+
+    return `
+      <div class="oh-card${readyPulse}" data-status="${order.status || ""}" style="--oh-accent:${statusColor};">
+        <div class="oh-card-top">
+          <div class="oh-id">#${shortId}</div>
+          <div class="oh-top-right">
+            <span class="oh-table">Table ${table}</span>
+            <span class="oh-time">${timeStr}</span>
+          </div>
+        </div>
+
+        <div class="oh-card-badges">
+          <span class="oh-badge oh-badge--status">${statusLabel}</span>
+          <span class="oh-badge oh-badge--pay">${paymentLabel}</span>
+        </div>
+
+        <div class="oh-items-preview">${previewText}</div>
+
+        <div class="oh-card-bottom">
+          <div class="oh-total">${total} CFA</div>
+        </div>
+
+        <div class="oh-card-actions">
+          ${canReopen ? `<button class="oh-btn oh-btn--primary oh-action-qr" data-order-id="${id}">Voir QR</button>` : ""}
+          <button class="oh-btn oh-btn--secondary oh-action-details" data-order-id="${id}">Détails</button>
+        </div>
+      </div>
+    `;
   }
 
   reopenQR(orderId) {
@@ -381,12 +480,14 @@ class OrderHistoryUI {
 
     const img  = document.getElementById("qr-reopen-img");
     const info = document.getElementById("qr-order-info");
+    const badge = document.getElementById("qr-order-badge");
     img.src = dataUrl;
 
     const order = this.manager._orders.find((o) => o.orderId === orderId);
     if (order) {
+      if (badge) badge.textContent = `#${this._shortId(order.orderId)}`;
       info.innerHTML = `
-        Commande <strong>#${order.orderId}</strong><br>
+        Commande <strong>#${this._shortId(order.orderId)}</strong><br>
         Table <strong>${order.table}</strong> —
         Total <strong>${this.formatPrice(order.total)} CFA</strong>`;
     }
@@ -397,58 +498,60 @@ class OrderHistoryUI {
     const order = this.manager._orders.find((o) => o.orderId === orderId);
     if (!order) return;
 
+    const panel = document.getElementById("oh-details");
+    const title = document.getElementById("oh-details-title");
+    const body = document.getElementById("oh-details-body");
+    if (!panel || !title || !body) return;
+
     const statusInfo = this._statusInfo(order.status);
-    const itemsHTML  = (order.items || []).map((it) => `
-      <div class="item-detail">
-        <span class="item-name">${it.name}</span>
-        <span class="item-qty">${it.quantity}×</span>
-        <span class="item-price">${this.formatPrice(it.price)} CFA</span>
-        <span class="item-total">${this.formatPrice(it.price * it.quantity)} CFA</span>
-      </div>`).join("");
+    const id = order.orderId || order.id || order._id;
+    title.textContent = `Commande #${this._shortId(id)}`;
 
-    const overlay = document.createElement("div");
-    overlay.className = "oh-modal";
-    overlay.style.display = "flex";
-
-    overlay.innerHTML = `
-      <div class="oh-modal-content">
-        <div class="oh-modal-header">
-          <h3>Commande #${order.orderId}</h3>
-          <button class="oh-close" aria-label="Fermer">×</button>
-        </div>
-        <div class="oh-modal-body">
-          <div class="oh-details-grid">
-            <div><strong>Table</strong><span>${order.table}</span></div>
-            <div><strong>Total</strong><span>${this.formatPrice(order.total)} CFA</span></div>
-            <div><strong>Statut</strong>
-              <span class="oh-status-badge"
-                    style="background:${statusInfo.bg};color:${statusInfo.color};">
-                ${statusInfo.icon} ${statusInfo.label}
-              </span>
+    const items = Array.isArray(order.items) ? order.items : [];
+    const itemsHtml = items.length
+      ? items.map((it) => `
+          <div class="oh-line">
+            <div class="oh-line-left">
+              <div class="oh-line-name">${it.name}</div>
+              <div class="oh-line-meta">${it.quantity} × ${this.formatPrice(it.price)} CFA</div>
             </div>
-            <div><strong>Paiement</strong>
-              <span>${order.paymentStatus === "paid" ? "✅ Payé" : "⏳ En attente"}</span>
-            </div>
+            <div class="oh-line-total">${this.formatPrice(it.price * it.quantity)} CFA</div>
           </div>
-          <div class="oh-items-list">
-            <p style="font-weight:600;margin:0.75rem 0 0.5rem;">Articles</p>
-            ${itemsHTML || '<div class="oh-empty">Aucun article</div>'}
-          </div>
-        </div>
-        <div class="oh-modal-footer">
-          <button class="btn-secondary oh-close">Fermer</button>
-          ${order.canReopen
-            ? `<button class="btn-primary reopen-qr" data-order-id="${order.orderId}">
-                 🔄 Rouvrir QR
-               </button>`
-            : ""}
-        </div>
-      </div>`;
+        `).join("")
+      : `<div class="oh-empty oh-empty--compact">Aucun article</div>`;
 
-    document.body.appendChild(overlay);
-    const cleanup = () => overlay.remove();
-    overlay.addEventListener("click", (e) => { if (e.target === overlay) cleanup(); });
-    overlay.querySelectorAll(".oh-close").forEach((b) => b.addEventListener("click", cleanup));
+    body.innerHTML = `
+      <div class="oh-details-meta">
+        <div class="oh-meta-item"><span>Table</span><strong>${order.table}</strong></div>
+        <div class="oh-meta-item"><span>Statut</span><strong style="color:${statusInfo.color}">${statusInfo.label}</strong></div>
+        <div class="oh-meta-item"><span>Paiement</span><strong>${order.paymentStatus === "paid" ? "Payé" : "Impayé"}</strong></div>
+        <div class="oh-meta-item"><span>Total</span><strong>${this.formatPrice(order.total)} CFA</strong></div>
+      </div>
+
+      <div class="oh-details-section">
+        <div class="oh-details-section-title">Articles</div>
+        <div class="oh-lines">
+          ${itemsHtml}
+        </div>
+      </div>
+
+      <div class="oh-details-actions">
+        ${order.canReopen ? `<button class="oh-btn oh-btn--primary oh-action-qr" data-order-id="${id}">Voir QR</button>` : ""}
+        <button class="oh-btn oh-btn--secondary" id="oh-details-done">Fermer</button>
+      </div>
+    `;
+
+    document.getElementById("oh-details-done")?.addEventListener("click", () => this.hideDetails(), { once: true });
+
+    panel.classList.add("is-open");
+    panel.setAttribute("aria-hidden", "false");
+  }
+
+  hideDetails() {
+    const panel = document.getElementById("oh-details");
+    if (!panel) return;
+    panel.classList.remove("is-open");
+    panel.setAttribute("aria-hidden", "true");
   }
 
   _buildInfoOverlay(title, bodyHTML) {
@@ -476,15 +579,26 @@ class OrderHistoryUI {
 
   setFilter(filter) {
     this.currentFilter = filter;
-    document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
-    document.querySelector(`.filter-btn[data-filter="${filter}"]`)?.classList.add("active");
+    document.querySelectorAll(".oh-tab").forEach((b) => {
+      b.classList.toggle("is-active", (b.dataset.filter || "all") === filter);
+      b.setAttribute("aria-selected", ((b.dataset.filter || "all") === filter) ? "true" : "false");
+    });
     this.loadList();
   }
 
   toggleModal(modalId, show) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
-    modal.style.display = show ? "flex" : "none";
+    if (show) {
+      modal.style.display = "flex";
+      // trigger animation
+      requestAnimationFrame(() => modal.classList.add("show"));
+    } else {
+      modal.classList.remove("show");
+      // let transition finish before removing from layout
+      setTimeout(() => { modal.style.display = "none"; }, 250);
+      if (modalId === "order-history-modal") this.hideDetails();
+    }
     modal.setAttribute("aria-hidden", show ? "false" : "true");
   }
 
