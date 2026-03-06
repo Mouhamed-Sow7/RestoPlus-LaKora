@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/admin.css" />
     <link rel="stylesheet" href="css/admin-stats.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="css/fontawesome/css/all.min.css">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -189,7 +190,7 @@
           <!-- KPI Cards -->
           <div class="stats-kpi-grid">
             <div class="kpi-card kpi-revenue">
-              <div class="kpi-icon">💰</div>
+              <div class="kpi-icon"><i class="fa-solid fa-money-bill"></i></div>
               <div class="kpi-body">
                 <span class="kpi-label">Chiffre d'affaires</span>
                 <span class="kpi-value" id="kpi-revenue">—</span>
@@ -197,7 +198,7 @@
               </div>
             </div>
             <div class="kpi-card kpi-paid">
-              <div class="kpi-icon">✅</div>
+              <div class="kpi-icon"><i class="fa-solid fa-check"></i></div>
               <div class="kpi-body">
                 <span class="kpi-label">Encaissé</span>
                 <span class="kpi-value" id="kpi-paid">—</span>
@@ -205,7 +206,7 @@
               </div>
             </div>
             <div class="kpi-card kpi-pending">
-              <div class="kpi-icon">⏳</div>
+              <div class="kpi-icon"><i class="fa-solid fa-clock"></i></div>
               <div class="kpi-body">
                 <span class="kpi-label">En attente</span>
                 <span class="kpi-value" id="kpi-pending">—</span>
@@ -213,7 +214,7 @@
               </div>
             </div>
             <div class="kpi-card kpi-orders">
-              <div class="kpi-icon">🧾</div>
+              <div class="kpi-icon"><i class="fa-solid fa-receipt"></i></div>
               <div class="kpi-body">
                 <span class="kpi-label">Commandes</span>
                 <span class="kpi-value" id="kpi-orders">—</span>
@@ -221,7 +222,7 @@
               </div>
             </div>
             <div class="kpi-card kpi-avg">
-              <div class="kpi-icon">📈</div>
+              <div class="kpi-icon"><i class="fa-solid fa-chart-line"></i></div>
               <div class="kpi-body">
                 <span class="kpi-label">Panier moyen</span>
                 <span class="kpi-value" id="kpi-avg">—</span>
@@ -297,7 +298,7 @@
     <!-- Success Notification Popup -->
     <div id="success-popup" class="success-popup">
       <div class="popup-content">
-        <div class="popup-icon">✅</div>
+        <div class="popup-icon"><i class="fa-solid fa-check"></i></div>
         <div class="popup-message">
           <h4>QR Code scanné !</h4>
           <p id="popup-table-info">Traitement en cours...</p>
