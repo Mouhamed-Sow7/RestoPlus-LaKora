@@ -1241,3 +1241,52 @@
     .fusion-modal-body,
     .approval-modal-body { padding: 0.875rem; font-size: 0.85rem; }
   }
+
+  .modal-logout {
+    z-index: 1000;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    
+  }
+  .modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    position: relative;
+  }
+  .modal-action-yes,
+  .modal-action-no {
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative ;
+  }
+  .modal-action-yes:hover,
+  .modal-action-no:hover {
+    background: #000;
+    color: #fff;
+  }
+
+  .modal-logout-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }

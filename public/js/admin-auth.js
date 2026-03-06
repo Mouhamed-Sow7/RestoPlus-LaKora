@@ -145,14 +145,14 @@ class AdminAuthManager {
     document.addEventListener("click", (e) => {
       if (e.target.matches("#logout-btn, .logout-btn, [data-logout]")) {
         e.preventDefault();
-        this.logout();
+        this.showLogoutModal();
       }
     });
 
     document.addEventListener("keydown", (e) => {
       if (e.ctrlKey && e.shiftKey && e.key === "L") {
         e.preventDefault();
-        this.logout();
+        this.showLogoutModal();
       }
     });
   }
@@ -167,11 +167,45 @@ class AdminAuthManager {
     });
   }
 
-  logout() {
-    if (confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {
+
+  // ─── custom logout modal ────────────────────────────────────────────────────────────────
+  
+  showLogoutModal() {
+    if (document.getElementById("logout-modal")) return;
+    const modal = document.createElement("div");
+    modal.id = "logout-modal";
+    modal.className = "modal-logout-overlay";
+    modal.innerHTML = `
+      <div class="modal-logout">
+        <h2>Êtes-vous sûr de vouloir vous déconnecter ?</h2>
+        <div class="modal-actions">
+          <button class="modal-action-yes" id="yesBtn">Oui</button>
+          <button class="modal-action-no" id="noBtn">Non</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  
+    document.getElementById("yesBtn").addEventListener("click", () => {
       this.clearAuth();
       this.redirectToLogin();
-    }
+      this.hideLogoutModal();
+    });
+  
+    document.getElementById("noBtn").addEventListener("click", () => {
+      this.hideLogoutModal();
+    });
+  
+    // Clic sur l'overlay (pas sur le modal lui-même) → ferme
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) this.hideLogoutModal();
+    });
+  }
+
+  hideLogoutModal() {
+    if (!document.getElementById("logout-modal")) return;
+    const modal = document.getElementById("logout-modal");
+    if (modal) modal.remove();
   }
 
   clearAuth() {

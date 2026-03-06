@@ -83,10 +83,24 @@ class QRScannerManager {
 
       // build options
       select.innerHTML = '<option value="">Sélectionner une caméra</option>';
-      devices.forEach(dev => {
+      devices.forEach((dev, idx) => {
         const opt = document.createElement('option');
         opt.value = dev.id;
-        let label = dev.label || `Camera ${dev.id.substring(0,8)}`;
+        const rawLabel = (dev.label || "").trim();
+        const lower = rawLabel.toLowerCase();
+
+        let label = rawLabel;
+        if (!label) {
+          // When camera permission isn't granted yet, labels are often empty.
+          label = `Caméra ${idx + 1}`;
+        } else if (/\bcamera\b/i.test(rawLabel)) {
+          // Translate generic "Back/Front Camera" style labels to French.
+          if (/(back|rear|environment)/i.test(rawLabel)) label = "Caméra arrière";
+          else if (/(front|user)/i.test(rawLabel)) label = "Caméra avant";
+          else if (/external|usb|webcam|camo/i.test(rawLabel)) label = "Caméra externe";
+          else if (lower.includes("camera")) label = rawLabel.replace(/\bcamera\b/gi, "Caméra");
+        }
+
         if (label.length > 50) label = label.substring(0,47) + '...';
         opt.textContent = label;
         select.appendChild(opt);
