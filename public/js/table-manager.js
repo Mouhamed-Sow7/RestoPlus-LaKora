@@ -241,11 +241,11 @@ class TableManager {
           <div class="qr-code" id="qr-table-${table.number}"></div>
           <button class="voir-table-qr"
             onclick="window.tableManager.voirTableQr(${table.number})">
-            👁 Voir
+          <i class="fa-solid fa-eye"></i>
           </button>
           <button class="btn btn-small"
             onclick="window.tableManager.printTableQR(${table.number})">
-            🖨 Imprimer
+            <i class="fa-solid fa-print"></i>
           </button>
         </div>`;
       container.appendChild(card);
