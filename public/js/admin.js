@@ -548,6 +548,7 @@ class AdminManager {
 
     this.orders.forEach((rawOrder) => {
       const o = rawOrder || {};
+      if (o.status === "merged") return; // ignorer les fusionnées
       if (PENDING_STATUSES.includes(o.status)) {
         grouped["pending_approval"].push(o);
       } else if (grouped[o.status] !== undefined) {
@@ -1252,7 +1253,7 @@ class AdminManager {
         await Promise.all(approvePromises);
 
         NotificationManager.showSuccess(
-          order.orderId || order.id,
+          scannedOrder.orderId || scannedOrder.id,
           "Commandes approuvées",
           `${allOrders.length} commande(s) approuvée(s) séparément pour la table ${tableNumber}`,
           3000
@@ -1262,7 +1263,7 @@ class AdminManager {
         this.loadOrders(true);
       } catch (error) {
         NotificationManager.showSuccess(
-          order.orderId || order.id,
+          scannedOrder.orderId || scannedOrder.id,
           "Erreur",
           "Impossible d'approuver les commandes",
           3000
@@ -1303,7 +1304,7 @@ class AdminManager {
         const fusedOrder = await res.json();
 
         NotificationManager.showSuccess(
-          order.orderId || order.id,
+          scannedOrder.orderId || scannedOrder.id,
           "Commandes fusionnées !",
           `Commande ${fusedOrder.orderId} créée pour la table ${tableNumber}`,
           3000
@@ -1313,7 +1314,7 @@ class AdminManager {
         this.loadOrders(true);
       } catch (error) {
         NotificationManager.showSuccess(
-          order.orderId || order.id,
+          scannedOrder.orderId || scannedOrder.id,
           "Erreur",
           "Impossible de fusionner les commandes",
           3000
