@@ -341,6 +341,48 @@
       font-size: 0.75rem; color: var(--ink-muted);
     }
     footer a { color: var(--brand); text-decoration: none; }
+  
+    /* -- Desktop ------------------------------------------------ */
+    @media (min-width: 768px) {
+      main {
+        max-width: 780px;
+        padding: 0 2rem 4rem;
+      }
+      .form-card {
+        padding: 3.5rem 4rem;
+      }
+      .time-slots {
+        grid-template-columns: repeat(5, 1fr) !important;
+      }
+      header p {
+        max-width: 520px;
+      }
+    }
+    @media (min-width: 1024px) {
+      main { max-width: 900px; }
+      .form-card { padding: 4rem 5rem; }
+    }
+  
+    /* -- Desktop ------------------------------------------------ */
+    @media (min-width: 768px) {
+      main {
+        max-width: 780px;
+        padding: 0 2rem 4rem;
+      }
+      .form-card {
+        padding: 3.5rem 4rem;
+      }
+      .time-slots {
+        grid-template-columns: repeat(5, 1fr) !important;
+      }
+      header p {
+        max-width: 520px;
+      }
+    }
+    @media (min-width: 1024px) {
+      main { max-width: 900px; }
+      .form-card { padding: 4rem 5rem; }
+    }
   </style>
 </head>
 <body>
