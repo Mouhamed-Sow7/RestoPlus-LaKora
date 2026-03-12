@@ -3,7 +3,7 @@ const router      = require("express").Router();
 const Reservation = require("../models/Reservation");
 const emailSvc    = require("../services/email.service");
 const { authenticate } = require("../middleware/auth");
-const cfg         = require("../config/restaurant.config");
+const cfg = (() => { try { return require('../config/restaurant.config'); } catch(_) { try { return require('../config'); } catch(__) { return {}; } } })();
 
 // ── POST /api/reservations — Créer une réservation (public) ──────────────────
 router.post("/", async (req, res) => {
@@ -202,3 +202,4 @@ router.delete("/:id", authenticate, async (req, res) => {
 });
 
 module.exports = router;
+
