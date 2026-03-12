@@ -15,7 +15,7 @@ const RESTO_TO  = process.env.RESTAURANT_EMAIL_TO   || process.env.GMAIL_USER ||
 function createTransporter() {
   const p = (process.env.EMAIL_PROVIDER || "gmail").toLowerCase();
   if (p === "resend") return nodemailer.createTransport({ host:"smtp.resend.com", port:465, secure:true, auth:{ user:"resend", pass:process.env.RESEND_API_KEY } });
-  if (p === "gmail")  return nodemailer.createTransport({ service:"gmail", auth:{ user:process.env.GMAIL_USER, pass:process.env.GMAIL_APP_PASSWORD } });
+  if (p === "gmail")  return nodemailer.createTransport({ host:"smtp.gmail.com", port:587, secure:false, auth:{ user:process.env.GMAIL_USER, pass:process.env.GMAIL_APP_PASSWORD } });
   return nodemailer.createTransport({ host:process.env.SMTP_HOST||"smtp.gmail.com", port:parseInt(process.env.SMTP_PORT||"587"), secure:process.env.SMTP_SECURE==="true", auth:{ user:process.env.SMTP_USER, pass:process.env.SMTP_PASS } });
 }
 const transporter = createTransporter();
