@@ -30,7 +30,6 @@ router.post("/", async (req, res) => {
       time,
       guests: parseInt(guests),
       note: (note || "").trim(),
-      restaurantId: cfg.id,
       status: "pending",
     });
 
@@ -56,7 +55,7 @@ router.post("/", async (req, res) => {
 router.get("/", authenticate, async (req, res) => {
   try {
     const { status, date, page = 1, limit = 50 } = req.query;
-    const filter = { restaurantId: cfg.id };
+    const filter = {};
     if (status && status !== "all") filter.status = status;
     if (date) filter.date = date;
 
@@ -85,7 +84,6 @@ router.get("/calendar", authenticate, async (req, res) => {
     const endDate   = `${y}-${String(m).padStart(2, "0")}-31`;
 
     const reservations = await Reservation.find({
-      restaurantId: cfg.id,
       date: { $gte: startDate, $lte: endDate },
       status: { $ne: "cancelled" },
     }).sort({ date: 1, time: 1 });
@@ -115,8 +113,7 @@ router.get("/:id", authenticate, async (req, res) => {
   try {
     const reservation = await Reservation.findOne({
       reservationId: req.params.id,
-      restaurantId:  cfg.id,
-    });
+      });
     if (!reservation) return res.status(404).json({ message: "Réservation introuvable" });
     return res.json(reservation);
   } catch (err) {
@@ -134,7 +131,7 @@ router.patch("/:id/status", authenticate, async (req, res) => {
     }
 
     const reservation = await Reservation.findOneAndUpdate(
-      { reservationId: req.params.id, restaurantId: cfg.id },
+      { reservationId: req.params.id, },
       {
         status,
         ...(adminNote     !== undefined && { adminNote }),
@@ -176,7 +173,7 @@ router.patch("/:id", authenticate, async (req, res) => {
     allowed.forEach(k => { if (req.body[k] !== undefined) update[k] = req.body[k]; });
 
     const reservation = await Reservation.findOneAndUpdate(
-      { reservationId: req.params.id, restaurantId: cfg.id },
+      { reservationId: req.params.id, },
       update,
       { new: true }
     );
@@ -192,8 +189,7 @@ router.delete("/:id", authenticate, async (req, res) => {
   try {
     const deleted = await Reservation.findOneAndDelete({
       reservationId: req.params.id,
-      restaurantId:  cfg.id,
-    });
+      });
     if (!deleted) return res.status(404).json({ message: "Réservation introuvable" });
     return res.status(204).send();
   } catch (err) {
@@ -202,4 +198,5 @@ router.delete("/:id", authenticate, async (req, res) => {
 });
 
 module.exports = router;
+
 
