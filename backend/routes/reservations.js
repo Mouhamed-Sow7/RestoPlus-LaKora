@@ -2,7 +2,7 @@
 const router      = require("express").Router();
 const Reservation = require("../models/Reservation");
 const emailSvc    = require("../services/email.service");
-const { authenticate } = require("../middleware/auth");
+const { authenticateToken: authenticate } = require("../middleware/auth");
 const cfg = (() => { try { return require('../config/restaurant.config'); } catch(_) { try { return require('../config'); } catch(__) { return {}; } } })();
 
 // ── POST /api/reservations — Créer une réservation (public) ──────────────────
