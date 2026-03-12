@@ -1,0 +1,225 @@
+ <!DOCTYPE html>
+ <html lang="fr">
+   <head>
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+     <title>RestoPlus — Restaurant</title>
+ 
+     <!-- Config dynamique du restaurant (PHASE 1) -->
+     <script src="js/app-config.js"></script>
+ 
+     <link rel="stylesheet" href="css/main.css" />
+     <!-- <link rel="manifest" href="manifest.json" /> -->
+     <link rel="preconnect" href="https://fonts.googleapis.com" />
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+     <link
+       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+       rel="stylesheet"
+     />
+   </head>
+   <body>
+     <!-- Header -->
+     <header class="header">
+       <div class="container">
+         <div class="logo">
+           <h1><span data-restaurant-name>RestoPlus</span></h1>
+           <p data-restaurant-tagline>Au coeur des saveurs</p>
+         </div>
+         <nav class="nav">
+           <a href="menu.html" class="nav-link">Menu</a>
+           <a href="reservation.html" class="nav-link">Réservation</a>
+           <a href="admin.html" class="nav-link admin-link">Admin</a>
+         </nav>
+         <button class="burger-menu" id="burger-menu" aria-label="Menu">
+           <span class="burger-line"></span>
+           <span class="burger-line"></span>
+           <span class="burger-line"></span>
+         </button>
+       </div>
+     </header>
+ 
+     <!-- Hero Section -->
+     <section class="hero">
+       <div class="bg-hero">
+         <div class="container">
+           <div class="hero-content">
+             <h2>
+               Bienvenue chez
+               <span data-restaurant-name>RestoPlus</span>
+             </h2>
+             <div class="bg" data-restaurant-logo></div>
+             <p>
+               Découvrez nos spécialités dans un cadre chaleureux
+             </p>
+             <div class="hero-actions">
+               <a href="menu.html" class="btn btn-primary">Voir le Menu</a>
+               <a href="reservation.html" class="btn btn-secondary"
+                 >Réserver une Table</a
+               >
+             </div>
+           </div>
+         </div>
+       </div>
+     </section>
+ 
+     <!-- Table Detection -->
+     <section class="table-section" id="table-detection">
+       <div class="container">
+         <div class="table-info qr-table-scan">
+           <h3>Détection de Table</h3>
+           <div class="table-number" id="table-number">-</div>
+           <p>Scannez le QR code sur votre table pour commander</p>
+           <div class="qr-scanner-container" id="qr-scanner-container-home">
+             <div class="qr-style-zone camera-off">
+               <div class="scan-overlay">
+                 <div class="scan-frame">
+                   <div class="corner corner-top-left"></div>
+                   <div class="corner corner-top-right"></div>
+                   <div class="corner corner-bottom-left"></div>
+                   <div class="corner corner-bottom-right"></div>
+                   <div class="scan-line"></div>
+                 </div>
+               </div>
+               <div class="camera-off-content">
+                 <div class="camera-icon">
+                   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                     <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/>
+                   </svg>
+                 </div>
+                 <div class="camera-instruction">
+                   Appuyez sur "Activer Caméra" pour démarrer le scan
+                 </div>
+               </div>
+             </div>
+             <div id="qr-reader-home" class="qr-camera-zone"></div>
+             <div
+               class="scan-loader"
+               id="scan-loader-home"
+               style="display: none"
+             >
+               <div class="scan-spinner"></div>
+               <div class="scan-message">Scan en cours...</div>
+             </div>
+           </div>
+           <div class="scanner-controls">
+             <button
+               id="toggleCamBtn-home"
+               class="btn btn-primary toggle-cam-btn"
+               onclick="window.toggleCamHome && window.toggleCamHome()"
+             >
+               🎥 Activer Caméra
+             </button>
+             <div
+               class="camera-selection"
+               id="camera-selection-home"
+               style="display: none"
+             >
+               <label for="camera-select-home">Sélectionner la caméra:</label>
+               <select id="camera-select-home" class="camera-select">
+                 <option value="">Chargement...</option>
+               </select>
+             </div>
+           </div>
+           <div class="scanner-instructions">
+             <p>Pointez la caméra vers le QR code de votre table</p>
+           </div>
+         </div>
+       </div>
+     </section>
+ 
+     <!-- Features -->
+     <section class="features">
+       <div class="container">
+         <div class="feature-grid">
+           <div class="feature-card">
+             <div class="feature-icon">🍽️</div>
+             <h3>Menu Digital</h3>
+             <p>Parcourez notre menu interactif et commandez directement</p>
+           </div>
+           <div class="feature-card">
+             <div class="feature-icon">📱</div>
+             <h3>Commande Mobile</h3>
+             <p>Commandez facilement depuis votre smartphone</p>
+           </div>
+           <div class="feature-card">
+             <div class="feature-icon">⚡</div>
+             <h3>Service Rapide</h3>
+             <p>Vos commandes sont traitées rapidement</p>
+           </div>
+         </div>
+       </div>
+     </section>
+ 
+     <!-- Footer -->
+     <footer class="footer">
+       <div class="container">
+         <div class="footer-content">
+           <div class="footer-section">
+             <h4><span data-restaurant-name>RestoPlus</span></h4>
+             <p>Restaurant digitalisé avec RestoPlus</p>
+           </div>
+           <div class="footer-section">
+             <h4>Contact</h4>
+             <p data-restaurant-phone>+221 XX XXX XX XX</p>
+             <p data-restaurant-email>contact@example.com</p>
+           </div>
+           <div class="footer-section">
+             <h4>Horaires</h4>
+             <p>Lun-Dim: 12h-22h</p>
+           </div>
+         </div>
+       </div>
+     </footer>
+ 
+     <!-- Success Notification Popup -->
+     <div id="success-popup" class="success-popup">
+       <div class="popup-content">
+         <div class="popup-icon">✅</div>
+         <div class="popup-message">
+           <h4>Table détectée !</h4>
+           <p id="popup-table-info">Redirection vers le menu...</p>
+         </div>
+       </div>
+     </div>
+ 
+     <!-- Loading Overlay -->
+     <div id="loading-overlay" class="loading-overlay">
+       <div class="loading-spinner">
+         <div class="spinner-circle"></div>
+         <p>Scan en cours...</p>
+       </div>
+     </div>
+ 
+     <script
+       src="https://unpkg.com/html5-qrcode"
+       type="text/javascript"
+     ></script>
+     <script src="js/table-manager.js"></script>
+     <script src="js/burger-menu.js"></script>
+     <script src="js/qr-scanner-manager.js"></script>
+     <script src="js/main.js"></script>
+     <script>
+       // Global toggle function for home page
+       window.toggleCamHome = function () {
+         if (
+           window.qrScannerHome &&
+           typeof window.qrScannerHome.toggle === "function"
+         ) {
+           return window.qrScannerHome.toggle();
+         } else {
+           console.warn("QRScannerManager not available yet");
+           window.NotificationManager &&
+             window.NotificationManager.showSuccess(
+               null,
+               "Erreur",
+               "Caméra non disponible pour le moment",
+               3000
+             );
+         }
+       };
+     </script>
+   </body>
+ </html>
+

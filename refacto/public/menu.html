@@ -1,0 +1,228 @@
+ <!DOCTYPE html>
+ <html lang="fr">
+   <head>
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ 
+     <!-- Config dynamique du restaurant (PHASE 1) -->
+     <script src="js/app-config.js"></script>
+ 
+     <!-- Relax CSP for local dev: allow Google Fonts and external images (Unsplash/Picsum). Remove for stricter production. -->
+     <meta
+       http-equiv="Content-Security-Policy"
+       content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://source.unsplash.com https://images.unsplash.com https://picsum.photos; connect-src 'self' https://fonts.gstatic.com;"
+     />
+     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+     <title>Menu - <span data-restaurant-name>RestoPlus</span></title>
+     <link rel="stylesheet" href="css/payment-mobile.css" />
+     <link rel="stylesheet" href="css/main.css" />
+     <link rel="stylesheet" href="css/menu.css" />
+     <link rel="manifest" href="manifest.json" />
+     <link rel="preconnect" href="https://fonts.googleapis.com" />
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+     <link
+       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+       rel="stylesheet"
+     />
+   </head>
+   <body>
+     <!-- Header -->
+     <header class="header">
+       <div class="container">
+         <div class="logo">
+           <a href="index.html" style="text-decoration: none; color: white">
+             <h1><span data-restaurant-name>RestoPlus</span></h1>
+           </a>
+         </div>
+         <div class="header-actions">
+           <div class="table-info">
+             <span>Table: </span>
+             <span id="current-table">-</span>
+           </div>
+           <button
+             class="history-toggle"
+             id="history-toggle"
+             title="Historique des commandes"
+           >
+             📋
+           </button>
+           <button class="cart-toggle" id="cart-toggle">
+             🛒 <span id="cart-count">0</span>
+           </button>
+           <button class="burger-menu" id="burger-menu" aria-label="Menu">
+             <span class="burger-line"></span>
+             <span class="burger-line"></span>
+             <span class="burger-line"></span>
+           </button>
+         </div>
+       </div>
+     </header>
+ 
+     <!-- Ordering Mode Toggle -->
+     <section class="ordering-mode">
+       <div class="container">
+         <div class="mode-toggle">
+           <h3>Mode de commande</h3>
+           <div class="toggle-buttons">
+             <button class="mode-btn active" data-mode="group">Groupe</button>
+             <button class="mode-btn" data-mode="individual">Individuel</button>
+           </div>
+         </div>
+       </div>
+     </section>
+ 
+     <!-- Menu Categories -->
+     <nav class="menu-nav">
+       <div class="container">
+         <div class="category-tabs">
+           <button class="tab-btn active" data-category="plats">Plats</button>
+           <button class="tab-btn" data-category="boissons">
+             Carte Boissons
+           </button>
+           <button class="tab-btn" data-category="desserts">
+             Desserts
+           </button>
+         </div>
+       </div>
+     </nav>
+ 
+     <!-- Menu Content -->
+     <main class="menu-content">
+       <div class="container">
+         <!-- Plats Section -->
+         <section class="menu-section active" id="plats">
+           <h2>Nos Plats</h2>
+           <div class="menu-grid" id="plats-grid">
+             <!-- Menu items will be loaded dynamically -->
+           </div>
+         </section>
+ 
+         <!-- Boissons Section -->
+         <section class="menu-section" id="boissons">
+           <h2>Nos Boissons</h2>
+           <div class="menu-grid" id="boissons-grid">
+             <!-- Menu items will be loaded dynamically -->
+           </div>
+         </section>
+ 
+         <!-- Desserts Section -->
+         <section class="menu-section" id="desserts">
+           <h2>Nos Desserts</h2>
+           <div class="menu-grid" id="desserts-grid">
+             <!-- Menu items will be loaded dynamically -->
+           </div>
+         </section>
+       </div>
+     </main>
+ 
+     <!-- Shopping Cart Sidebar -->
+     <aside class="cart-sidebar" id="cart-sidebar">
+       <div class="cart-header">
+         <h3>Panier</h3>
+         <button class="cart-close" id="cart-close">&times;</button>
+       </div>
+       <div class="cart-content">
+         <div class="cart-items" id="cart-items">
+           <!-- Cart items will be loaded dynamically -->
+         </div>
+         <div class="cart-summary">
+           <div class="cart-total">
+             <span>Total: </span>
+             <span id="cart-total">0 CFA</span>
+           </div>
+           <button class="btn btn-primary btn-full" id="validate-order">
+             Valider la Commande
+           </button>
+         </div>
+       </div>
+     </aside>
+ 
+     <!-- Item Modal -->
+     <div class="modal" id="item-modal">
+       <div class="modal-content">
+         <div class="modal-header">
+           <h3 id="modal-title"></h3>
+           <button class="modal-close" id="modal-close">&times;</button>
+         </div>
+         <div class="modal-body">
+           <div class="img-box">
+             <img id="modal-image" src="" alt="" />
+           </div>
+           <p id="modal-description"></p>
+           <div class="modal-price">
+             <span id="modal-price"></span>
+             <span data-restaurant-currency>CFA</span>
+           </div>
+         </div>
+       </div>
+     </div>
+ 
+     <!-- QR Ticket Modal -->
+     <div class="modal" id="qr-modal">
+       <div class="modal-content">
+         <div class="modal-header">
+           <h3>Votre Commande</h3>
+           <button class="modal-close" id="qr-close">&times;</button>
+         </div>
+         <div class="modal-body">
+           <div class="qr-ticket">
+             <div class="ticket-info">
+               <p><strong>Table:</strong> <span id="ticket-table"></span></p>
+               <p><strong>Commande:</strong> <span id="ticket-order"></span></p>
+               <p>
+                 <strong>Total:</strong>
+                 <span id="ticket-total"></span>
+                 <span data-restaurant-currency>CFA</span>
+               </p>
+             </div>
+             <div class="qr-code" id="qr-code">
+               <!-- QR code will be generated here -->
+             </div>
+             <p class="qr-instructions">
+               Montrez ce QR code au serveur pour valider votre commande
+             </p>
+           </div>
+         </div>
+       </div>
+     </div>
+ 
+     <!-- Custom Modal -->
+     <div id="modalHistoryReset" class="modalHistory ResteHistoryhidden">
+       <div class="modal-historyReset">
+         <p>Voulez-vous vraiment supprimer tout l'historique ?</p>
+         <div class="modal-historyActions">
+           <button id="modalYesHistoryReset">Oui</button>
+           <button id="modalNoHistoryReset">Non</button>
+         </div>
+       </div>
+     </div>
+ 
+     <!-- Success Notification Popup -->
+     <div id="success-popup" class="success-popup">
+       <div class="popup-content">
+         <div class="popup-icon">✅</div>
+         <div class="popup-message">
+           <h4>Table mise à jour !</h4>
+           <p id="popup-table-info">Table changée avec succès</p>
+         </div>
+       </div>
+     </div>
+ 
+     <!-- Loading Overlay -->
+     <div id="loading-overlay" class="loading-overlay">
+       <div class="loading-spinner">
+         <div class="spinner-circle"></div>
+         <p>Scan en cours...</p>
+       </div>
+     </div>
+ 
+     <script src="js/qrcode.min.js"></script>
+     <script src="js/main.js"></script>
+     <script src="js/menu.js"></script>
+     <script src="js/cart.js"></script>
+     <script src="js/qr-gen.js"></script>
+     <script src="js/order-history.js"></script>
+     <script src="js/burger-menu.js"></script>
+   </body>
+ </html>
+

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Réservation — RestoPlus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --brand:       #c0873f;
+      --brand-dark:  #8b5e2a;
+      --brand-light: #f5e6d0;
+      --ink:         #1a1208;
+      --ink-muted:   #6b5740;
+      --surface:     #fdfaf6;
+      --border:      #e8ddd0;
+      --success:     #2d7a4a;
+      --error:       #c0392b;
+      --radius:      14px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--surface);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Arrière-plan décoratif ───────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 80% 60% at 10% 0%, rgba(192,135,63,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 100%, rgba(192,135,63,0.07) 0%, transparent 60%),
+        var(--surface);
+    }
+
+    /* ── Header ──────────────────────────────────────────────── */
+    header {
+      text-align: center;
+      padding: 3rem 1.5rem 2rem;
+      position: relative;
+    }
+    .header-badge {
+      display: inline-block;
+      background: var(--brand-light);
+      color: var(--brand-dark);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+    .header-logo {
+      width: 64px; height: 64px;
+      background: var(--brand);
+      border-radius: 18px;
+      margin: 0 auto 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      box-shadow: 0 8px 24px rgba(192,135,63,0.3);
+    }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.15;
+      margin-bottom: 0.5rem;
+    }
+    header h1 em {
+      font-style: italic;
+      color: var(--brand);
+    }
+    header p {
+      color: var(--ink-muted);
+      font-size: 0.95rem;
+      font-weight: 400;
+      max-width: 380px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Layout principal ────────────────────────────────────── */
+    main {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 0 1.25rem 4rem;
+    }
+
+    /* ── Card formulaire ─────────────────────────────────────── */
+    .form-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 32px rgba(26,18,8,0.06);
+    }
+
+    /* ── Groupes de champs ───────────────────────────────────── */
+    .field-group {
+      margin-bottom: 1.4rem;
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 480px) {
+      .field-row { grid-template-columns: 1fr; }
+      .form-card  { padding: 1.75rem 1.25rem; }
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 7px;
+    }
+    label span.req { color: var(--brand); margin-left: 2px; }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: var(--ink);
+      background: var(--surface);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      appearance: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(192,135,63,0.12);
+      background: #fff;
+    }
+    input.error, select.error { border-color: var(--error); }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c0873f' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+
+    textarea { resize: vertical; min-height: 90px; }
+
+    .field-hint {
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      margin-top: 5px;
+    }
+    .field-error {
+      font-size: 0.75rem;
+      color: var(--error);
+      margin-top: 5px;
+      display: none;
+    }
+    .field-error.visible { display: block; }
+
+    /* ── Section séparateur ──────────────────────────────────── */
+    .section-sep {
+      display: flex; align-items: center; gap: 12px;
+      margin: 1.75rem 0 1.5rem;
+    }
+    .section-sep::before, .section-sep::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .section-sep span {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--brand);
+    }
+
+    /* ── Sélecteur nombre de personnes ──────────────────────── */
+    .guests-selector {
+      display: flex; align-items: center; gap: 0;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface);
+      height: 48px;
+    }
+    .guests-selector.focused {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(192,135,63,0.12);
+    }
+    .guests-btn {
+      width: 48px; height: 100%; flex-shrink: 0;
+      background: none; border: none; cursor: pointer;
+      font-size: 1.3rem; color: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .guests-btn:hover { background: var(--brand-light); }
+    .guests-btn:disabled { opacity: 0.3; cursor: default; }
+    .guests-display {
+      flex: 1; text-align: center;
+      font-size: 1.1rem; font-weight: 600;
+      color: var(--ink);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      height: 100%; display: flex; align-items: center; justify-content: center;
+      gap: 6px;
+    }
+    .guests-display .guests-label {
+      font-size: 0.75rem; font-weight: 400; color: var(--ink-muted);
+    }
+
+    /* ── Créneaux horaires ───────────────────────────────────── */
+    .time-slots {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+    @media (max-width: 400px) {
+      .time-slots { grid-template-columns: repeat(3, 1fr); }
+    }
+    .time-slot {
+      padding: 9px 4px;
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 500;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      background: var(--surface);
+      color: var(--ink);
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .time-slot:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+    .time-slot.selected {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+      font-weight: 600;
+    }
+    .time-slot.unavailable {
+      opacity: 0.35; cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
+    /* ── Bouton submit ───────────────────────────────────────── */
+    .btn-submit {
+      width: 100%;
+      padding: 1.1rem;
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 16px rgba(192,135,63,0.35);
+    }
+    .btn-submit::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(192,135,63,0.4); }
+    .btn-submit:hover::after { opacity: 1; }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-submit .btn-loader {
+      display: none; width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto;
+    }
+    .btn-submit.loading .btn-text { display: none; }
+    .btn-submit.loading .btn-loader { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Message de succès ───────────────────────────────────── */
+    .success-card {
+      display: none;
+      background: #fff;
+      border-radius: 24px;
+      padding: 3rem 2rem;
+      text-align: center;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 32px rgba(26,18,8,0.06);
+    }
+    .success-card.visible { display: block; animation: fadeUp 0.5s ease; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .success-icon {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+    }
+    .success-card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--ink); margin-bottom: 0.75rem;
+    }
+    .success-card p { color: var(--ink-muted); line-height: 1.6; font-size: 0.95rem; }
+    .success-ref {
+      display: inline-block;
+      background: var(--brand-light); color: var(--brand-dark);
+      font-weight: 700; font-size: 0.85rem;
+      padding: 6px 16px; border-radius: 20px;
+      margin: 1rem 0 0.5rem;
+      font-family: monospace;
+    }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    footer {
+      text-align: center; padding: 2rem 1rem;
+      font-size: 0.75rem; color: var(--ink-muted);
+    }
+    footer a { color: var(--brand); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-badge">Réservation de table</div>
+    <div class="header-logo">🍽️</div>
+    <h1>Réservez votre<br/><em>table en ligne</em></h1>
+    <p>Remplissez le formulaire ci-dessous. Vous recevrez une confirmation par email une fois votre réservation validée.</p>
+  </header>
+
+  <main>
+    <!-- Formulaire -->
+    <div class="form-card" id="reservation-form-card">
+      <form id="reservation-form" novalidate>
+
+        <!-- Identité -->
+        <div class="field-row">
+          <div class="field-group">
+            <label for="guest-name">Nom complet <span class="req">*</span></label>
+            <input type="text" id="guest-name" name="name" placeholder="Prénom Nom" autocomplete="name" />
+            <div class="field-error" id="err-name">Nom requis</div>
+          </div>
+          <div class="field-group">
+            <label for="guest-phone">Téléphone <span class="req">*</span></label>
+            <input type="tel" id="guest-phone" name="phone" placeholder="+221 77 XXX XX XX" autocomplete="tel" />
+            <div class="field-error" id="err-phone">Numéro requis</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="guest-email">Email <span class="req">*</span></label>
+          <input type="email" id="guest-email" name="email" placeholder="vous@email.com" autocomplete="email" />
+          <div class="field-error" id="err-email">Email valide requis</div>
+        </div>
+
+        <div class="section-sep"><span>Votre réservation</span></div>
+
+        <!-- Date + Personnes -->
+        <div class="field-row">
+          <div class="field-group">
+            <label for="res-date">Date <span class="req">*</span></label>
+            <input type="date" id="res-date" name="date" />
+            <div class="field-error" id="err-date">Date requise</div>
+          </div>
+          <div class="field-group">
+            <label>Personnes <span class="req">*</span></label>
+            <div class="guests-selector" id="guests-selector">
+              <button type="button" class="guests-btn" id="guests-minus" aria-label="Moins">−</button>
+              <div class="guests-display">
+                <span id="guests-count">2</span>
+                <span class="guests-label">pers.</span>
+              </div>
+              <button type="button" class="guests-btn" id="guests-plus" aria-label="Plus">+</button>
+            </div>
+            <input type="hidden" id="guests-value" name="guests" value="2" />
+          </div>
+        </div>
+
+        <!-- Heure (créneaux) -->
+        <div class="field-group">
+          <label>Heure souhaitée <span class="req">*</span></label>
+          <div class="time-slots" id="time-slots">
+            <!-- généré par JS -->
+          </div>
+          <input type="hidden" id="res-time" name="time" />
+          <div class="field-error" id="err-time">Choisissez un créneau</div>
+        </div>
+
+        <!-- Note optionnelle -->
+        <div class="field-group">
+          <label for="res-note">Note optionnelle</label>
+          <textarea id="res-note" name="note" placeholder="Occasion spéciale, allergie, table préférée…"></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btn-submit">
+          <span class="btn-text">✨ Confirmer ma réservation</span>
+          <div class="btn-loader"></div>
+        </button>
+
+      </form>
+    </div>
+
+    <!-- Succès -->
+    <div class="success-card" id="success-card">
+      <div class="success-icon">✅</div>
+      <h2>Demande envoyée !</h2>
+      <p>Votre demande de réservation a bien été reçue.</p>
+      <div class="success-ref" id="success-ref">RES-XXXXXX</div>
+      <p>Vous recevrez un email de confirmation <strong>après validation</strong> par notre équipe.</p>
+    </div>
+  </main>
+
+  <footer>
+    Propulsé par <a href="#">RestoPlus</a> · Système de réservation
+  </footer>
+
+  <script>
+    // ── Créneaux horaires ─────────────────────────────────────
+    const SLOTS = ["12:00","12:30","13:00","13:30","19:00","19:30","20:00","20:30","21:00","21:30"];
+    let selectedTime = null;
+    let guestsCount = 2;
+
+    function renderSlots() {
+      const container = document.getElementById("time-slots");
+      container.innerHTML = SLOTS.map(t => `
+        <div class="time-slot" data-time="${t}">${t}</div>
+      `).join("");
+      container.querySelectorAll(".time-slot").forEach(el => {
+        el.addEventListener("click", () => {
+          container.querySelectorAll(".time-slot").forEach(s => s.classList.remove("selected"));
+          el.classList.add("selected");
+          selectedTime = el.dataset.time;
+          document.getElementById("res-time").value = selectedTime;
+          document.getElementById("err-time").classList.remove("visible");
+        });
+      });
+    }
+    renderSlots();
+
+    // ── Date min = aujourd'hui ────────────────────────────────
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("res-date").min = today;
+
+    // ── Guests counter ────────────────────────────────────────
+    const minGuests = 1, maxGuests = 20;
+    function updateGuests(n) {
+      guestsCount = Math.min(maxGuests, Math.max(minGuests, n));
+      document.getElementById("guests-count").textContent = guestsCount;
+      document.getElementById("guests-value").value = guestsCount;
+      document.getElementById("guests-minus").disabled = guestsCount <= minGuests;
+      document.getElementById("guests-plus").disabled  = guestsCount >= maxGuests;
+    }
+    document.getElementById("guests-minus").addEventListener("click", () => updateGuests(guestsCount - 1));
+    document.getElementById("guests-plus").addEventListener("click",  () => updateGuests(guestsCount + 1));
+    updateGuests(2);
+
+    // ── Validation ────────────────────────────────────────────
+    function validate() {
+      let ok = true;
+      const set = (id, errId, cond) => {
+        const el = document.getElementById(id);
+        const err = document.getElementById(errId);
+        if (!cond) { el.classList.add("error"); err.classList.add("visible"); ok = false; }
+        else        { el.classList.remove("error"); err.classList.remove("visible"); }
+      };
+      const name  = document.getElementById("guest-name").value.trim();
+      const phone = document.getElementById("guest-phone").value.trim();
+      const email = document.getElementById("guest-email").value.trim();
+      const date  = document.getElementById("res-date").value;
+      const time  = document.getElementById("res-time").value;
+
+      set("guest-name",  "err-name",  name.length >= 2);
+      set("guest-phone", "err-phone", phone.length >= 6);
+      set("guest-email", "err-email", /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+      set("res-date",    "err-date",  date && date >= today);
+      if (!time) { document.getElementById("err-time").classList.add("visible"); ok = false; }
+      else        { document.getElementById("err-time").classList.remove("visible"); }
+
+      return ok;
+    }
+
+    // ── Submit ────────────────────────────────────────────────
+    document.getElementById("reservation-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!validate()) return;
+
+      const btn = document.getElementById("btn-submit");
+      btn.classList.add("loading"); btn.disabled = true;
+
+      const payload = {
+        name:   document.getElementById("guest-name").value.trim(),
+        phone:  document.getElementById("guest-phone").value.trim(),
+        email:  document.getElementById("guest-email").value.trim(),
+        date:   document.getElementById("res-date").value,
+        time:   document.getElementById("res-time").value,
+        guests: parseInt(document.getElementById("guests-value").value),
+        note:   document.getElementById("res-note").value.trim(),
+      };
+
+      try {
+        const res = await fetch("/api/reservations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Erreur");
+
+        document.getElementById("reservation-form-card").style.display = "none";
+        document.getElementById("success-ref").textContent = data.reservationId || "RES-" + Date.now().toString(36).toUpperCase();
+        document.getElementById("success-card").classList.add("visible");
+      } catch (err) {
+        alert("Erreur : " + err.message + "\nVeuillez réessayer.");
+      } finally {
+        btn.classList.remove("loading"); btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

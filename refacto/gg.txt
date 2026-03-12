@@ -1,0 +1,31 @@
+Ma recommandation
+Court terme (maintenant) : Option B + fichier de config
+Moyen terme : Option A avec routing /r/:restaurantId
+Voilà ce que je te propose concrètement pour démarrer :Plan de refactoring RestoPlus avec fichiers de configPlan de refactoring RestoPlus avec fichiers de configMaintenant je génère les fichiers concrets à utiliser immédiatement :4 fichiers créés, lu un fichier4 fichiers créés, lu un fichier5 fichiers générés. Voilà comment les utiliser :
+Étape 1 — Backend
+
+restaurant.config.js → backend/config/restaurant.config.js
+config.route.js → backend/routes/config.js
+Dans backend/app.js ajouter : app.use("/api/config", require("./routes/config"));
+
+Étape 2 — Frontend
+
+app-config.js → public/js/app-config.js
+Dans chaque HTML (index, menu, admin), ajouter en premier script :
+
+html<script src="js/app-config.js"></script>
+
+Remplacer les textes "La Kora" dans les HTML par <span data-restaurant-name></span>
+
+Étape 3 — Variables Render
+
+Utilise .env.restaurant-template comme base pour chaque restaurant dans Render Dashboard
+
+Résultat concret :
+
+Repo GitHub unique RestoPlus
+Pour déployer un nouveau restaurant → fork ou nouveau service Render + variables d'env
+Zéro modification de code entre clients
+Le branding (couleurs, nom, logo) se charge automatiquement depuis l'API
+
+Le plan complet dans restoplus-refactoring-plan.md détaille aussi la Phase 5 (routing multi-tenant) pour quand tu veux tout centraliser sur un seul domaine.Restoplus refactoring planDocument · MD TéléchargerRestaurant.configJS TéléchargerConfig.routeJS TéléchargerApp configJS Télécharger.envRESTAURANT-TEMPLATE TéléchargerTout télécharger Sonnet 4.6

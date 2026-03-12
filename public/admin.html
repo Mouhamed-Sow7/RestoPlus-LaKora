@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - La Kora</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/admin.css" />
+    <link rel="stylesheet" href="css/admin-stats.css" />
+    <link rel="stylesheet" href="css/admin-reservations.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="css/fontawesome/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/admin-modal.css" />
+  </head>
+  <body>
+    <!-- Admin Header -->
+    <header class="admin-header">
+      <div class="container">
+        <div class="admin-logo">
+          <a href="index.html" style="text-decoration: none; color: white">
+            <h1>La Kora - Admin</h1>
+          </a>
+        </div>
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle Menu">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+        <nav class="admin-nav" id="admin-nav">
+          <a href="#dashboard"    class="nav-link active">Dashboard</a>
+          <a href="#orders"       class="nav-link">Commandes</a>
+          <a href="#stats"        class="nav-link">📊 Statistiques</a>
+          <a href="#tables"       class="nav-link">Tables</a>
+          <a href="#reservations" class="nav-link"><i class="fa-solid fa-calendar-days"></i> Réservations</a>
+          <button id="logout-btn" class="nav-link logout-btn">Déconnexion</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Admin Dashboard -->
+    <main class="admin-dashboard" id="admin-dashboard">
+
+      <!-- QR Scanner -->
+      <section class="scanner-section">
+        <div class="container">
+          <div class="scanner-card">
+            <h2>Scanner QR Code</h2>
+            <div class="scanner-container">
+              <div class="qr-scanner-container" id="qr-scanner-container-admin">
+                <div class="qr-style-zone camera-off">
+                  <div class="scan-overlay">
+                    <div class="scan-frame">
+                      <div class="corner corner-top-left"></div>
+                      <div class="corner corner-top-right"></div>
+                      <div class="corner corner-bottom-left"></div>
+                      <div class="corner corner-bottom-right"></div>
+                      <div class="scan-line"></div>
+                    </div>
+                  </div>
+                  <div class="camera-off-content">
+                    <div class="camera-icon">
+                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div id="qr-reader" class="qr-camera-zone"></div>
+                <div class="scan-loader" id="scan-loader-admin" style="display: none">
+                  <div class="scan-spinner"></div>
+                  <div class="scan-message">Scan en cours...</div>
+                </div>
+              </div>
+              <div class="scanner-controls">
+                <button
+                  id="toggleCamBtn-admin"
+                  class="btn btn-primary toggle-cam-btn"
+                  onclick="window.toggleCamAdmin && window.toggleCamAdmin()"
+                >
+                  🎥 Activer Caméra
+                </button>
+                <div class="camera-selection" id="camera-selection-admin" style="display: none">
+                  <label for="camera-select-admin">Sélectionner la caméra:</label>
+                  <select id="camera-select-admin" class="camera-select">
+                    <option value="">Chargement...</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Order Details -->
+      <section class="order-details" id="order-details" style="display: none">
+        <div class="container">
+          <div class="order-card">
+            <div class="order-header">
+              <h3>Détails de la Commande</h3>
+              <div class="order-status">
+                <span class="status-badge" id="order-status">En attente</span>
+              </div>
+            </div>
+            <div class="order-info">
+              <div class="order-meta">
+                <p><strong>Commande:</strong> <span id="order-id"></span></p>
+                <p><strong>Table:</strong> <span id="order-table"></span></p>
+                <p><strong>Mode:</strong> <span id="order-mode"></span></p>
+                <p><strong>Total:</strong> <span id="order-total"></span> CFA</p>
+              </div>
+              <div class="order-items" id="order-items"></div>
+            </div>
+            <div class="order-actions">
+              <button class="btn btn-success"  id="accept-order">Accepter</button>
+              <button class="btn btn-warning"  id="preparing-order">En préparation</button>
+              <button class="btn btn-info"     id="ready-order">Prêt</button>
+              <button class="btn btn-danger"   id="cancel-order">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tables Management -->
+      <section class="tables-section" id="tables">
+        <div class="container">
+          <div class="tables-header">
+            <h2>Gestion des Tables</h2>
+            <div class="tables-actions">
+              <button
+                class="btn btn-primary"
+                onclick="window.tableManager && window.tableManager.generateAllTableQRs && window.tableManager.generateAllTableQRs()"
+              >
+                Générer QR Codes
+              </button>
+            </div>
+          </div>
+          <div class="tables-grid" id="table-qr-codes"></div>
+        </div>
+      </section>
+
+      <!-- Orders List -->
+      <section class="orders-section" id="orders">
+        <div class="container">
+          <div class="orders-header">
+            <h2>Commandes Récentes</h2>
+            <div class="orders-filters">
+              <label for="status-filter" class="visually-hidden">Filtrer par statut</label>
+              <select id="status-filter" title="Filtrer par statut">
+                <option value="all">Toutes</option>
+                <option value="pending_scan">En attente (scan)</option>
+                <option value="pending">En attente</option>
+                <option value="accepted">Acceptées</option>
+                <option value="preparing">En préparation</option>
+                <option value="ready">Prêtes</option>
+                <option value="served">Servies</option>
+                <option value="cancelled">Annulées</option>
+              </select>
+            </div>
+          </div>
+          <div class="orders-list" id="orders-list"></div>
+        </div>
+      </section>
+
+      <!-- Reservations -->
+      <section id="reservations" style="display:none;">
+        <div id="reservations-content"></div>
+      </section>
+
+      <!-- ─── Statistiques ─────────────────────────────────────────────── -->
+      <section class="stats-section" id="stats" style="display:none;">
+        <div class="container">
+
+          <!-- Header -->
+          <div class="stats-header">
+            <div class="stats-title-block">
+              <h2>📊 Statistiques & Revenus</h2>
+              <p class="stats-subtitle">Tableau de bord financier — La Kora</p>
+            </div>
+            <div class="stats-controls">
+              <div class="stats-filter-group">
+                <button class="stats-filter-btn active" data-period="day">Aujourd'hui</button>
+                <button class="stats-filter-btn" data-period="week">Semaine</button>
+                <button class="stats-filter-btn" data-period="month">Mois</button>
+                <button class="stats-filter-btn" data-period="year">Année</button>
+              </div>
+              <button class="stats-export-btn" id="stats-export-btn">
+                ⬇ Exporter Excel
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="stats-kpi-grid">
+            <div class="kpi-card kpi-revenue">
+              <div class="kpi-icon"><i class="fa-solid fa-money-bill"></i></div>
+              <div class="kpi-body">
+                <span class="kpi-label">Chiffre d'affaires</span>
+                <span class="kpi-value" id="kpi-revenue">—</span>
+                <span class="kpi-unit">CFA</span>
+              </div>
+            </div>
+            <div class="kpi-card kpi-paid">
+              <div class="kpi-icon"><i class="fa-solid fa-check"></i></div>
+              <div class="kpi-body">
+                <span class="kpi-label">Encaissé</span>
+                <span class="kpi-value" id="kpi-paid">—</span>
+                <span class="kpi-unit">CFA</span>
+              </div>
+            </div>
+            <div class="kpi-card kpi-pending">
+              <div class="kpi-icon"><i class="fa-solid fa-clock"></i></div>
+              <div class="kpi-body">
+                <span class="kpi-label">En attente</span>
+                <span class="kpi-value" id="kpi-pending">—</span>
+                <span class="kpi-unit">CFA</span>
+              </div>
+            </div>
+            <div class="kpi-card kpi-orders">
+              <div class="kpi-icon"><i class="fa-solid fa-receipt"></i></div>
+              <div class="kpi-body">
+                <span class="kpi-label">Commandes</span>
+                <span class="kpi-value" id="kpi-orders">—</span>
+                <span class="kpi-unit">total</span>
+              </div>
+            </div>
+            <div class="kpi-card kpi-avg">
+              <div class="kpi-icon"><i class="fa-solid fa-chart-line"></i></div>
+              <div class="kpi-body">
+                <span class="kpi-label">Panier moyen</span>
+                <span class="kpi-value" id="kpi-avg">—</span>
+                <span class="kpi-unit">CFA</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts -->
+          <div class="stats-charts-grid">
+            <div class="chart-card chart-large">
+              <div class="chart-card-header">
+                <h3>Évolution des revenus</h3>
+                <div class="chart-legend">
+                  <span class="legend-dot" style="background:#c0873f"></span> Total
+                  <span class="legend-dot" style="background:#27ae60"></span> Encaissé
+                </div>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-revenue-line"></canvas>
+              </div>
+            </div>
+            <div class="chart-card chart-medium">
+              <div class="chart-card-header">
+                <h3>Tickets par statut</h3>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-status-bar"></canvas>
+              </div>
+            </div>
+            <div class="chart-card chart-small">
+              <div class="chart-card-header">
+                <h3>Méthodes de paiement</h3>
+              </div>
+              <div class="chart-wrapper chart-wrapper-donut">
+                <canvas id="chart-payment-donut"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tableau détaillé -->
+          <div class="stats-table-card">
+            <div class="stats-table-header">
+              <h3>Détail des tickets</h3>
+              <span class="stats-table-count" id="stats-table-count">0 tickets</span>
+            </div>
+            <div class="stats-table-wrapper">
+              <table class="stats-table" id="stats-table">
+                <thead>
+                  <tr>
+                    <th>Ticket</th>
+                    <th>Table</th>
+                    <th>Date & Heure</th>
+                    <th>Articles</th>
+                    <th>Montant</th>
+                    <th>Paiement</th>
+                    <th>Statut</th>
+                  </tr>
+                </thead>
+                <tbody id="stats-table-body">
+                  <tr><td colspan="7" class="stats-table-empty">Chargement...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+      <!-- ─── /Statistiques ────────────────────────────────────────────── -->
+
+    </main>
+
+    <!-- Success Notification Popup -->
+    <div id="success-popup" class="success-popup">
+      <div class="popup-content">
+        <div class="popup-icon"><i class="fa-solid fa-check"></i></div>
+        <div class="popup-message">
+          <h4>QR Code scanné !</h4>
+          <p id="popup-table-info">Traitement en cours...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="loading-spinner">
+        <div class="spinner-circle"></div>
+        <p>Scan en cours...</p>
+      </div>
+    </div>
+
+    <!-- Order Management Modal -->
+    
+<div id="order-management-modal" class="order-management-modal">
+  <div class="mm-backdrop"></div>
+  <div class="mm-sheet">
+    <div class="mm-handle"></div>
+    <div class="mm-header">
+      <div class="mm-header-title">
+        <span class="mm-header-icon">🎫</span>
+        <div>
+          <h3>Gestion du ticket</h3>
+          <p id="modal-order-id" class="mm-order-id">—</p>
+        </div>
+      </div>
+      <button class="mm-close" id="close-management-modal">✕</button>
+    </div>
+    <div class="mm-body">
+      <div id="modal-order-details"></div>
+      <!-- modal-order-date gardé pour compat mais caché -->
+      <p id="modal-order-date" style="display:none"></p>
+      <div class="modal-actions"></div>
+    </div>
+  </div>
+</div>
+    <!-- QRCode lib -->
+    <script>
+      function loadQRCodeFallback() {
+        const script = document.createElement("script");
+        script.src = "https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js";
+        script.onload = function () {
+          if (window.tableManager) window.tableManager.generateAllTableQRs();
+        };
+        document.head.appendChild(script);
+      }
+    </script>
+    <script src="js/qrcode.min.js" onerror="loadQRCodeFallback()"></script>
+
+    <!-- HTML5 QR Code Scanner -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+    <!-- SheetJS (export Excel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- Authentication first -->
+    <script src="js/admin-auth.js"></script>
+
+    <!-- Core scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/table-manager.js"></script>
+    <script src="js/order-history.js"></script>
+    <script src="js/qr-scanner-manager.js"></script>
+    <script src="js/admin-reservations.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/admin-stats.js"></script>
+
+    <script>
+      // Global toggle function for admin page
+      window.toggleCamAdmin = function () {
+        if (window.qrScannerAdmin && typeof window.qrScannerAdmin.toggle === "function") {
+          return window.qrScannerAdmin.toggle();
+        }
+      };
+    </script>
+  </body>
+</html>

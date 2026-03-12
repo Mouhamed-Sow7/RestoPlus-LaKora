@@ -1,0 +1,104 @@
+{
+  "plats": [
+    {
+      "id": 1,
+      "name": "Poulet Yassa",
+      "description": "Poulet mariné au citron et aux oignons",
+      "price": 3000,
+      "image": "/img/domoda.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Thieboudienne",
+      "description": "Riz au poisson avec légumes",
+      "price": 3500,
+      "image": "/img/thieboudjeune.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Thiébou Yapp",
+      "description": "Riz à la viande mijotée",
+      "price": 3500,
+      "image": "/img/Thiebou-yapp-riz-a-la-viande.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Mafé",
+      "description": "Ragoût en sauce d'arachide",
+      "price": 3000,
+      "image": "/img/Mafé.jpg"
+    },
+    {
+      "id": 5,
+      "name": "Pastels",
+      "description": "Beignets farcis à la viande ou au poisson",
+      "price": 1500,
+      "image": "/img/pastels.jpg"
+    },
+    {
+      "id": 6,
+      "name": "Thiakry",
+      "description": "Dessert au couscous de mil et yaourt",
+      "price": 1000,
+      "image": "/img/Thiakry-copy.jpg"
+    },
+    {
+      "id": 7,
+      "name": "Tiramisu",
+      "description": "Tiramisu maison",
+      "price": 1500,
+      "image": "/img/tiramisu-simple.jpg"
+    },
+    {
+      "id": 8,
+      "name": "Sorbet Mangue",
+      "description": "Sorbet à la mangue fraîche",
+      "price": 1000,
+      "image": "/img/sorbet-mangue.jpg"
+    }
+  ],
+  "boissons": [
+    {
+      "id": 10,
+      "name": "Bissap",
+      "description": "Jus de fleur d'hibiscus",
+      "price": 1000,
+      "image": "/img/jus-de-bissap-avec-glacons.JPG"
+    },
+    {
+      "id": 11,
+      "name": "Jus de Citron",
+      "description": "Citron pressé frais",
+      "price": 800,
+      "image": "/img/jus-de-citron.jpg"
+    },
+    {
+      "id": 12,
+      "name": "Jus de Gingembre",
+      "description": "Jus de gingembre frais",
+      "price": 800,
+      "image": "/img/jus-nas.jpg"
+    },
+    {
+      "id": 13,
+      "name": "Jus d'Orange",
+      "description": "Orange pressée fraîche",
+      "price": 900,
+      "image": "/img/jus-Orange.jpeg"
+    },
+    {
+      "id": 14,
+      "name": "Lait de Coco",
+      "description": "Lait de coco naturel",
+      "price": 900,
+      "image": "/img/lait-de-coco.jpeg"
+    },
+    {
+      "id": 15,
+      "name": "Jus de Tamarin",
+      "description": "Jus de tamarin rafraîchissant",
+      "price": 800,
+      "image": "/img/Tamarind-juice-3.jpg"
+    }
+  ]
+}

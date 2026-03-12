@@ -1,0 +1,57 @@
+ /* Copie du main.css original + overrides brand */
+ 
+ @import url("../../../public/css/main.css");
+ 
+ :root {
+   --brand: #c0873f;
+   --brand-dark: #8b5e2a;
+   --brand-light: #e8b06a;
+ }
+ 
+ .header {
+   background: linear-gradient(135deg, var(--brand-dark), var(--brand));
+ }
+ 
+ .btn-primary {
+   background: var(--brand);
+ }
+ 
+ .btn-primary:hover {
+   background: var(--brand-dark);
+ }
+ 
+ .footer-section h4 {
+   color: var(--brand);
+ }
+ 
+ .cart-toggle {
+   background: var(--brand);
+ }
+ 
+ .cart-toggle:hover {
+   background: var(--brand-dark);
+ }
+ 
+ .menu-item h3 {
+   color: var(--brand-dark);
+ }
+ 
+ .menu-item .price {
+   color: var(--brand);
+ }
+ 
+ .scan-frame .corner {
+   border-color: var(--brand-dark);
+ }
+ 
+ .scan-line {
+   background: linear-gradient(
+     90deg,
+     transparent 0%,
+     var(--brand-dark) 20%,
+     var(--brand) 50%,
+     var(--brand-dark) 80%,
+     transparent 100%
+   );
+ }
+ 

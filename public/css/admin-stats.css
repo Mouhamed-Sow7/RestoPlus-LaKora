@@ -1,0 +1,142 @@
+/* ─── Stats Dashboard — La Kora ──────────────────────────────────────────── */
+
+.stats-section { padding: 2rem 0 4rem; background: #f8f6f3; min-height: 80vh; }
+
+/* Header */
+.stats-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;
+}
+.stats-title-block h2 { margin: 0; font-size: 1.6rem; color: #1a1a1a; }
+.stats-subtitle { margin: 0.25rem 0 0; color: #888; font-size: 0.9rem; }
+
+.stats-controls { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+
+.stats-filter-group {
+  display: flex; gap: 4px;
+  background: #fff; border-radius: 10px;
+  padding: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.stats-filter-btn {
+  padding: 0.4rem 0.9rem; border: none; border-radius: 7px;
+  font-size: 0.85rem; font-weight: 500; cursor: pointer;
+  color: #666; background: transparent; transition: all 0.2s;
+}
+.stats-filter-btn.active {
+  background: #c0873f; color: #fff; box-shadow: 0 2px 6px rgba(192,135,63,0.3);
+}
+.stats-filter-btn:hover:not(.active) { background: #f0ebe4; color: #333; }
+
+.stats-export-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0.5rem 1.1rem; border: none; border-radius: 9px;
+  background: #1a1a2e; color: #fff; font-size: 0.85rem;
+  font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.stats-export-btn:hover { background: #2d2d4e; transform: translateY(-1px); }
+
+/* KPI Grid */
+.stats-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem; margin-bottom: 1.75rem;
+}
+.kpi-card {
+  background: #fff; border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-left: 4px solid transparent;
+  transition: transform 0.2s;
+}
+.kpi-card:hover { transform: translateY(-2px); }
+.kpi-revenue  { border-color: #c0873f; }
+.kpi-paid     { border-color: #27ae60; }
+.kpi-pending  { border-color: #f39c12; }
+.kpi-orders   { border-color: #2980b9; }
+.kpi-avg      { border-color: #8e44ad; }
+
+.kpi-icon { font-size: 1.8rem; line-height: 1; }
+.kpi-body { display: flex; flex-direction: column; min-width: 0; }
+.kpi-label { font-size: 0.75rem; color: #999; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.kpi-value { font-size: 1.4rem; font-weight: 700; color: #1a1a1a; line-height: 1.2; }
+.kpi-unit  { font-size: 0.75rem; color: #bbb; }
+
+/* Charts Grid */
+.stats-charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 1rem; margin-bottom: 1.75rem;
+}
+@media (max-width: 900px) {
+  .stats-charts-grid { grid-template-columns: 1fr 1fr; }
+  .chart-large { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+  .stats-charts-grid { grid-template-columns: 1fr; }
+  .chart-large, .chart-medium, .chart-small { grid-column: 1; }
+}
+
+.chart-card {
+  background: #fff; border-radius: 14px;
+  padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.chart-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.chart-card-header h3 { margin: 0; font-size: 0.95rem; color: #333; font-weight: 600; }
+.chart-legend { display: flex; gap: 12px; font-size: 0.78rem; color: #666; align-items: center; }
+.legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+
+.chart-wrapper { position: relative; height: 220px; }
+.chart-wrapper-donut { height: 200px; }
+
+/* Tableau */
+.stats-table-card {
+  background: #fff; border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;
+}
+.stats-table-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 1.5rem; border-bottom: 1px solid #f0ebe4;
+}
+.stats-table-header h3 { margin: 0; font-size: 0.95rem; color: #333; font-weight: 600; }
+.stats-table-count { font-size: 0.8rem; color: #999; }
+
+.stats-table-wrapper { overflow-x: auto; }
+.stats-table {
+  width: 100%; border-collapse: collapse; font-size: 0.85rem;
+}
+.stats-table thead th {
+  padding: 0.75rem 1rem; text-align: left;
+  background: #faf8f5; color: #888; font-weight: 600;
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;
+  border-bottom: 1px solid #f0ebe4; white-space: nowrap;
+}
+.stats-table tbody tr {
+  border-bottom: 1px solid #f9f7f5; transition: background 0.15s;
+}
+.stats-table tbody tr:hover { background: #fdf9f5; }
+.stats-table tbody td { padding: 0.7rem 1rem; color: #333; vertical-align: middle; }
+.stats-table-empty { text-align: center; color: #bbb; padding: 2rem !important; }
+.stats-td-id { font-family: monospace; font-size: 0.78rem; color: #999; }
+.stats-td-amount { font-weight: 600; color: #1a1a1a; white-space: nowrap; }
+
+.stats-pay-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+}
+.stats-pay-badge.paid   { background: #d4edda; color: #155724; }
+.stats-pay-badge.unpaid { background: #fff3cd; color: #856404; }
+
+.stats-status-badge {
+  display: inline-block; padding: 3px 8px; border-radius: 20px;
+  font-size: 0.75rem; font-weight: 600;
+}
+.stats-status-badge.status-served        { background: #e8d5f5; color: #6c3483; }
+.stats-status-badge.status-accepted      { background: #d4edda; color: #155724; }
+.stats-status-badge.status-preparing     { background: #fff3cd; color: #856404; }
+.stats-status-badge.status-ready         { background: #cce5ff; color: #004085; }
+.stats-status-badge.status-cancelled     { background: #f8d7da; color: #721c24; }
+.stats-status-badge.status-pending_approval { background: #f0f0f0; color: #666; }

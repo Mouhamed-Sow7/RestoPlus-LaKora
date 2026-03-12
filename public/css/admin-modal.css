@@ -1,0 +1,157 @@
+/* ─── Modal Gestion Ticket — mm-* ──────────────────────────────────────── */
+/* Ajouter à la fin de admin.css — supprime les anciens .order-management-modal */
+
+.order-management-modal {
+    position: fixed; inset: 0; z-index: 10000;
+    display: flex; align-items: flex-end;
+    pointer-events: none; opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .order-management-modal.show {
+    pointer-events: all; opacity: 1;
+  }
+  .mm-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(3px);
+  }
+  .mm-sheet {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 520px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-height: 92vh; overflow-y: auto;
+  }
+  .order-management-modal.show .mm-sheet { transform: translateY(0); }
+  
+  @media (min-width: 600px) {
+    .order-management-modal { align-items: center; justify-content: center; }
+    .mm-sheet {
+      border-radius: 20px;
+      transform: scale(0.92) translateY(10px);
+      max-height: 85vh;
+    }
+    .order-management-modal.show .mm-sheet { transform: scale(1) translateY(0); }
+    .mm-handle { display: none; }
+  }
+  
+  .mm-handle {
+    width: 40px; height: 4px;
+    background: #e0e0e0; border-radius: 2px;
+    margin: 12px auto 0;
+  }
+  
+  /* Header */
+  .mm-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    position: sticky; top: 0; background: #fff; z-index: 2;
+  }
+  .mm-header-title { display: flex; align-items: center; gap: 10px; }
+  .mm-header-icon { font-size: 1.4rem; }
+  .mm-header-title h3 { margin: 0; font-size: 1rem; font-weight: 700; color: #1a1a1a; }
+  .mm-order-id {
+    margin: 2px 0 0; font-size: 0.7rem; color: #bbb;
+    font-family: monospace; max-width: 220px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .mm-close {
+    background: #f5f5f5; border: none; border-radius: 50%;
+    width: 32px; height: 32px; font-size: 1rem;
+    cursor: pointer; color: #666; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, color 0.2s;
+  }
+  .mm-close:hover { background: #fde8e8; color: #e74c3c; }
+  
+  /* Body */
+  .mm-body { padding: 1.25rem 1.5rem 1.5rem; }
+  
+  /* Hero */
+  .mm-hero {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    background: #fdf8f3; border-radius: 12px;
+    padding: 1rem 1.25rem; margin-bottom: 1rem;
+    border: 1px solid #ede5d8; gap: 1rem;
+  }
+  .mm-table-badge {
+    display: inline-block; background: #c0873f; color: #fff;
+    border-radius: 6px; padding: 3px 10px;
+    font-size: 0.78rem; font-weight: 700; margin-bottom: 6px;
+  }
+  .mm-total { font-size: 1.6rem; font-weight: 800; color: #1a1a1a; line-height: 1.1; }
+  .mm-total span { font-size: 0.85rem; font-weight: 500; color: #aaa; }
+  .mm-hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .mm-status-pill {
+    display: inline-block; border-radius: 20px;
+    padding: 4px 12px; font-size: 0.78rem; font-weight: 700;
+    white-space: nowrap;
+  }
+  .mm-pay-pill {
+    display: inline-block; border-radius: 20px;
+    padding: 4px 10px; font-size: 0.74rem; font-weight: 600;
+    white-space: nowrap;
+  }
+  .mm-pay-pill.paid   { background: #e8f5e9; color: #27ae60; }
+  .mm-pay-pill.unpaid { background: #fff8e1; color: #e67e22; }
+  
+  /* Items */
+  .mm-items { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
+  .mm-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; background: #fafafa;
+    border-radius: 8px; border: 1px solid #f0f0f0;
+  }
+  .mm-item-name { flex: 1; font-size: 0.88rem; color: #333; font-weight: 500; }
+  .mm-item-qty {
+    font-size: 0.78rem; color: #888; background: #f0f0f0;
+    border-radius: 4px; padding: 2px 8px; flex-shrink: 0;
+  }
+  .mm-item-price { font-size: 0.85rem; font-weight: 700; color: #c0873f; flex-shrink: 0; }
+  
+  /* Footer meta */
+  .mm-footer-meta {
+    display: flex; justify-content: space-between;
+    font-size: 0.75rem; color: #bbb;
+    margin-bottom: 1.25rem; padding: 0 2px;
+  }
+  
+  /* Actions grid */
+  .mm-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .mm-btn {
+    padding: 0.75rem 0.4rem;
+    border: none; border-radius: 10px;
+    font-size: 0.8rem; font-weight: 700;
+    cursor: pointer; transition: all 0.18s;
+    text-align: center; line-height: 1.3;
+  }
+  .mm-btn:hover  { transform: translateY(-2px); filter: brightness(1.06); }
+  .mm-btn:active { transform: scale(0.96); }
+  
+  .mm-btn-accept  { background: #e8f5e9; color: #27ae60; }
+  .mm-btn-prepare { background: #fff8e1; color: #e67e22; }
+  .mm-btn-ready   { background: #e3f2fd; color: #2980b9; }
+  .mm-btn-serve   { background: #e0f2f1; color: #16a085; }
+  .mm-btn-cancel  { background: #fde8e8; color: #e74c3c; }
+  .mm-btn-delete  { background: #f5f5f5; color: #999;    }
+  
+  .mm-btn-accept:hover  { background: #27ae60; color: #fff; }
+  .mm-btn-prepare:hover { background: #e67e22; color: #fff; }
+  .mm-btn-ready:hover   { background: #2980b9; color: #fff; }
+  .mm-btn-serve:hover   { background: #16a085; color: #fff; }
+  .mm-btn-cancel:hover  { background: #e74c3c; color: #fff; }
+  .mm-btn-delete:hover  { background: #999;    color: #fff; }
+  
+  /* Mobile: 2 colonnes pour les petits écrans */
+  @media (max-width: 380px) {
+    .mm-actions-grid { grid-template-columns: 1fr 1fr; }
+  }

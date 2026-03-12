@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connexion Admin - La Kora</title>
+    <link rel="stylesheet" href="css/admin.css" />
+    <link rel="stylesheet" href="css/main.css" />
+<link rel="stylesheet" href="css/fontawesome/css/all.min.css">
+  </head>
+  <body>
+    <div class="login-section">
+      <div class="login-container">
+        <div class="login-header">
+          <div class="login-brand">
+            <span class="brand-name">La Kora</span>
+            <img src="img/kora.jpg" alt="La Kora" class="brand-logo" />
+          </div>
+          <h2>Connexion Admin</h2>
+          <p>Accédez au panneau d'administration</p>
+        </div>
+
+        <form id="login-form" class="login-form">
+          <div class="login-input-group">
+            <div class="login-input-icon">
+            <i class="fa-solid fa-user"></i>
+            </div>
+            <input
+              type="text"
+              id="username"
+              placeholder="Nom d'utilisateur"
+              required
+              autocomplete="username"
+            />
+          </div>
+
+          <div class="login-input-group">
+            <div class="login-input-icon">
+            <i class="fa-solid fa-lock"></i>
+            </div>
+            <input
+              type="password"
+              id="password"
+              placeholder="Mot de passe"
+              required
+              autocomplete="current-password"
+            />
+            <!-- voir pour le mot de passe -->
+             <div class="password-toggle" onclick="togglePassword()">
+              <i class="fa-solid fa-eye" id="password-icon"></i>
+            </div>
+          </div>
+
+          <div class="login-options">
+            <label class="remember-me">
+              <input type="checkbox" id="remember" />
+              <span class="checkmark"></span>
+              Se souvenir de moi
+            </label>
+            <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+          </div>
+
+          <button type="submit" class="login-btn">
+            <span class="btn-text">Se connecter</span>
+            <div class="btn-loader" style="display: none">
+              <div class="spinner"></div>
+            </div>
+          </button>
+
+          <div id="login-error" class="login-error" style="display: none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+              />
+            </svg>
+            Identifiants invalides
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="js/login.js"></script>
+  
+  </body>
+</html>
