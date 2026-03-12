@@ -438,7 +438,7 @@
     width: 120vmin; height: 120vmin;
     left: 50%; top: 50%;
     transform: translate(-50%, -50%);
-    background-image: url("../img/kora.jpg");
+    background-image: url("../img/restoplus.jpg");
     background-size: cover;
     background-position: center;
     filter: saturate(0.9) contrast(1.05) blur(1px) opacity(0.2);
