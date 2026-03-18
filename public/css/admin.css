@@ -356,9 +356,10 @@
   
   .admin-nav {
     display: flex;
-    gap: 2rem;
+  gap: 0.25rem;
     flex-wrap: nowrap;
     align-items: center;
+  margin-left: auto;
   }
   
   .admin-nav .nav-link {
@@ -371,7 +372,15 @@
     white-space: nowrap;
     flex-shrink: 1;
     min-width: 0;
+  font-size: 0.88rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   }
+
+.admin-logo {
+  flex: 0 0 auto;
+}
   
   @media (max-width: 1200px) { .admin-nav { gap: 1.5rem; } .admin-nav .nav-link { padding: 0.5rem 0.8rem; font-size: 0.95rem; } }
   @media (max-width: 1024px) { .admin-nav { gap: 1rem; } .admin-nav .nav-link { padding: 0.5rem 0.7rem; font-size: 0.9rem; } .admin-logo h1 { font-size: 1.3rem; } }

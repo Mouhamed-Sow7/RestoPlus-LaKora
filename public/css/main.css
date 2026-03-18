@@ -38,6 +38,26 @@ body {
   display: block;
 }
 
+.brand-mark-text {
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-family: "Poppins", sans-serif;
+}
+
+.brand-mark--spin {
+  animation: brandMarkSpin 10s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+@keyframes brandMarkSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .logo-row {
   display: flex;
   align-items: center;
