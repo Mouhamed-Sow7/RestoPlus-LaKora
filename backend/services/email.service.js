@@ -9,8 +9,8 @@ const cfg = (() => {
 })();
 
 const restoName = cfg.name || process.env.RESTAURANT_NAME || "RestoPlus";
-const FROM      = process.env.RESTAURANT_EMAIL_FROM || `${restoName} <noreply@restoplus.app>`;
-const RESTO_TO  = process.env.RESTAURANT_EMAIL_TO   || process.env.GMAIL_USER || "";
+const FROM      = process.env.RESTAURANT_EMAIL_FROM || `${restoName} <sowhamedou10@gmail.com>`;
+const RESTO_TO  = process.env.RESTAURANT_EMAIL_TO   || process.env.GMAIL_USER || "sowhamedou10@gmail.com";
 
 function createTransporter() {
   return nodemailer.createTransport({
