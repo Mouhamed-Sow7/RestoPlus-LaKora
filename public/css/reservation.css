@@ -22,6 +22,230 @@
   opacity: 0.9;
 }
 
+.reservation-hero .container {
+  max-width: 900px;
+}
+
+.reservation-hero p {
+  max-width: 700px;
+  margin: 0.5rem auto 0;
+}
+
+/* Reservation page (new layout aligned with main.css) */
+.form-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 780px;
+  margin: -2.5rem auto 0;
+}
+
+.form-group label .req {
+  color: #ff6600;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  font-family: "Poppins", sans-serif;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #8b4513;
+  box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.12);
+}
+
+.field-error {
+  font-size: 0.85rem;
+  color: #dc3545;
+  margin-top: 0.35rem;
+  display: none;
+}
+
+.field-error.visible {
+  display: block;
+}
+
+.form-group input.error,
+.form-group select.error {
+  border-color: #dc3545;
+}
+
+.section-sep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 1.25rem 0 1rem;
+}
+
+.section-sep::before,
+.section-sep::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #eee;
+}
+
+.section-sep span {
+  color: #8b4513;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.guests-selector {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  height: 46px;
+}
+
+.guests-selector.focused {
+  border-color: #8b4513;
+  box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.12);
+}
+
+.guests-btn {
+  width: 46px;
+  color: #8b4513;
+}
+
+.guests-btn:hover {
+  background: rgba(139, 69, 19, 0.08);
+}
+
+.time-slots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 0.5rem;
+}
+
+.time-slot {
+  padding: 10px 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  background: white;
+  transition: all 0.15s ease;
+}
+
+.time-slot:hover {
+  border-color: #8b4513;
+  color: #8b4513;
+  background: rgba(139, 69, 19, 0.06);
+}
+
+.time-slot.selected {
+  background: #8b4513;
+  border-color: #8b4513;
+  color: #fff;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 1rem;
+  background: #ff6600;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: "Poppins", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 1.25rem;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.btn-submit:hover {
+  background: #e05500;
+  transform: translateY(-1px);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+}
+
+.btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-submit .btn-loader {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: reservationSpin 0.7s linear infinite;
+  margin: 0 auto;
+}
+
+.btn-submit.loading .btn-text {
+  display: none;
+}
+
+.btn-submit.loading .btn-loader {
+  display: block;
+}
+
+@keyframes reservationSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.success-card {
+  display: none;
+  background: white;
+  border-radius: 15px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 780px;
+  margin: 1.5rem auto 0;
+}
+
+.success-card.visible {
+  display: block;
+}
+
+.success-icon {
+  width: 72px;
+  height: 72px;
+  background: rgba(40, 167, 69, 0.12);
+  border-radius: 50%;
+  margin: 0 auto 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.success-ref {
+  display: inline-block;
+  background: rgba(139, 69, 19, 0.08);
+  color: #8b4513;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin: 0.9rem 0 0.3rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.success-card p strong {
+  color: #8b4513;
+}
+
 .reservation-section {
   padding: 4rem 0;
   background: #f8f9fa;
@@ -256,6 +480,15 @@
   .reservation-actions {
     width: 100%;
     justify-content: flex-end;
+  }
+
+  .form-card {
+    margin-top: -2rem;
+    padding: 1.5rem;
+  }
+
+  .time-slots {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
