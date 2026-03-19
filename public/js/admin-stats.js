@@ -1,4 +1,4 @@
-// ─── Dashboard Statistiques — La Kora ────────────────────────────────────
+// ─── Dashboard Statistiques — RestoPlus ───────────────────────────────────
 // Dépendances : Chart.js (CDN), SheetJS (CDN) — chargés dans admin.html
 
 class StatsManager {
@@ -420,7 +420,7 @@ class StatsManager {
         { wch: 15 }, { wch: 18 }, { wch: 14 }, { wch: 16 },
       ];
   
-      const filename = `LaKora_Stats_${periodLabels[this.currentPeriod]}_${new Date().toLocaleDateString("fr-FR").replace(/\//g, "-")}.xlsx`;
+      const filename = `RestoPlus_Stats_${periodLabels[this.currentPeriod]}_${new Date().toLocaleDateString("fr-FR").replace(/\//g, "-")}.xlsx`;
       XLSX.writeFile(wb, filename);
     }
   }

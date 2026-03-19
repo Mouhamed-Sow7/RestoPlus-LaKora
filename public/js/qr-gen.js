@@ -1,4 +1,4 @@
-// QR Code Generation for La Kora Restaurant (David Shim QRCode.js)
+// QR Code Generation for RestoPlus (David Shim QRCode.js)
 
 class QRGenerator {
   constructor() {

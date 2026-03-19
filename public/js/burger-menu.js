@@ -1,4 +1,4 @@
-// Burger Menu Management System for La Kora Restaurant
+// Burger Menu Management System for RestoPlus
 
 class BurgerMenuManager {
   constructor() {
@@ -53,7 +53,7 @@ class BurgerMenuManager {
 
     mobileNav.innerHTML = `
       <div class="mobile-nav-header">
-        <h3>La Kora</h3>
+        <h3>RestoPlus</h3>
         <button class="mobile-nav-close" id="mobile-nav-close">×</button>
       </div>
       <div class="mobile-nav-links">

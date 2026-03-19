@@ -1,10 +1,10 @@
-// order-history.js — La Kora Restaurant
+// order-history.js — RestoPlus
 // Source de vérité : MongoDB via GET /api/orders/public?table=X
 // localStorage : uniquement cache des images QR (base64) — aucune donnée métier
 
 class OrderHistoryManager {
   constructor() {
-    this._qrCacheKey = "lakora_qr_cache"; // seul usage légit du localStorage
+    this._qrCacheKey = "restoplus_qr_cache"; // seul usage légit du localStorage
     this._orders     = [];                // cache mémoire session
     this._table      = this._detectTable();
   }

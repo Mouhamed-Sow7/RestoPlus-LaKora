@@ -1,7 +1,7 @@
 {
   "name": "restoplus-backend",
   "version": "1.0.0",
-  "description": "Backend API for RestoPlus - La Kora Restaurant Management System",
+  "description": "Backend API for RestoPlus Restaurant Management System",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -15,7 +15,7 @@
     "mongodb",
     "express"
   ],
-  "author": "La Kora Team",
+  "author": "RestoPlus Team",
   "license": "MIT",
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",

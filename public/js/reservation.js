@@ -1,4 +1,4 @@
-// Reservation Management System for La Kora Restaurant
+// Reservation Management System for RestoPlus
 
 class ReservationManager {
   constructor() {

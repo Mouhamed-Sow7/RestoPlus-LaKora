@@ -1,4 +1,4 @@
-// Menu Management for La Kora Restaurant
+// Menu Management for RestoPlus
 
 // ─── Constantes session ───────────────────────────────────────────────────
 const TABLE_SESSION_KEY    = "tableSession";
@@ -62,7 +62,7 @@ function showBanner(message, color) {
 class MenuManager {
   constructor() {
     this.currentCategory = "plats";
-    this.menuData = window.LaKora?.menuData;
+    this.menuData = window.RestoPlus?.menuData;
     if (!this.menuData) return;
     this.currentOrderId = null;
     this.lastOrderStatus = null;
@@ -156,11 +156,15 @@ class MenuManager {
       </div>
       <div class="item-content">
         <h3>${item.name}</h3>
-        <p class="price">${window.LaKora.formatPrice(item.price)} CFA</p>
+        <p class="price">${window.RestoPlus.formatPrice(item.price)} CFA</p>
       </div>
       <div class="menu-actions">
         <button class="voir-btn" data-item-id="${item.id}">Voir</button>
-        <input type="number" min="1" value="1" class="qty" data-item-id="${item.id}" aria-label="Quantité">
+        <div class="qty-counter" data-item-id="${item.id}" aria-label="Quantité">
+          <button type="button" class="qty-btn qty-minus" aria-label="Diminuer">−</button>
+          <input type="text" value="1" class="qty" data-item-id="${item.id}" aria-label="Quantité" readonly>
+          <button type="button" class="qty-btn qty-plus" aria-label="Augmenter">+</button>
+        </div>
         <button class="add-btn" data-item-id="${item.id}">Ajouter</button>
       </div>
     `;
@@ -169,6 +173,17 @@ class MenuManager {
     img.addEventListener("error", () => { img.onerror = null; img.src = "/img/kora.jpg"; });
 
     menuItem.querySelector(".voir-btn").addEventListener("click", () => this.showItemModal(item));
+
+    // Qty counter (+/-), min 1
+    const qtyInput = menuItem.querySelector(".qty");
+    const btnMinus = menuItem.querySelector(".qty-minus");
+    const btnPlus  = menuItem.querySelector(".qty-plus");
+    const clampQty = (n) => Math.max(1, Number.isFinite(n) ? n : 1);
+    const setQty = (n) => { qtyInput.value = String(clampQty(n)); };
+
+    btnMinus?.addEventListener("click", () => setQty(parseInt(qtyInput.value, 10) - 1));
+    btnPlus?.addEventListener("click", () => setQty(parseInt(qtyInput.value, 10) + 1));
+
     menuItem.querySelector(".add-btn").addEventListener("click", () => {
       // Bloque si pas de session table active
       if (!this.getCurrentTable()) {
@@ -202,7 +217,7 @@ class MenuManager {
     if (item.ingredients) content += `<p><strong>Ingrédients:</strong> ${item.ingredients}</p>`;
     description.innerHTML = content;
 
-    price.textContent = window.LaKora.formatPrice(item.price);
+    price.textContent = window.RestoPlus.formatPrice(item.price);
     modal.classList.add("show");
 
     document.getElementById("modal-close").onclick = () => modal.classList.remove("show");
@@ -334,13 +349,13 @@ class MenuManager {
 // ─── Bootstrap ────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", function () {
   if (window.location.pathname.includes("menu.html")) {
-    const waitForLaKora = () => {
-      if (window.LaKora && window.LaKora.menuData) {
+    const waitForRestoPlus = () => {
+      if (window.RestoPlus && window.RestoPlus.menuData) {
         window.menuManager = new MenuManager();
       } else {
-        setTimeout(waitForLaKora, 100);
+        setTimeout(waitForRestoPlus, 100);
       }
     };
-    waitForLaKora();
+    waitForRestoPlus();
   }
 });

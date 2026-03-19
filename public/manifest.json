@@ -1,6 +1,6 @@
 {
-  "name": "La Kora - Menu",
-  "short_name": "LaKora",
+  "name": "RestoPlus - Menu",
+  "short_name": "RestoPlus",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

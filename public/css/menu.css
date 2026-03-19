@@ -732,10 +732,39 @@
 .menu-item .menu-actions .voir-btn { background: #5a2d0c; }
 
 .menu-item .menu-actions .qty {
-  width: 56px;
-  padding: 6px;
+  width: 46px;
+  padding: 6px 0;
   border-radius: 6px;
   border: 1px solid #e6e6e6;
+  text-align: center;
+  font-weight: 700;
+  background: #fff;
+}
+
+/* Qty counter (mobile friendly) */
+.qty-counter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qty-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #8b4513;
+  color: #fff;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+.qty-btn:active {
+  transform: translateY(1px);
 }
 
 /* Modal image responsive */

@@ -1,4 +1,4 @@
-// Table Management System for La Kora Restaurant
+// Table Management System for RestoPlus
 // Source de vérité : MongoDB collection "tables"
 // localStorage : supprimé — uniquement utilisé pour adminToken (auth)
 
@@ -376,7 +376,7 @@ class TableManager {
         @media print{body{background:white!important}.container{box-shadow:none}}
       </style></head><body>
       <div class="container">
-        <h1>🍽️ La Kora Restaurant</h1>
+        <h1>🍽️ RestoPlus</h1>
         <h2>Table ${table.number}</h2>
         <p>${table.chairs} chaises • ${table.location}</p>
         <div class="qr-code">

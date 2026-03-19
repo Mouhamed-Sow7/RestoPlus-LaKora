@@ -1,4 +1,4 @@
-// Admin Panel Management for La Kora Restaurant
+// Admin Panel Management for RestoPlus
 
 class AdminManager {
   constructor() {

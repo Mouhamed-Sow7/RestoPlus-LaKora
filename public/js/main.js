@@ -1,4 +1,4 @@
-// Main JavaScript for La Kora Restaurant
+// Main JavaScript for RestoPlus
 
 // Notification Utility
 class NotificationManager {
@@ -647,21 +647,39 @@ function generateOrderId() {
 }
 
 // Export for use in other modules
-window.LaKora = {
+window.RestoPlus = {
   TableDetector,
   menuData,
   formatPrice,
   generateOrderId,
 };
 
-// Remove any static/local image paths from menuData so frontend uses curated online images
+// Replace menu images with curated online images (rotation)
+const RESTOPLUS_MENU_IMAGES = [
+  "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400",
+  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400",
+  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400",
+  "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=400",
+  "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400",
+  "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400",
+  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400",
+  "https://images.unsplash.com/photo-1559847844-5315695dadae?w=400",
+  "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=400",
+  "https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400",
+  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400",
+  "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400",
+];
+
 try {
-  Object.keys(menuData).forEach(cat => {
-    menuData[cat].forEach(item => {
-      if (item && item.image) delete item.image;
+  let i = 0;
+  Object.keys(menuData).forEach((cat) => {
+    menuData[cat].forEach((item) => {
+      if (!item) return;
+      item.image = RESTOPLUS_MENU_IMAGES[i % RESTOPLUS_MENU_IMAGES.length];
+      i++;
     });
   });
-} catch (e) {
+} catch {
   // ignore
 }
 

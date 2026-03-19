@@ -1,4 +1,4 @@
-// Shopping Cart Management for La Kora Restaurant
+// Shopping Cart Management for RestoPlus
 
 // ─── Config paiement mobile ───────────────────────────────────────────────
 const PAYMENT_CONFIG = {
@@ -127,7 +127,7 @@ class CartManager {
       <div class="cart-item">
         <div class="cart-item-info">
           <h4>${item.name}</h4>
-          <p>${window.LaKora.formatPrice(item.price)} CFA</p>
+          <p>${window.RestoPlus.formatPrice(item.price)} CFA</p>
         </div>
         <div class="cart-item-controls">
           <button class="cart-qty-btn" onclick="window.cartManager.updateQuantity('${item.id}',${item.quantity-1})" ${item.quantity<=1?"disabled":""}>-</button>
@@ -141,7 +141,7 @@ class CartManager {
 
   updateCartTotal() {
     const el = document.getElementById("cart-total");
-    if (el) el.textContent = `${(window.LaKora?.formatPrice || this.formatPrice)(this.getTotal())} CFA`;
+    if (el) el.textContent = `${(window.RestoPlus?.formatPrice || this.formatPrice)(this.getTotal())} CFA`;
   }
 
   formatPrice(price) { return new Intl.NumberFormat("fr-FR").format(price); }
@@ -175,7 +175,7 @@ class CartManager {
   showPaymentMethodModal() {
     document.querySelector(".payment-modal")?.remove();
     const total = this.getTotal();
-    const fmt   = window.LaKora.formatPrice(total);
+    const fmt   = window.RestoPlus.formatPrice(total);
 
     const modal = document.createElement("div");
     modal.className = "payment-modal";
@@ -288,7 +288,7 @@ class CartManager {
     originalModal.style.display = "none";
     const config = PAYMENT_CONFIG[method];
     const total  = this.getTotal();
-    const fmt    = window.LaKora.formatPrice(total);
+    const fmt    = window.RestoPlus.formatPrice(total);
     const link   = config.deepLink(total);
 
     const overlay = document.createElement("div");
@@ -442,7 +442,7 @@ class CartManager {
 
     ticketTable.textContent = order.table;
     ticketOrder.textContent = order.id;
-    ticketTotal.textContent = window.LaKora.formatPrice(order.total);
+    ticketTotal.textContent = window.RestoPlus.formatPrice(order.total);
 
     this.addPaymentStatusToModal(order);
     qrCode.innerHTML = "";
@@ -564,10 +564,10 @@ class CartManager {
 
 document.addEventListener("DOMContentLoaded", function () {
   if (window.location.pathname.includes("menu.html")) {
-    const waitForLaKora = () => {
-      if (window.LaKora) window.cartManager = new CartManager();
-      else setTimeout(waitForLaKora, 100);
+    const waitForRestoPlus = () => {
+      if (window.RestoPlus) window.cartManager = new CartManager();
+      else setTimeout(waitForRestoPlus, 100);
     };
-    waitForLaKora();
+    waitForRestoPlus();
   }
 });
