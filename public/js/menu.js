@@ -1,9 +1,55 @@
 // Menu Management for RestoPlus
 
 // ─── Constantes session ───────────────────────────────────────────────────
-const TABLE_SESSION_KEY    = "tableSession";
+const TABLE_SESSION_KEY = "tableSession";
 const TABLE_SESSION_TTL_MS = 2 * 60 * 60 * 1000; // 2 heures
+const DISH_IMAGE_MAP = {
+  // Plats
+  "poulet yassa":
+    "https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=400&q=80",
+  thieboudienne:
+    "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&q=80",
+  "thiébou yapp":
+    "https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80",
+  mafé: "https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
+  pastels:
+    "https://images.unsplash.com/photo-1599031565836-e54740c3de3a?w=400&q=80",
+  thiakry:
+    "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80",
+  tiramisu:
+    "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&q=80",
+  "sorbet mangue":
+    "https://images.unsplash.com/photo-1567206563114-c179706e9c04?w=400&q=80",
+  // Boissons
+  bissap:
+    "https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?w=400&q=80",
+  "jus de citron":
+    "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80",
+  "jus de gingembre":
+    "https://images.unsplash.com/photo-1568909344668-6f14a07b56a0?w=400&q=80",
+  "jus d'orange":
+    "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&q=80",
+  "lait de coco":
+    "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400&q=80",
+  "jus de tamarin":
+    "https://images.unsplash.com/photo-1596803244897-3b7d2cd09f23?w=400&q=80",
+  // Fallback générique
+  __default_plat__:
+    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80",
+  __default_boisson__:
+    "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80",
+};
 
+function getItemImage(item, category = "plat") {
+  const key = (item.name || "").toLowerCase().trim();
+  return (
+    DISH_IMAGE_MAP[key] ||
+    item.image ||
+    (category === "boisson"
+      ? DISH_IMAGE_MAP["__default_boisson__"]
+      : DISH_IMAGE_MAP["__default_plat__"])
+  );
+}
 // ─── Helpers session table ────────────────────────────────────────────────
 
 function getTableSession() {
@@ -16,14 +62,19 @@ function getTableSession() {
       return null;
     }
     return session;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 function setTableSession(tableNumber) {
-  sessionStorage.setItem(TABLE_SESSION_KEY, JSON.stringify({
-    table: tableNumber,
-    startedAt: Date.now(),
-  }));
+  sessionStorage.setItem(
+    TABLE_SESSION_KEY,
+    JSON.stringify({
+      table: tableNumber,
+      startedAt: Date.now(),
+    }),
+  );
 }
 
 function clearTableSession() {
@@ -91,7 +142,10 @@ class MenuManager {
       // Pas de paramètre URL → vérifie session existante
       const session = getTableSession();
       if (!session) {
-        showBanner("📍 Scannez le QR code de votre table pour commander.", "#8b4513");
+        showBanner(
+          "📍 Scannez le QR code de votre table pour commander.",
+          "#8b4513",
+        );
       }
     }
   }
@@ -103,7 +157,10 @@ class MenuManager {
 
   onOrderAccepted() {
     clearTableSession();
-    showBanner("✅ Commande acceptée ! Scannez à nouveau le QR de votre table pour une nouvelle commande.", "#28a745");
+    showBanner(
+      "✅ Commande acceptée ! Scannez à nouveau le QR de votre table pour une nouvelle commande.",
+      "#28a745",
+    );
     this.updateTableInfo();
   }
 
@@ -111,23 +168,35 @@ class MenuManager {
 
   setupEventListeners() {
     document.querySelectorAll(".tab-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => this.switchCategory(e.target.dataset.category));
+      btn.addEventListener("click", (e) =>
+        this.switchCategory(e.target.dataset.category),
+      );
     });
     document.querySelectorAll(".mode-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => this.switchOrderingMode(e.target.dataset.mode));
+      btn.addEventListener("click", (e) =>
+        this.switchOrderingMode(e.target.dataset.mode),
+      );
     });
   }
 
   switchCategory(category) {
-    document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.remove("active"));
-    document.querySelector(`[data-category="${category}"]`)?.classList.add("active");
-    document.querySelectorAll(".menu-section").forEach((s) => s.classList.remove("active"));
+    document
+      .querySelectorAll(".tab-btn")
+      .forEach((btn) => btn.classList.remove("active"));
+    document
+      .querySelector(`[data-category="${category}"]`)
+      ?.classList.add("active");
+    document
+      .querySelectorAll(".menu-section")
+      .forEach((s) => s.classList.remove("active"));
     document.getElementById(category)?.classList.add("active");
     this.currentCategory = category;
   }
 
   switchOrderingMode(mode) {
-    document.querySelectorAll(".mode-btn").forEach((btn) => btn.classList.remove("active"));
+    document
+      .querySelectorAll(".mode-btn")
+      .forEach((btn) => btn.classList.remove("active"));
     document.querySelector(`[data-mode="${mode}"]`)?.classList.add("active");
     localStorage.setItem("orderingMode", mode);
     if (window.cartManager) window.cartManager.updateDisplay();
@@ -140,19 +209,26 @@ class MenuManager {
       const grid = document.getElementById(`${category}-grid`);
       if (grid) {
         grid.innerHTML = "";
-        this.menuData[category].forEach((item) => grid.appendChild(this.createMenuItem(item)));
+        this.menuData[category].forEach((item) =>
+          grid.appendChild(this.createMenuItem(item, category)),
+        );
       }
     });
   }
 
-  createMenuItem(item) {
+  createMenuItem(item, category = "plats") {
     const menuItem = document.createElement("div");
     menuItem.className = "menu-item";
-    const imgSrc = item.image || "/img/kora.jpg";
+    const imgSrc = getItemImage(item, category);
 
     menuItem.innerHTML = `
       <div class="thumb">
-        <img src="${imgSrc}" alt="${item.name}" loading="lazy" />
+        <img src="${imgSrc}"
+          alt="${item.name}"
+          loading="lazy"
+          style="object-fit:cover;width:100%;height:100%;border-radius:inherit;"
+          onerror="this.onerror=null;this.src='${DISH_IMAGE_MAP["__default_plat__"]}'"
+        />
       </div>
       <div class="item-content">
         <h3>${item.name}</h3>
@@ -170,24 +246,38 @@ class MenuManager {
     `;
 
     const img = menuItem.querySelector(".thumb img");
-    img.addEventListener("error", () => { img.onerror = null; img.src = "/img/kora.jpg"; });
+    img.addEventListener("error", () => {
+      img.onerror = null;
+      img.src = DISH_IMAGE_MAP["__default_plat__"];
+    });
 
-    menuItem.querySelector(".voir-btn").addEventListener("click", () => this.showItemModal(item));
+    menuItem
+      .querySelector(".voir-btn")
+      .addEventListener("click", () => this.showItemModal(item));
 
     // Qty counter (+/-), min 1
     const qtyInput = menuItem.querySelector(".qty");
     const btnMinus = menuItem.querySelector(".qty-minus");
-    const btnPlus  = menuItem.querySelector(".qty-plus");
+    const btnPlus = menuItem.querySelector(".qty-plus");
     const clampQty = (n) => Math.max(1, Number.isFinite(n) ? n : 1);
-    const setQty = (n) => { qtyInput.value = String(clampQty(n)); };
+    const setQty = (n) => {
+      qtyInput.value = String(clampQty(n));
+    };
 
-    btnMinus?.addEventListener("click", () => setQty(parseInt(qtyInput.value, 10) - 1));
-    btnPlus?.addEventListener("click", () => setQty(parseInt(qtyInput.value, 10) + 1));
+    btnMinus?.addEventListener("click", () =>
+      setQty(parseInt(qtyInput.value, 10) - 1),
+    );
+    btnPlus?.addEventListener("click", () =>
+      setQty(parseInt(qtyInput.value, 10) + 1),
+    );
 
     menuItem.querySelector(".add-btn").addEventListener("click", () => {
       // Bloque si pas de session table active
       if (!this.getCurrentTable()) {
-        showBanner("📍 Scannez le QR code de votre table pour commander.", "#c0392b");
+        showBanner(
+          "📍 Scannez le QR code de votre table pour commander.",
+          "#c0392b",
+        );
         return;
       }
       const qty = parseInt(menuItem.querySelector(".qty").value);
@@ -201,27 +291,34 @@ class MenuManager {
   }
 
   showItemModal(item) {
-    const modal       = document.getElementById("item-modal");
-    const title       = document.getElementById("modal-title");
-    const image       = document.getElementById("modal-image");
+    const modal = document.getElementById("item-modal");
+    const title = document.getElementById("modal-title");
+    const image = document.getElementById("modal-image");
     const description = document.getElementById("modal-description");
-    const price       = document.getElementById("modal-price");
+    const price = document.getElementById("modal-price");
 
     title.textContent = item.name;
-    image.src = item.image || "/img/kora.jpg";
+    image.src = getItemImage(item, item.category || "plat");
     image.alt = item.name;
     image.onerror = null;
-    image.addEventListener("error", () => { image.src = "/img/kora.jpg"; });
+    image.addEventListener("error", () => {
+      image.onerror = null;
+      image.src = DISH_IMAGE_MAP["__default_plat__"];
+    });
 
     let content = `<p><strong>Description:</strong> ${item.description}</p>`;
-    if (item.ingredients) content += `<p><strong>Ingrédients:</strong> ${item.ingredients}</p>`;
+    if (item.ingredients)
+      content += `<p><strong>Ingrédients:</strong> ${item.ingredients}</p>`;
     description.innerHTML = content;
 
     price.textContent = window.RestoPlus.formatPrice(item.price);
     modal.classList.add("show");
 
-    document.getElementById("modal-close").onclick = () => modal.classList.remove("show");
-    modal.onclick = (e) => { if (e.target === modal) modal.classList.remove("show"); };
+    document.getElementById("modal-close").onclick = () =>
+      modal.classList.remove("show");
+    modal.onclick = (e) => {
+      if (e.target === modal) modal.classList.remove("show");
+    };
   }
 
   addToCart(item, quantity) {
@@ -250,15 +347,24 @@ class MenuManager {
 
   startOrderPolling(orderId, resetStatus = false) {
     if (!orderId) return;
-    if (this.orderPollTimer) { clearInterval(this.orderPollTimer); this.orderPollTimer = null; }
+    if (this.orderPollTimer) {
+      clearInterval(this.orderPollTimer);
+      this.orderPollTimer = null;
+    }
     this.currentOrderId = orderId;
     if (resetStatus) this.lastOrderStatus = null;
     this.fetchAndUpdateOrderStatus();
-    this.orderPollTimer = setInterval(() => this.fetchAndUpdateOrderStatus(), 5000);
+    this.orderPollTimer = setInterval(
+      () => this.fetchAndUpdateOrderStatus(),
+      5000,
+    );
   }
 
   stopOrderPolling() {
-    if (this.orderPollTimer) { clearInterval(this.orderPollTimer); this.orderPollTimer = null; }
+    if (this.orderPollTimer) {
+      clearInterval(this.orderPollTimer);
+      this.orderPollTimer = null;
+    }
     this.currentOrderId = null;
     this.lastOrderStatus = null;
     localStorage.removeItem("currentOrderId");
@@ -267,8 +373,13 @@ class MenuManager {
   async fetchAndUpdateOrderStatus() {
     if (!this.currentOrderId) return;
     try {
-      const res = await fetch(`/api/orders/${encodeURIComponent(this.currentOrderId)}`);
-      if (!res.ok) { if (res.status === 404) this.stopOrderPolling(); return; }
+      const res = await fetch(
+        `/api/orders/${encodeURIComponent(this.currentOrderId)}`,
+      );
+      if (!res.ok) {
+        if (res.status === 404) this.stopOrderPolling();
+        return;
+      }
       const order = await res.json();
       if (!order?.status) return;
 
@@ -280,7 +391,8 @@ class MenuManager {
         if (order.status === "accepted") this.onOrderAccepted();
       }
 
-      if (order.status === "served" || order.status === "cancelled") this.stopOrderPolling();
+      if (order.status === "served" || order.status === "cancelled")
+        this.stopOrderPolling();
     } catch {}
   }
 
@@ -294,8 +406,10 @@ class MenuManager {
     if (!statusRow) {
       statusRow = document.createElement("p");
       statusRow.id = "ticket-status-row";
-      const strong = document.createElement("strong"); strong.textContent = "Statut: ";
-      const span   = document.createElement("span");   span.id = "ticket-status";
+      const strong = document.createElement("strong");
+      strong.textContent = "Statut: ";
+      const span = document.createElement("span");
+      span.id = "ticket-status";
       statusRow.appendChild(strong);
       statusRow.appendChild(span);
       ticketInfo.appendChild(statusRow);
@@ -311,7 +425,7 @@ class MenuManager {
         order.orderId || order.id,
         "Statut mis à jour",
         `Votre commande est maintenant : ${this.getStatusLabel(order.status)}`,
-        4000
+        4000,
       );
     }
     this.playNotificationSound();
@@ -319,14 +433,14 @@ class MenuManager {
 
   getStatusLabel(status) {
     const labels = {
-      pending:          "En attente",
-      pending_scan:     "En attente (scan)",
+      pending: "En attente",
+      pending_scan: "En attente (scan)",
       pending_approval: "En attente d'approbation",
-      accepted:         "Acceptée",
-      preparing:        "En préparation",
-      ready:            "Prête",
-      served:           "Servie",
-      cancelled:        "Annulée",
+      accepted: "Acceptée",
+      preparing: "En préparation",
+      ready: "Prête",
+      served: "Servie",
+      cancelled: "Annulée",
     };
     return labels[status] || status;
   }
@@ -338,10 +452,12 @@ class MenuManager {
       const g = ctx.createGain();
       o.type = "sine";
       o.frequency.value = 880;
-      o.connect(g); g.connect(ctx.destination);
+      o.connect(g);
+      g.connect(ctx.destination);
       g.gain.setValueAtTime(0.2, ctx.currentTime);
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-      o.start(); o.stop(ctx.currentTime + 0.3);
+      o.start();
+      o.stop(ctx.currentTime + 0.3);
     } catch {}
   }
 }
