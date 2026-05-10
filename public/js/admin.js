@@ -87,21 +87,24 @@ class AdminManager {
     // Wait for Html5Qrcode to be available
     this.waitForQRScannerLibrary()
       .then(() => {
-        if (typeof Html5Qrcode !== "undefined" && typeof QRScannerManager !== "undefined") {
+        if (
+          typeof Html5Qrcode !== "undefined" &&
+          typeof QRScannerManager !== "undefined"
+        ) {
           // Create admin-specific scanner manager
           window.qrScannerAdmin = new QRScannerManager(
             "qr-scanner-container-admin",
             "qr-reader",
             "toggleCamBtn-admin",
             "camera-select-admin",
-            "camera-selection-admin"
+            "camera-selection-admin",
           );
-          
+
           // Override handleQRScan and processQRCodeScan for admin page
           window.qrScannerAdmin.handleQRScan = (decodedText) => {
             this.handleQRScan(decodedText);
           };
-          
+
           // Also override processQRCodeScan to ensure admin handling
           window.qrScannerAdmin.processQRCodeScan = (decodedText) => {
             // Guard: ignore if a modal is already open or already processing
@@ -116,7 +119,7 @@ class AdminManager {
             // On admin page, always use admin's handleQRScan
             this.handleQRScan(decodedText);
           };
-          
+
           // Store reference to admin manager for scanner
           window.adminManager = this;
         } else {
@@ -192,19 +195,25 @@ class AdminManager {
   restartScanner() {
     if (window.qrScannerAdmin) {
       // Stop camera if active
-      if (window.qrScannerAdmin.html5QrCode && window.qrScannerAdmin.html5QrCode.isScanning) {
-        window.qrScannerAdmin.html5QrCode.stop().then(() => {
-          window.qrScannerAdmin.resetCameraState();
-          // Reinitialize scanner
-          setTimeout(() => {
-            this.initializeQRScanner();
-          }, 100);
-        }).catch(() => {
-          window.qrScannerAdmin.resetCameraState();
-          setTimeout(() => {
-            this.initializeQRScanner();
-          }, 100);
-        });
+      if (
+        window.qrScannerAdmin.html5QrCode &&
+        window.qrScannerAdmin.html5QrCode.isScanning
+      ) {
+        window.qrScannerAdmin.html5QrCode
+          .stop()
+          .then(() => {
+            window.qrScannerAdmin.resetCameraState();
+            // Reinitialize scanner
+            setTimeout(() => {
+              this.initializeQRScanner();
+            }, 100);
+          })
+          .catch(() => {
+            window.qrScannerAdmin.resetCameraState();
+            setTimeout(() => {
+              this.initializeQRScanner();
+            }, 100);
+          });
       } else {
         window.qrScannerAdmin.resetCameraState();
         setTimeout(() => {
@@ -231,37 +240,43 @@ class AdminManager {
 
   handleQRScan(decodedText) {
     // Clear loading state when handling scan
-    if (window.qrScannerAdmin && typeof window.qrScannerAdmin.hideScanLoader === "function") {
+    if (
+      window.qrScannerAdmin &&
+      typeof window.qrScannerAdmin.hideScanLoader === "function"
+    ) {
       window.qrScannerAdmin.hideScanLoader();
     }
+
+    console.debug("[AdminQR] Decoded:", decodedText.substring(0, 80));
 
     try {
       // Try to parse as JSON (table QR code or order QR code)
       const qrData = JSON.parse(decodedText);
 
       if (qrData.table && qrData.url) {
-        // This is a table QR code - register table and redirect to menu
-        // Store the scanned table info for the menu page
-        sessionStorage.setItem(
-          "scannedTable",
-          JSON.stringify({
-            table: qrData.table,
-            chairs: qrData.chairs,
-            location: qrData.location,
-            scannedAt: new Date().toISOString(),
-          })
-        );
-
-        // Show notification and redirect
+        // This is a table QR code - show warning, do not redirect
         NotificationManager.showSuccess(
-          "Table détectée !",
-          `Table ${qrData.table} (${qrData.chairs} chaises - ${qrData.location})`,
-          2000
+          null,
+          "⚠️ QR de Table Détecté",
+          `Table ${qrData.table} — ${qrData.chairs || "?"} couverts (${qrData.location || ""}). Ce QR est destiné aux clients. Scannez un QR de commande.`,
+          4000,
         );
 
+        // Reset processing state if available
+        if (
+          window.qrScannerAdmin &&
+          typeof window.qrScannerAdmin.processingScan !== "undefined"
+        ) {
+          window.qrScannerAdmin.processingScan = false;
+        }
+
+        // Restart scanner after delay
         setTimeout(() => {
-          window.location.href = qrData.url;
-        }, 2000);
+          if (this.restartScanner) {
+            this.restartScanner();
+          }
+        }, 500);
+
         return;
       }
 
@@ -273,7 +288,7 @@ class AdminManager {
             orderId,
             "Erreur",
             "Impossible de traiter cette commande",
-            3000
+            3000,
           );
         });
         return;
@@ -287,7 +302,7 @@ class AdminManager {
             orderId,
             "Erreur",
             "Impossible de traiter cette commande",
-            3000
+            3000,
           );
         });
         return;
@@ -295,12 +310,12 @@ class AdminManager {
     }
 
     // QR Code not recognized
-    NotificationManager.showSuccess(
-      null,
-      "Erreur",
-      "QR Code non reconnu. Veuillez scanner un QR code de table ou de commande valide.",
-      3000
-    );
+    const isUrl = decodedText.includes("http");
+    const errorMessage = isUrl
+      ? "Ce QR est une URL externe, non compatible."
+      : "QR non reconnu.";
+
+    NotificationManager.showSuccess(null, "Erreur", errorMessage, 3000);
   }
 
   // Handle order scanning with table detection and fusion logic
@@ -315,7 +330,7 @@ class AdminManager {
           orderId,
           "Erreur",
           "Authentification requise",
-          3000
+          3000,
         );
         return;
       }
@@ -351,7 +366,7 @@ class AdminManager {
             orderId,
             "Commande déjà traitée",
             `Cette commande est déjà ${statusText}.`,
-            3000
+            3000,
           );
         }
         this.restartScanner();
@@ -363,7 +378,7 @@ class AdminManager {
           orderId,
           "Erreur",
           "Impossible de détecter la table de cette commande",
-          3000
+          3000,
         );
         return;
       }
@@ -376,19 +391,19 @@ class AdminManager {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const relatedOrdersData = await relatedOrdersRes.json();
       const relatedOrders = Array.isArray(relatedOrdersData.orders)
         ? relatedOrdersData.orders
         : Array.isArray(relatedOrdersData)
-        ? relatedOrdersData
-        : [];
+          ? relatedOrdersData
+          : [];
 
       // Filter out the current order and get others
       const otherOrders = relatedOrders.filter(
-        (o) => (o.orderId || o.id) !== orderId
+        (o) => (o.orderId || o.id) !== orderId,
       );
 
       // Check if we're in the middle of a fusion flow (scanning more orders)
@@ -399,29 +414,34 @@ class AdminManager {
         const additionalOrders = relatedOrders.filter(
           (o) =>
             !allPendingOrders.some(
-              (po) => (po.orderId || po.id) === (o.orderId || o.id)
-            )
+              (po) => (po.orderId || po.id) === (o.orderId || o.id),
+            ),
         );
-        
+
         // Combine all orders
-        const combinedOrders = [...this.pendingFusionOrders, scannedOrder, ...additionalOrders];
-        
+        const combinedOrders = [
+          ...this.pendingFusionOrders,
+          scannedOrder,
+          ...additionalOrders,
+        ];
+
         // Store combined orders before clearing state
         const ordersToShow = combinedOrders;
-        
+
         // Clear pending fusion state
         this.pendingFusionOrders = null;
         this.pendingFusionTable = null;
-        
+
         // Show fusion modal with all orders (scanned order + previous orders)
         // Pass only other orders (excluding scannedOrder which will be added in showOrderFusionModal)
         const otherOrdersForModal = ordersToShow.filter(
-          (o) => (o.orderId || o.id) !== (scannedOrder.orderId || scannedOrder.id)
+          (o) =>
+            (o.orderId || o.id) !== (scannedOrder.orderId || scannedOrder.id),
         );
         this.showOrderFusionModal(
           scannedOrder,
           otherOrdersForModal,
-          orderTable
+          orderTable,
         );
       } else if (otherOrders.length > 0) {
         // First time detecting multiple orders - show fusion modal
@@ -435,7 +455,7 @@ class AdminManager {
         orderId,
         "Erreur",
         "Impossible de charger la commande",
-        3000
+        3000,
       );
     }
   }
@@ -449,14 +469,13 @@ class AdminManager {
     document.getElementById("order-mode").textContent =
       order.mode === "group" ? "Groupe" : "Individuel";
     document.getElementById("order-total").textContent = this.formatPrice(
-      order.total
+      order.total,
     );
     document.getElementById("order-status").textContent = this.getStatusText(
-      order.status
+      order.status,
     );
-    document.getElementById(
-      "order-status"
-    ).className = `status-badge ${order.status}`;
+    document.getElementById("order-status").className =
+      `status-badge ${order.status}`;
 
     // Update order items
     const orderItems = document.getElementById("order-items");
@@ -467,7 +486,7 @@ class AdminManager {
                 <span>${item.name} x${item.quantity}</span>
                 <span>${this.formatPrice(item.price * item.quantity)} CFA</span>
             </div>
-        `
+        `,
       )
       .join("");
 
@@ -482,7 +501,7 @@ class AdminManager {
       // Use authenticated fetch if available
       if (window.adminAuth && window.adminAuth.authenticatedFetch) {
         res = await window.adminAuth.authenticatedFetch(
-          "/api/orders?limit=200&includePendingApproval=true"
+          "/api/orders?limit=200&includePendingApproval=true",
         );
         data = await res.json();
       } else {
@@ -510,8 +529,8 @@ class AdminManager {
       this.orders = Array.isArray(data.orders)
         ? data.orders
         : Array.isArray(data)
-        ? data
-        : [];
+          ? data
+          : [];
       this.displayOrders();
       return Promise.resolve();
     } catch (e) {
@@ -535,12 +554,12 @@ class AdminManager {
     const PENDING_STATUSES = ["pending_approval", "pending_scan", "pending"];
 
     const statusConfig = [
-      { key: "pending_approval", title: "À valider",       emoji: "🔔" },
-      { key: "accepted",         title: "Acceptées",       emoji: "✅" },
-      { key: "preparing",        title: "En préparation",  emoji: "👨‍🍳" },
-      { key: "ready",            title: "Prêtes",          emoji: "🍽️" },
-      { key: "served",           title: "Servies",         emoji: "🎉" },
-      { key: "cancelled",        title: "Annulées",        emoji: "❌" },
+      { key: "pending_approval", title: "À valider", emoji: "🔔" },
+      { key: "accepted", title: "Acceptées", emoji: "✅" },
+      { key: "preparing", title: "En préparation", emoji: "👨‍🍳" },
+      { key: "ready", title: "Prêtes", emoji: "🍽️" },
+      { key: "served", title: "Servies", emoji: "🎉" },
+      { key: "cancelled", title: "Annulées", emoji: "❌" },
     ];
 
     const grouped = {};
@@ -563,18 +582,23 @@ class AdminManager {
       const safeTotal = this.formatPrice(order.total || 0);
       const safeItemCount = (order.items && order.items.length) || 0;
       const safeTime = order.timestamp
-        ? new Date(order.timestamp).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
+        ? new Date(order.timestamp).toLocaleTimeString("fr-FR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
         : "—";
       const itemsPreview = (order.items || [])
         .slice(0, 2)
         .map((i) => `${i.name}${i.quantity > 1 ? " x" + i.quantity : ""}`)
         .join(", ");
       const moreItems = safeItemCount > 2 ? ` +${safeItemCount - 2}` : "";
-      const payBadge = order.paymentStatus === "paid"
-        ? `<span class="pay-badge paid">💳 Payé</span>`
-        : `<span class="pay-badge pending-pay">⏳ Impayé</span>`;
+      const payBadge =
+        order.paymentStatus === "paid"
+          ? `<span class="pay-badge paid">💳 Payé</span>`
+          : `<span class="pay-badge pending-pay">⏳ Impayé</span>`;
 
-      const actionButtons = isPending ? `
+      const actionButtons = isPending
+        ? `
           <div class="kanban-approval-actions">
             <button class="btn-kanban-approve" data-action="approve" data-order-id="${id}">
               ✅ Approuver
@@ -585,7 +609,8 @@ class AdminManager {
           </div>
           <button class="btn-kanban-manage" data-action="manage" data-order-id="${id}">
             Détails →
-          </button>` : `
+          </button>`
+        : `
           <button class="btn-kanban-manage" data-action="manage" data-order-id="${id}">
             Gérer →
           </button>`;
@@ -609,9 +634,10 @@ class AdminManager {
     const renderColumn = (statusKey, title, emoji, items) => {
       const safeItems = items || [];
       const isPending = statusKey === "pending_approval";
-      const cards = safeItems.length > 0
-        ? safeItems.map((order) => renderCard(order, isPending)).join("")
-        : `<div class="kanban-empty">Aucune commande</div>`;
+      const cards =
+        safeItems.length > 0
+          ? safeItems.map((order) => renderCard(order, isPending)).join("")
+          : `<div class="kanban-empty">Aucune commande</div>`;
 
       return `
       <div class="orders-column status-${statusKey}">
@@ -635,7 +661,7 @@ class AdminManager {
       container.addEventListener("click", async (e) => {
         const btn = e.target.closest("button[data-action]");
         if (!btn) return;
-        const action  = btn.getAttribute("data-action");
+        const action = btn.getAttribute("data-action");
         const orderId = btn.getAttribute("data-order-id");
         if (!orderId) return;
 
@@ -660,21 +686,36 @@ class AdminManager {
     btn.disabled = true;
     btn.textContent = "⏳...";
     try {
-      const token = sessionStorage.getItem("adminToken") || localStorage.getItem("adminToken");
+      const token =
+        sessionStorage.getItem("adminToken") ||
+        localStorage.getItem("adminToken");
       const res = await fetch(`/api/orders/${orderId}/scan/validate`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const idx = this.orders.findIndex((o) => (o.orderId || o.id) === orderId);
       if (idx !== -1) this.orders[idx].status = "accepted";
-      NotificationManager.showSuccess(orderId, "Commande approuvée !", `Commande ${orderId} validée manuellement`, 3000);
+      NotificationManager.showSuccess(
+        orderId,
+        "Commande approuvée !",
+        `Commande ${orderId} validée manuellement`,
+        3000,
+      );
       this.displayOrders();
     } catch (err) {
       if (card) card.style.opacity = "1";
       btn.disabled = false;
       btn.textContent = "✅ Approuver";
-      NotificationManager.showSuccess(orderId, "Erreur", "Impossible d'approuver la commande", 3000);
+      NotificationManager.showSuccess(
+        orderId,
+        "Erreur",
+        "Impossible d'approuver la commande",
+        3000,
+      );
     }
   }
 
@@ -685,21 +726,36 @@ class AdminManager {
     btn.disabled = true;
     btn.textContent = "⏳...";
     try {
-      const token = sessionStorage.getItem("adminToken") || localStorage.getItem("adminToken");
+      const token =
+        sessionStorage.getItem("adminToken") ||
+        localStorage.getItem("adminToken");
       const res = await fetch(`/api/orders/${orderId}/scan/reject`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const idx = this.orders.findIndex((o) => (o.orderId || o.id) === orderId);
       if (idx !== -1) this.orders[idx].status = "cancelled";
-      NotificationManager.showSuccess(orderId, "Commande rejetée", `Commande ${orderId} rejetée`, 3000);
+      NotificationManager.showSuccess(
+        orderId,
+        "Commande rejetée",
+        `Commande ${orderId} rejetée`,
+        3000,
+      );
       this.displayOrders();
     } catch (err) {
       if (card) card.style.opacity = "1";
       btn.disabled = false;
       btn.textContent = "❌ Rejeter";
-      NotificationManager.showSuccess(orderId, "Erreur", "Impossible de rejeter la commande", 3000);
+      NotificationManager.showSuccess(
+        orderId,
+        "Erreur",
+        "Impossible de rejeter la commande",
+        3000,
+      );
     }
   }
   filterOrders(status) {
@@ -707,7 +763,7 @@ class AdminManager {
     let filteredOrders = this.orders || [];
     if (status !== "all") {
       filteredOrders = filteredOrders.filter(
-        (order) => order.status === status
+        (order) => order.status === status,
       );
     }
 
@@ -750,7 +806,7 @@ class AdminManager {
       section(
         status === "all" ? "Toutes" : this.getStatusText(status),
         status,
-        filteredOrders
+        filteredOrders,
       ),
     ].join("");
   }
@@ -793,7 +849,7 @@ class AdminManager {
             orderId,
             "Erreur",
             `Commande ${orderId} introuvable`,
-            2000
+            2000,
           );
         }
       });
@@ -814,7 +870,10 @@ class AdminManager {
 
     const payIcon = order.paymentStatus === "paid" ? "💳 Payé" : "⏳ Impayé";
     const itemsList = (order.items || [])
-      .map((i) => `<span class="modal-item-chip">${i.name} ×${i.quantity || 1} — ${this.formatPrice((i.price || 0) * (i.quantity || 1))} CFA</span>`)
+      .map(
+        (i) =>
+          `<span class="modal-item-chip">${i.name} ×${i.quantity || 1} — ${this.formatPrice((i.price || 0) * (i.quantity || 1))} CFA</span>`,
+      )
       .join("");
 
     orderDetailsElement.innerHTML = `
@@ -869,7 +928,8 @@ class AdminManager {
       btn.onclick = (e) => {
         const action = e.currentTarget.getAttribute("data-action");
         if (!this.currentManagingOrder) return;
-        const orderId = this.currentManagingOrder.orderId || this.currentManagingOrder.id;
+        const orderId =
+          this.currentManagingOrder.orderId || this.currentManagingOrder.id;
 
         // Suppression → confirmation d'abord
         if (action === "delete") {
@@ -878,7 +938,9 @@ class AdminManager {
         }
 
         // 1. Mise à jour optimiste locale immédiate
-        const orderIndex = this.orders.findIndex((o) => (o.orderId || o.id) === orderId);
+        const orderIndex = this.orders.findIndex(
+          (o) => (o.orderId || o.id) === orderId,
+        );
         if (orderIndex !== -1) {
           this.orders[orderIndex].status = action;
         }
@@ -940,13 +1002,17 @@ class AdminManager {
     const close = () => overlay.remove();
 
     document.getElementById("confirm-delete-cancel").onclick = close;
-    overlay.onclick = (e) => { if (e.target === overlay) close(); };
+    overlay.onclick = (e) => {
+      if (e.target === overlay) close();
+    };
 
     document.getElementById("confirm-delete-yes").onclick = () => {
       close();
 
       // Mise à jour optimiste locale
-      const orderIndex = this.orders.findIndex((o) => (o.orderId || o.id) === orderId);
+      const orderIndex = this.orders.findIndex(
+        (o) => (o.orderId || o.id) === orderId,
+      );
       if (orderIndex !== -1) this.orders.splice(orderIndex, 1);
 
       // Fermer le modal parent
@@ -998,13 +1064,12 @@ class AdminManager {
       if (contentType && contentType.includes("application/json")) {
         try {
           result = await response.json();
-        } catch (e) {
-        }
+        } catch (e) {}
       }
       if (newStatus === "delete") {
         // Remove order from local array
         const orderIndex = this.orders.findIndex(
-          (o) => (o.orderId || o.id) === orderId
+          (o) => (o.orderId || o.id) === orderId,
         );
         if (orderIndex !== -1) {
           this.orders.splice(orderIndex, 1);
@@ -1025,13 +1090,13 @@ class AdminManager {
             orderId,
             "Commande supprimée !",
             `Commande ${orderId} supprimée définitivement`,
-            2000
+            2000,
           );
         }, 100);
       } else {
         // Update local orders array
         const orderIndex = this.orders.findIndex(
-          (o) => (o.orderId || o.id) === orderId
+          (o) => (o.orderId || o.id) === orderId,
         );
         if (orderIndex !== -1) {
           this.orders[orderIndex].status = newStatus;
@@ -1043,7 +1108,7 @@ class AdminManager {
           orderId,
           "Statut mis à jour !",
           `Commande ${orderId} : ${this.getStatusLabel(newStatus)}`,
-          2000
+          2000,
         );
 
         // Notify frontend about status change (for real-time sync)
@@ -1061,7 +1126,7 @@ class AdminManager {
       if (newStatus === "delete") {
         // Check if deletion actually succeeded despite error in response handling
         const orderStillExists = this.orders.find(
-          (o) => (o.orderId || o.id) === orderId
+          (o) => (o.orderId || o.id) === orderId,
         );
         if (!orderStillExists) {
           // Order was removed, so deletion likely succeeded
@@ -1070,14 +1135,14 @@ class AdminManager {
             orderId,
             "Commande supprimée !",
             `Commande ${orderId} supprimée`,
-            2000
+            2000,
           );
         } else {
           NotificationManager.showSuccess(
             orderId,
             "Erreur",
             "Impossible de supprimer la commande",
-            3000
+            3000,
           );
         }
       } else {
@@ -1085,7 +1150,7 @@ class AdminManager {
           orderId,
           "Erreur",
           "Impossible de mettre à jour le statut",
-          3000
+          3000,
         );
       }
     }
@@ -1114,11 +1179,11 @@ class AdminManager {
     const allOrders = [scannedOrder, ...otherOrders];
     const totalItems = allOrders.reduce(
       (sum, order) => sum + (order.items?.length || 0),
-      0
+      0,
     );
     const grandTotal = allOrders.reduce(
       (sum, order) => sum + (order.total || 0),
-      0
+      0,
     );
     const orderCount = allOrders.length;
     const orderCountLabel =
@@ -1153,12 +1218,12 @@ class AdminManager {
                     ${(order.items || [])
                       .map(
                         (item) =>
-                          `<span class="fusion-item">${item.name} x${item.quantity}</span>`
+                          `<span class="fusion-item">${item.name} x${item.quantity}</span>`,
                       )
                       .join(", ")}
                   </div>
                 </div>
-              `
+              `,
                 )
                 .join("")}
             </div>
@@ -1224,7 +1289,7 @@ class AdminManager {
           null,
           "Scanner prêt",
           `Scannez une autre commande pour la table ${tableNumber}`,
-          2000
+          2000,
         );
       }, 300);
     };
@@ -1247,7 +1312,7 @@ class AdminManager {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
-          })
+          }),
         );
 
         await Promise.all(approvePromises);
@@ -1256,7 +1321,7 @@ class AdminManager {
           scannedOrder.orderId || scannedOrder.id,
           "Commandes approuvées",
           `${allOrders.length} commande(s) approuvée(s) séparément pour la table ${tableNumber}`,
-          3000
+          3000,
         );
 
         // Refresh orders list
@@ -1266,7 +1331,7 @@ class AdminManager {
           scannedOrder.orderId || scannedOrder.id,
           "Erreur",
           "Impossible d'approuver les commandes",
-          3000
+          3000,
         );
       } finally {
         this.restartScanner();
@@ -1307,7 +1372,7 @@ class AdminManager {
           scannedOrder.orderId || scannedOrder.id,
           "Commandes fusionnées !",
           `Commande ${fusedOrder.orderId} créée pour la table ${tableNumber}`,
-          3000
+          3000,
         );
 
         // Refresh orders list
@@ -1317,7 +1382,7 @@ class AdminManager {
           scannedOrder.orderId || scannedOrder.id,
           "Erreur",
           "Impossible de fusionner les commandes",
-          3000
+          3000,
         );
       } finally {
         this.restartScanner();
@@ -1362,7 +1427,7 @@ class AdminManager {
                     <span>x${item.quantity}</span>
                     <span>${this.formatPrice(item.price * item.quantity)} CFA</span>
                   </div>
-                `
+                `,
                   )
                   .join("")}
               </div>
@@ -1425,14 +1490,14 @@ class AdminManager {
           order.orderId || order.id,
           "Commande rejetée",
           `Commande ${order.orderId || order.id} rejetée`,
-          3000
+          3000,
         );
       } catch (error) {
         NotificationManager.showSuccess(
           order.orderId || order.id,
           "Erreur",
           "Impossible de rejeter la commande",
-          3000
+          3000,
         );
       } finally {
         setTimeout(() => {
@@ -1445,45 +1510,45 @@ class AdminManager {
     acceptBtn.onclick = async () => {
       modal.remove();
       if (window.qrScannerAdmin) window.qrScannerAdmin.processingScan = false;
-    try {
-      const token =
-        sessionStorage.getItem("adminToken") ||
-        localStorage.getItem("adminToken");
-
-      const res = await fetch(
-        `/api/orders/${order.orderId || order.id}/scan/validate`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
-      NotificationManager.showSuccess(
-        order.orderId || order.id,
-        "Commande approuvée !",
-        `Commande ${order.orderId || order.id} approuvée et ajoutée à la gestion`,
-        3000
-      );
-
-      // Try to refresh orders list; errors here should not block UI
       try {
-        await this.loadOrders(true);
-      } catch (loadErr) {
-        // ignore reload errors
-      }
-    } catch (error) {
+        const token =
+          sessionStorage.getItem("adminToken") ||
+          localStorage.getItem("adminToken");
+
+        const res = await fetch(
+          `/api/orders/${order.orderId || order.id}/scan/validate`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        NotificationManager.showSuccess(
+          order.orderId || order.id,
+          "Commande approuvée !",
+          `Commande ${order.orderId || order.id} approuvée et ajoutée à la gestion`,
+          3000,
+        );
+
+        // Try to refresh orders list; errors here should not block UI
+        try {
+          await this.loadOrders(true);
+        } catch (loadErr) {
+          // ignore reload errors
+        }
+      } catch (error) {
         NotificationManager.showSuccess(
           order.orderId || order.id,
           "Erreur",
           "Impossible d'approuver la commande",
-          3000
+          3000,
         );
       } finally {
         setTimeout(() => {
@@ -1499,7 +1564,7 @@ class AdminManager {
     window.dispatchEvent(
       new CustomEvent("orderStatusChanged", {
         detail: { orderId, status: newStatus },
-      })
+      }),
     );
   }
 }
@@ -1527,26 +1592,32 @@ function initAdminSPA() {
   const navLinks = document.querySelectorAll(".admin-nav .nav-link[href^='#']");
   if (!navLinks.length) return;
 
-  const scannerSection   = document.querySelector(".scanner-section");
+  const scannerSection = document.querySelector(".scanner-section");
   const orderDetailsSection = document.getElementById("order-details");
-  const ordersSection    = document.getElementById("orders");
-  const tablesSection    = document.getElementById("tables");
-  const statsSection     = document.getElementById("stats");
+  const ordersSection = document.getElementById("orders");
+  const tablesSection = document.getElementById("tables");
+  const statsSection = document.getElementById("stats");
   const reservationsSection = document.getElementById("reservations");
 
   function showSection(target) {
-    if (scannerSection)      scannerSection.style.display      = target === "dashboard" ? "block" : "none";
+    if (scannerSection)
+      scannerSection.style.display = target === "dashboard" ? "block" : "none";
     if (orderDetailsSection) orderDetailsSection.style.display = "none";
-    if (ordersSection)       ordersSection.style.display       = target === "orders"    ? "block" : "none";
-    if (tablesSection)       tablesSection.style.display       = target === "tables"    ? "block" : "none";
-    if (statsSection)        statsSection.style.display        = target === "stats"     ? "block" : "none";
-    if (reservationsSection) reservationsSection.style.display = target === "reservations" ? "block" : "none";
+    if (ordersSection)
+      ordersSection.style.display = target === "orders" ? "block" : "none";
+    if (tablesSection)
+      tablesSection.style.display = target === "tables" ? "block" : "none";
+    if (statsSection)
+      statsSection.style.display = target === "stats" ? "block" : "none";
+    if (reservationsSection)
+      reservationsSection.style.display =
+        target === "reservations" ? "block" : "none";
   }
 
   async function handleTabClick(e) {
     e.preventDefault();
-    const link   = e.currentTarget;
-    const hash   = link.getAttribute("href") || "#dashboard";
+    const link = e.currentTarget;
+    const hash = link.getAttribute("href") || "#dashboard";
     const target = hash.replace("#", "") || "dashboard";
 
     navLinks.forEach((l) => l.classList.remove("active"));
@@ -1561,14 +1632,17 @@ function initAdminSPA() {
       // Charge le dashboard stats à chaque visite
       if (window.statsManager) await window.statsManager.load();
     } else if (target === "reservations") {
-      if (window.reservationManager && typeof window.reservationManager.load === "function") {
+      if (
+        window.reservationManager &&
+        typeof window.reservationManager.load === "function"
+      ) {
         await window.reservationManager.load();
       }
     }
   }
 
   navLinks.forEach((link) => {
-    const hash   = link.getAttribute("href") || "#dashboard";
+    const hash = link.getAttribute("href") || "#dashboard";
     const target = hash.replace("#", "") || "dashboard";
     link.addEventListener("click", handleTabClick);
     if (target === "dashboard") link.classList.add("active");
@@ -1578,7 +1652,10 @@ function initAdminSPA() {
 }
 
 async function spaAuthenticatedFetch(url, options = {}) {
-  if (window.adminAuth && typeof window.adminAuth.authenticatedFetch === "function") {
+  if (
+    window.adminAuth &&
+    typeof window.adminAuth.authenticatedFetch === "function"
+  ) {
     return window.adminAuth.authenticatedFetch(url, options);
   }
 
@@ -1599,7 +1676,10 @@ async function spaAuthenticatedFetch(url, options = {}) {
 }
 
 async function loadOrdersTab() {
-  if (window.adminManager && typeof window.adminManager.loadOrders === "function") {
+  if (
+    window.adminManager &&
+    typeof window.adminManager.loadOrders === "function"
+  ) {
     try {
       await window.adminManager.loadOrders(false);
     } catch (_) {
@@ -1623,8 +1703,8 @@ async function loadOrdersTab() {
     const orders = Array.isArray(data.orders)
       ? data.orders
       : Array.isArray(data)
-      ? data
-      : [];
+        ? data
+        : [];
 
     if (!orders.length) {
       container.innerHTML =
@@ -1665,7 +1745,10 @@ async function loadTablesTab() {
   if (!container) return;
 
   // Prefer existing TableManager behaviour so tables appear without manual click
-  if (window.tableManager && typeof window.tableManager.generateAllTableQRs === "function") {
+  if (
+    window.tableManager &&
+    typeof window.tableManager.generateAllTableQRs === "function"
+  ) {
     // Clear container and let TableManager rebuild it from its data/localStorage
     container.innerHTML = "";
     window.tableManager.generateAllTableQRs();
