@@ -832,6 +832,35 @@ class AdminManager {
     }
   }
 
+  getStatusStyle(status) {
+    const normalized = (status || "").toString().toLowerCase();
+    const styles = {
+      pending_approval: {
+        bg: "#FFF8E1",
+        color: "#E67E22",
+        label: "⏳ En attente",
+      },
+      pending_scan: { bg: "#FFF8E1", color: "#E67E22", label: "⏳ En attente" },
+      pending: { bg: "#FFF8E1", color: "#E67E22", label: "⏳ En attente" },
+      accepted: { bg: "#E8F5E9", color: "#27AE60", label: "✅ Acceptée" },
+      preparing: {
+        bg: "#FDF8F0",
+        color: "#C0873F",
+        label: "👨‍🍳 En préparation",
+      },
+      ready: { bg: "#E3F2FD", color: "#2980B9", label: "🍽️ Prête" },
+      served: { bg: "#E0F2F1", color: "#16A085", label: "🎉 Servie" },
+      cancelled: { bg: "#FDE8E8", color: "#E74C3C", label: "❌ Annulée" },
+    };
+    return (
+      styles[normalized] || {
+        bg: "#F5F5F5",
+        color: "#666",
+        label: status || "—",
+      }
+    );
+  }
+
   // Management Modal Methods
   openManagementModal(orderId) {
     // Try to find order in current list
@@ -864,30 +893,53 @@ class AdminManager {
     const modal = document.getElementById("order-management-modal");
     const orderIdElement = document.getElementById("modal-order-id");
     const orderDetailsElement = document.getElementById("modal-order-details");
-    const orderDateElement = document.getElementById("modal-order-date");
+
+    const statusStyle = this.getStatusStyle(order.status);
+    const payLabel = order.paymentStatus === "paid" ? "Payé" : "Impayé";
+    const payStyle =
+      order.paymentStatus === "paid"
+        ? "background:#E8F5E9;color:#27AE60;"
+        : "background:#FFF8E1;color:#E67E22;";
 
     orderIdElement.textContent = order.orderId || order.id;
 
-    const payIcon = order.paymentStatus === "paid" ? "💳 Payé" : "⏳ Impayé";
-    const itemsList = (order.items || [])
-      .map(
-        (i) =>
-          `<span class="modal-item-chip">${i.name} ×${i.quantity || 1} — ${this.formatPrice((i.price || 0) * (i.quantity || 1))} CFA</span>`,
-      )
-      .join("");
-
     orderDetailsElement.innerHTML = `
-      <div class="modal-meta-row">
-        <span>🪑 Table <strong>${order.table}</strong></span>
-        <span>📦 ${(order.items || []).length} article(s)</span>
-        <span>💰 <strong>${this.formatPrice(order.total)} CFA</strong></span>
-        <span class="modal-pay-badge ${order.paymentStatus === "paid" ? "paid" : "unpaid"}">${payIcon}</span>
+      <div class="mm-hero">
+        <div class="mm-hero-left">
+          <span class="mm-table-badge"><i class="fa-solid fa-chair"></i> Table ${order.table || "—"}</span>
+          <div class="mm-total">${this.formatPrice(order.total)} <span>CFA</span></div>
+          <div style="font-size:0.78rem;color:#AAA;margin-top:4px;">
+            ${(order.items || []).length} article(s)
+          </div>
+        </div>
+        <div class="mm-hero-right">
+          <span class="mm-status-pill" style="background:${statusStyle.bg};color:${statusStyle.color};">
+            ${statusStyle.label}
+          </span>
+          <span class="mm-pay-pill" style="${payStyle}">
+            <i class="fa-solid ${order.paymentStatus === "paid" ? "fa-credit-card" : "fa-hourglass-half"}"></i>
+            ${payLabel}
+          </span>
+        </div>
       </div>
-      <div class="modal-items-list">${itemsList}</div>`;
-
-    orderDateElement.textContent = order.timestamp
-      ? new Date(order.timestamp).toLocaleString("fr-FR")
-      : "—";
+      <div class="mm-items">
+        ${(order.items || [])
+          .map(
+            (i) => `
+          <div class="mm-item">
+            <span class="mm-item-name">${i.name}</span>
+            <span class="mm-item-qty">×${i.quantity || 1}</span>
+            <span class="mm-item-price">${this.formatPrice((i.price || 0) * (i.quantity || 1))} CFA</span>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>
+      <div class="mm-footer-meta">
+        <span><i class="fa-solid fa-clock"></i> ${order.timestamp ? new Date(order.timestamp).toLocaleString("fr-FR") : "—"}</span>
+        <span><i class="fa-solid fa-box"></i> ${order.orderId || order.id}</span>
+      </div>
+    `;
 
     modal.classList.add("show");
     this.setupModalEventListeners();
@@ -905,20 +957,30 @@ class AdminManager {
       if (e.target === modal) modal.classList.remove("show");
     };
 
-    // Injecter les boutons d'action en 2 rangées dans le modal
+    // Injecter les boutons d'action dans le modal
     const actionsContainer = modal.querySelector(".modal-actions");
     if (actionsContainer && !actionsContainer.dataset.rendered) {
       actionsContainer.dataset.rendered = "1";
       actionsContainer.innerHTML = `
-        <div class="modal-actions-row modal-actions-row-top">
-          <button class="action-btn btn-accepted"   data-action="accepted">✅ Accepter</button>
-          <button class="action-btn btn-preparing"  data-action="preparing">👨‍🍳 Préparer</button>
-          <button class="action-btn btn-ready"      data-action="ready">🍽️ Prête</button>
-        </div>
-        <div class="modal-actions-row modal-actions-row-bottom">
-          <button class="action-btn btn-served"     data-action="served">🎉 Servie</button>
-          <button class="action-btn btn-cancelled"  data-action="cancelled">⛔ Annuler</button>
-          <button class="action-btn btn-delete"     data-action="delete">🗑️ Supprimer</button>
+        <div class="mm-actions-grid">
+          <button class="mm-btn mm-btn-accept"   data-action="accepted">
+            <i class="fa-solid fa-check"></i> Accepter
+          </button>
+          <button class="mm-btn mm-btn-prepare"  data-action="preparing">
+            <i class="fa-solid fa-fire"></i> Préparer
+          </button>
+          <button class="mm-btn mm-btn-ready"    data-action="ready">
+            <i class="fa-solid fa-utensils"></i> Prête
+          </button>
+          <button class="mm-btn mm-btn-serve"    data-action="served">
+            <i class="fa-solid fa-bell"></i> Servie
+          </button>
+          <button class="mm-btn mm-btn-cancel"   data-action="cancelled">
+            <i class="fa-solid fa-ban"></i> Annuler
+          </button>
+          <button class="mm-btn mm-btn-delete"   data-action="delete">
+            <i class="fa-solid fa-trash"></i> Sup.
+          </button>
         </div>`;
     }
 
