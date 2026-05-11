@@ -2,7 +2,6 @@
 
 // Notification Utility
 class NotificationManager {
-
   static queue = [];
   static isShowing = false;
 
@@ -14,25 +13,104 @@ class NotificationManager {
     return null; // MongoDB _id ou format inconnu → pas de "Ticket X •"
   }
 
-  static showSuccess(orderId, title, message, duration = 3000) {
-
+  static showSuccess(orderId, title, message, duration = 3000, type = "info") {
     const ticketNumber = this.formatTicket(orderId);
-  
-    this.queue.push({
-      title: ticketNumber
-        ? `Ticket ${ticketNumber} • ${title}`
-        : title,
-      message,
-      duration
-    });
-  
-    this.runQueue();
+    const iconMap = {
+      success: "✅",
+      error: "❌",
+      warning: "⚠️",
+      info: "ℹ️",
+    };
+    const bgMap = {
+      success: "linear-gradient(135deg, #27AE60, #219A52)",
+      error: "linear-gradient(135deg, #E74C3C, #C0392B)",
+      warning: "linear-gradient(135deg, #E67E22, #D35400)",
+      info: "linear-gradient(135deg, #2980B9, #1F618D)",
+    };
+    const normalizedType = ["success", "error", "warning", "info"].includes(
+      type,
+    )
+      ? type
+      : "info";
+    const titleText = ticketNumber
+      ? `Ticket ${ticketNumber} • ${title}`
+      : title;
+    const containerId = "rp-toast-container";
+    let container = document.getElementById(containerId);
+
+    if (!container) {
+      container = document.createElement("div");
+      container.id = containerId;
+      container.style.position = "fixed";
+      container.style.bottom = "20px";
+      container.style.right = "20px";
+      container.style.zIndex = "99999";
+      container.style.display = "flex";
+      container.style.flexDirection = "column";
+      container.style.gap = "12px";
+      container.style.alignItems = "flex-end";
+      container.style.pointerEvents = "none";
+      document.body.appendChild(container);
+    }
+
+    this.injectToastStyles();
+
+    const toast = document.createElement("div");
+    toast.className = `rp-toast rp-toast-${normalizedType}`;
+    toast.style.background = bgMap[normalizedType];
+    toast.style.color = "#fff";
+    toast.style.borderRadius = "14px";
+    toast.style.padding = "14px 16px";
+    toast.style.minWidth = "280px";
+    toast.style.maxWidth = "380px";
+    toast.style.boxShadow = "0 8px 24px rgba(0,0,0,0.25)";
+    toast.style.display = "flex";
+    toast.style.alignItems = "flex-start";
+    toast.style.gap = "10px";
+    toast.style.pointerEvents = "auto";
+    toast.style.animation = "slide-in-right 0.3s ease";
+
+    toast.innerHTML = `
+      <span class="rp-toast-icon">${iconMap[normalizedType]}</span>
+      <div class="rp-toast-body">
+        <div class="rp-toast-title">${titleText}</div>
+        ${message ? `<div class="rp-toast-msg">${message}</div>` : ""}
+        ${orderId ? `<div class="rp-toast-id">${orderId}</div>` : ""}
+      </div>
+      <button class="rp-toast-close" type="button">✕</button>
+    `;
+
+    container.appendChild(toast);
+
+    const closeBtn = toast.querySelector(".rp-toast-close");
+    if (closeBtn) {
+      closeBtn.onclick = () => {
+        toast.remove();
+      };
+    }
+
+    setTimeout(() => {
+      toast.remove();
+    }, duration);
   }
-  
-  
+
+  static injectToastStyles() {
+    if (document.getElementById("rp-toast-styles")) return;
+    const style = document.createElement("style");
+    style.id = "rp-toast-styles";
+    style.textContent = `
+      .rp-toast-icon { font-size: 1.2rem; flex-shrink: 0; padding-top: 2px; }
+      .rp-toast-body { flex: 1; }
+      .rp-toast-title { font-weight: 700; font-size: 0.9rem; line-height: 1.3; }
+      .rp-toast-msg { font-size: 0.8rem; opacity: 0.85; margin-top: 3px; }
+      .rp-toast-id { font-family: monospace; font-size: 0.7rem; opacity: 0.6; margin-top: 4px; }
+      .rp-toast-close { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; padding: 0 0 0 8px; font-size: 1rem; flex-shrink: 0; align-self: flex-start; }
+      @keyframes slide-in-right { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    `;
+    document.head.appendChild(style);
+  }
 
   static runQueue() {
-
     if (this.isShowing) return;
     if (this.queue.length === 0) return;
 
@@ -50,24 +128,19 @@ class NotificationManager {
     popup.classList.add("show");
 
     setTimeout(() => {
-
       popup.classList.remove("show");
 
       setTimeout(() => {
         this.isShowing = false;
         this.runQueue();
       }, 400);
-
     }, notif.duration);
   }
 
   static showLoading(show = true) {
-    document
-      .getElementById("loading-overlay")
-      .classList.toggle("show", show);
+    document.getElementById("loading-overlay").classList.toggle("show", show);
   }
 }
-
 
 // Table Detection
 // ─── PATCH menu.js — TableDetector ───────────────────────────────────────
@@ -93,22 +166,31 @@ class TableDetector {
 
   // ─── Auth helper (inchangé) ───────────────────────────────
   _getToken() {
-    return sessionStorage.getItem("adminToken") || localStorage.getItem("adminToken") || null;
+    return (
+      sessionStorage.getItem("adminToken") ||
+      localStorage.getItem("adminToken") ||
+      null
+    );
   }
 
   // ─── FIX : sessionStorage au lieu de localStorage ─────────
   detectTableFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     const tableNumber = urlParams.get("table");
-    const isDemo     = urlParams.get("demo") === "1";
+    const isDemo = urlParams.get("demo") === "1";
 
     if (isDemo && !tableNumber) {
       // Mode démo : charge table 1 sans scan
       this.currentTable = 1;
       sessionStorage.setItem("currentTable", "1");
-      sessionStorage.setItem("tableSession", JSON.stringify({
-        table: 1, ts: Date.now(), ttl: 7200000
-      }));
+      sessionStorage.setItem(
+        "tableSession",
+        JSON.stringify({
+          table: 1,
+          ts: Date.now(),
+          ttl: 7200000,
+        }),
+      );
       if (window.tableManager) {
         window.tableManager.updateTableStatus(1, "occupied");
       }
@@ -157,7 +239,10 @@ class TableDetector {
     // Attend que le DOM de la zone scan soit prêt
     const tryInject = () => {
       const scanZone = document.getElementById("table-detection");
-      if (!scanZone) { setTimeout(tryInject, 300); return; }
+      if (!scanZone) {
+        setTimeout(tryInject, 300);
+        return;
+      }
 
       // Evite double injection
       if (document.getElementById("demo-table-btn")) return;
@@ -182,15 +267,20 @@ class TableDetector {
         letter-spacing: 0.3px;
       `;
 
-      btn.onmouseover = () => btn.style.transform = "translateY(-2px)";
-      btn.onmouseout  = () => btn.style.transform = "translateY(0)";
+      btn.onmouseover = () => (btn.style.transform = "translateY(-2px)");
+      btn.onmouseout = () => (btn.style.transform = "translateY(0)");
 
       btn.addEventListener("click", () => {
         // Démarre la session table 1 directement
         sessionStorage.setItem("currentTable", "1");
-        sessionStorage.setItem("tableSession", JSON.stringify({
-          table: 1, ts: Date.now(), ttl: 7200000
-        }));
+        sessionStorage.setItem(
+          "tableSession",
+          JSON.stringify({
+            table: 1,
+            ts: Date.now(),
+            ttl: 7200000,
+          }),
+        );
         // Redirige vers menu.html avec table=1
         window.location.href = "/menu.html?table=1";
       });
@@ -199,7 +289,8 @@ class TableDetector {
 
       // Note démo discrète
       const note = document.createElement("p");
-      note.style.cssText = "text-align:center;font-size:0.75rem;color:#aaa;margin:0.5rem 1rem 0;";
+      note.style.cssText =
+        "text-align:center;font-size:0.75rem;color:#aaa;margin:0.5rem 1rem 0;";
       note.textContent = "Mode démo — aucune table physique requise";
       scanZone.appendChild(note);
     };
@@ -238,13 +329,16 @@ class TableDetector {
       window.location.pathname.includes("index.html")
     ) {
       this.waitForQRScannerLibrary().then(() => {
-        if (typeof Html5Qrcode !== "undefined" && typeof QRScannerManager !== "undefined") {
+        if (
+          typeof Html5Qrcode !== "undefined" &&
+          typeof QRScannerManager !== "undefined"
+        ) {
           window.qrScannerHome = new QRScannerManager(
             "qr-scanner-container-home",
             "qr-reader-home",
             "toggleCamBtn-home",
             "camera-select-home",
-            "camera-selection-home"
+            "camera-selection-home",
           );
         }
       });
@@ -253,12 +347,16 @@ class TableDetector {
 
   waitForQRScannerLibrary() {
     return new Promise((resolve) => {
-      if (typeof Html5Qrcode !== "undefined") { resolve(); return; }
+      if (typeof Html5Qrcode !== "undefined") {
+        resolve();
+        return;
+      }
       let attempts = 0;
       const check = setInterval(() => {
         attempts++;
         if (typeof Html5Qrcode !== "undefined" || attempts >= 50) {
-          clearInterval(check); resolve();
+          clearInterval(check);
+          resolve();
         }
       }, 100);
     });

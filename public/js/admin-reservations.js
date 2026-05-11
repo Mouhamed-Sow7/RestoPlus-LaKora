@@ -6,12 +6,12 @@
 class ReservationManager {
   constructor() {
     this.reservations = [];
-    this.currentView  = "list";   // "list" | "calendar"
+    this.currentView = "list"; // "list" | "calendar"
     this.currentMonth = new Date().getMonth() + 1;
-    this.currentYear  = new Date().getFullYear();
+    this.currentYear = new Date().getFullYear();
     this.statusFilter = "all";
-    this.dateFilter   = "";
-    this._rendered    = false;
+    this.dateFilter = "";
+    this._rendered = false;
   }
 
   // ── Charger depuis l'API ──────────────────────────────────────────────────
@@ -24,10 +24,13 @@ class ReservationManager {
     }
 
     try {
-      const params = new URLSearchParams({ limit: 100, status: this.statusFilter });
+      const params = new URLSearchParams({
+        limit: 100,
+        status: this.statusFilter,
+      });
       if (this.dateFilter) params.set("date", this.dateFilter);
 
-      const res  = await spaAuthenticatedFetch(`/api/reservations?${params}`);
+      const res = await spaAuthenticatedFetch(`/api/reservations?${params}`);
       const data = await res.json();
       this.reservations = data.reservations || [];
       this._render();
@@ -54,28 +57,29 @@ class ReservationManager {
           <div class="res-toolbar-right">
             <!-- Filtre statut -->
             <select class="res-filter-select" id="res-status-filter">
-              <option value="all"      ${this.statusFilter==="all"       ?"selected":""}>Toutes</option>
-              <option value="pending"  ${this.statusFilter==="pending"   ?"selected":""}>⏳ En attente</option>
-              <option value="confirmed"${this.statusFilter==="confirmed" ?"selected":""}>✅ Confirmées</option>
-              <option value="cancelled"${this.statusFilter==="cancelled" ?"selected":""}>❌ Annulées</option>
-              <option value="completed"${this.statusFilter==="completed" ?"selected":""}>🏁 Terminées</option>
-              <option value="no_show"  ${this.statusFilter==="no_show"   ?"selected":""}>👻 No-show</option>
+              <option value="all"      ${this.statusFilter === "all" ? "selected" : ""}>Toutes</option>
+              <option value="pending"  ${this.statusFilter === "pending" ? "selected" : ""}>⏳ En attente</option>
+              <option value="confirmed"${this.statusFilter === "confirmed" ? "selected" : ""}>✅ Confirmées</option>
+              <option value="cancelled"${this.statusFilter === "cancelled" ? "selected" : ""}>❌ Annulées</option>
+              <option value="completed"${this.statusFilter === "completed" ? "selected" : ""}>🏁 Terminées</option>
+              <option value="no_show"  ${this.statusFilter === "no_show" ? "selected" : ""}>👻 No-show</option>
             </select>
             <!-- Filtre date -->
             <input type="date" class="res-date-input" id="res-date-filter" value="${this.dateFilter}" placeholder="Filtrer par date" />
             <!-- Vue -->
             <div class="res-view-toggle">
-              <button class="res-view-btn ${this.currentView==='list'    ?'active':''}" data-view="list">☰ Liste</button>
-              <button class="res-view-btn ${this.currentView==='calendar'?'active':''}" data-view="calendar">📅 Calendrier</button>
+              <button class="res-view-btn ${this.currentView === "list" ? "active" : ""}" data-view="list">☰ Liste</button>
+              <button class="res-view-btn ${this.currentView === "calendar" ? "active" : ""}" data-view="calendar">📅 Calendrier</button>
             </div>
           </div>
         </div>
 
         <!-- Contenu -->
         <div id="res-view-content">
-          ${this.currentView === "calendar"
-            ? this._calendarHTML()
-            : this._listHTML()
+          ${
+            this.currentView === "calendar"
+              ? this._calendarHTML()
+              : this._listHTML()
           }
         </div>
 
@@ -104,39 +108,47 @@ class ReservationManager {
 
     // Grouper par date
     const byDate = {};
-    this.reservations.forEach(r => {
+    this.reservations.forEach((r) => {
       if (!byDate[r.date]) byDate[r.date] = [];
       byDate[r.date].push(r);
     });
 
-    return Object.entries(byDate).sort(([a],[b]) => a.localeCompare(b)).map(([date, items]) => {
-      const dateLabel = new Date(date + "T12:00").toLocaleDateString("fr-FR", {
-        weekday: "long", day: "numeric", month: "long"
-      });
-      const total = items.reduce((s, r) => s + r.guests, 0);
-      return `
+    return Object.entries(byDate)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, items]) => {
+        const dateLabel = new Date(date + "T12:00").toLocaleDateString(
+          "fr-FR",
+          {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+          },
+        );
+        const total = items.reduce((s, r) => s + r.guests, 0);
+        return `
         <div class="res-date-group">
           <div class="res-date-header">
             <span class="res-date-label">${dateLabel}</span>
             <span class="res-date-meta">${items.length} rés. · ${total} pers.</span>
           </div>
           <div class="res-cards">
-            ${items.map(r => this._cardHTML(r)).join("")}
+            ${items.map((r) => this._cardHTML(r)).join("")}
           </div>
         </div>`;
-    }).join("");
+      })
+      .join("");
   }
 
   // ── Card réservation ──────────────────────────────────────────────────────
   _cardHTML(r) {
     const statusConf = {
-      pending:   { icon:"⏳", label:"En attente", cls:"pending"   },
-      confirmed: { icon:"✅", label:"Confirmée",  cls:"confirmed" },
-      cancelled: { icon:"❌", label:"Annulée",    cls:"cancelled" },
-      completed: { icon:"🏁", label:"Terminée",   cls:"completed" },
-      no_show:   { icon:"👻", label:"No-show",    cls:"no-show"   },
+      pending: { icon: "⏳", label: "En attente", cls: "pending" },
+      confirmed: { icon: "✅", label: "Confirmée", cls: "confirmed" },
+      cancelled: { icon: "❌", label: "Annulée", cls: "cancelled" },
+      completed: { icon: "🏁", label: "Terminée", cls: "completed" },
+      no_show: { icon: "👻", label: "No-show", cls: "no-show" },
     };
-    const sc = statusConf[r.status] || { icon:"•", label:r.status, cls:"" };
+    const sc = statusConf[r.status] || { icon: "•", label: r.status, cls: "" };
 
     return `
       <div class="res-card res-card-${sc.cls}" data-id="${r.reservationId}">
@@ -153,10 +165,14 @@ class ReservationManager {
         </div>
         ${r.note ? `<div class="res-card-note">💬 ${r.note}</div>` : ""}
         <div class="res-card-actions">
-          ${r.status === "pending" ? `
+          ${
+            r.status === "pending"
+              ? `
             <button class="res-btn res-btn-confirm" data-action="confirm" data-id="${r.reservationId}">✅ Confirmer</button>
             <button class="res-btn res-btn-cancel"  data-action="cancel"  data-id="${r.reservationId}">❌ Refuser</button>
-          ` : ""}
+          `
+              : ""
+          }
           <button class="res-btn res-btn-edit" data-action="edit" data-id="${r.reservationId}">✏️ Détails</button>
         </div>
       </div>`;
@@ -164,35 +180,46 @@ class ReservationManager {
 
   // ── Vue calendrier ────────────────────────────────────────────────────────
   _calendarHTML() {
-    const year  = this.currentYear;
+    const year = this.currentYear;
     const month = this.currentMonth;
-    const monthName = new Date(year, month-1, 1).toLocaleDateString("fr-FR", { month:"long", year:"numeric" });
+    const monthName = new Date(year, month - 1, 1).toLocaleDateString("fr-FR", {
+      month: "long",
+      year: "numeric",
+    });
     const daysInMonth = new Date(year, month, 0).getDate();
-    const firstDay  = (new Date(year, month-1, 1).getDay() + 6) % 7; // 0=Lundi
+    const firstDay = (new Date(year, month - 1, 1).getDay() + 6) % 7; // 0=Lundi
 
     const byDate = {};
-    this.reservations.forEach(r => { if (!byDate[r.date]) byDate[r.date]=[]; byDate[r.date].push(r); });
+    this.reservations.forEach((r) => {
+      if (!byDate[r.date]) byDate[r.date] = [];
+      byDate[r.date].push(r);
+    });
 
     const cells = [];
-    for (let i=0; i<firstDay; i++) cells.push(`<div class="cal-cell cal-empty"></div>`);
+    for (let i = 0; i < firstDay; i++)
+      cells.push(`<div class="cal-cell cal-empty"></div>`);
 
-    for (let d=1; d<=daysInMonth; d++) {
-      const dateStr = `${year}-${String(month).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-      const items   = byDate[dateStr] || [];
-      const today   = new Date().toISOString().split("T")[0];
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const items = byDate[dateStr] || [];
+      const today = new Date().toISOString().split("T")[0];
       const isToday = dateStr === today;
-      const pending  = items.filter(r => r.status==="pending").length;
-      const confirmed= items.filter(r => r.status==="confirmed").length;
+      const pending = items.filter((r) => r.status === "pending").length;
+      const confirmed = items.filter((r) => r.status === "confirmed").length;
 
       cells.push(`
-        <div class="cal-cell ${isToday?"cal-today":""} ${items.length?"cal-has-res":""}" data-date="${dateStr}">
+        <div class="cal-cell ${isToday ? "cal-today" : ""} ${items.length ? "cal-has-res" : ""}" data-date="${dateStr}">
           <div class="cal-day">${d}</div>
-          ${items.length ? `
+          ${
+            items.length
+              ? `
             <div class="cal-dots">
-              ${pending   ? `<span class="cal-dot dot-pending"   title="${pending} en attente"></span>`   : ""}
+              ${pending ? `<span class="cal-dot dot-pending"   title="${pending} en attente"></span>` : ""}
               ${confirmed ? `<span class="cal-dot dot-confirmed" title="${confirmed} confirmée(s)"></span>` : ""}
             </div>
-            <div class="cal-count">${items.length}</div>` : ""}
+            <div class="cal-count">${items.length}</div>`
+              : ""
+          }
         </div>`);
     }
 
@@ -204,7 +231,7 @@ class ReservationManager {
           <button class="cal-nav-btn" id="cal-next">›</button>
         </div>
         <div class="cal-grid">
-          ${["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"].map(d=>`<div class="cal-head">${d}</div>`).join("")}
+          ${["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((d) => `<div class="cal-head">${d}</div>`).join("")}
           ${cells.join("")}
         </div>
       </div>`;
@@ -212,14 +239,17 @@ class ReservationManager {
 
   // ── Modal détail / action ─────────────────────────────────────────────────
   _openModal(reservationId) {
-    const r = this.reservations.find(x => x.reservationId === reservationId);
+    const r = this.reservations.find((x) => x.reservationId === reservationId);
     if (!r) return;
 
     const modal = document.getElementById("res-detail-modal");
-    const body  = document.getElementById("res-modal-body");
+    const body = document.getElementById("res-modal-body");
 
     const dateLabel = new Date(r.date + "T12:00").toLocaleDateString("fr-FR", {
-      weekday:"long", day:"numeric", month:"long", year:"numeric"
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
     });
 
     body.innerHTML = `
@@ -265,36 +295,48 @@ class ReservationManager {
 
         <!-- Actions -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;">
-          ${r.status === "pending" ? `
+          ${
+            r.status === "pending"
+              ? `
             <button class="mm-btn mm-btn-accept"  data-modal-action="confirm" data-id="${r.reservationId}">✅ Confirmer</button>
             <button class="mm-btn mm-btn-cancel"  data-modal-action="cancel"  data-id="${r.reservationId}">❌ Refuser</button>
-          ` : ""}
+          `
+              : ""
+          }
           <button class="mm-btn mm-btn-prepare"   data-modal-action="save"    data-id="${r.reservationId}" style="grid-column:1/-1;">💾 Enregistrer</button>
-          ${r.status !== "cancelled" && r.status !== "completed" ? `
+          ${
+            r.status !== "cancelled" && r.status !== "completed"
+              ? `
           <button class="mm-btn" data-modal-action="no_show" data-id="${r.reservationId}"
-            style="background:#fff3cd;color:#856404;grid-column:1/-1;">👻 No-show</button>` : ""}
+            style="background:#fff3cd;color:#856404;grid-column:1/-1;">👻 No-show</button>`
+              : ""
+          }
         </div>
 
         <!-- Email status -->
         <div style="margin-top:12px;font-size:0.75rem;color:#bbb;text-align:center;">
-          ${r.emails?.notifiedClient
-            ? `📧 Email envoyé au client le ${new Date(r.emails.lastEmailAt).toLocaleDateString("fr-FR")}`
-            : "📧 Aucun email envoyé au client"}
+          ${
+            r.emails?.notifiedClient
+              ? `📧 Email envoyé au client le ${new Date(r.emails.lastEmailAt).toLocaleDateString("fr-FR")}`
+              : "📧 Aucun email envoyé au client"
+          }
         </div>
       </div>`;
 
     modal.classList.add("show");
 
-    document.getElementById("res-modal-close").onclick = () => modal.classList.remove("show");
-    modal.querySelector(".res-modal-backdrop").onclick  = () => modal.classList.remove("show");
+    document.getElementById("res-modal-close").onclick = () =>
+      modal.classList.remove("show");
+    modal.querySelector(".res-modal-backdrop").onclick = () =>
+      modal.classList.remove("show");
 
     // Boutons actions dans le modal
-    modal.querySelectorAll("[data-modal-action]").forEach(btn => {
+    modal.querySelectorAll("[data-modal-action]").forEach((btn) => {
       btn.onclick = async () => {
         const action = btn.getAttribute("data-modal-action");
-        const id     = btn.getAttribute("data-id");
+        const id = btn.getAttribute("data-id");
         const tableVal = document.getElementById("modal-table-assign").value;
-        const noteVal  = document.getElementById("modal-admin-note").value;
+        const noteVal = document.getElementById("modal-admin-note").value;
 
         if (action === "save") {
           await this._updateReservation(id, {
@@ -303,7 +345,10 @@ class ReservationManager {
           });
           modal.classList.remove("show");
         } else if (action === "confirm") {
-          await this._setStatus(id, "confirmed", { assignedTable: tableVal ? parseInt(tableVal) : null, adminNote: noteVal });
+          await this._setStatus(id, "confirmed", {
+            assignedTable: tableVal ? parseInt(tableVal) : null,
+            adminNote: noteVal,
+          });
           modal.classList.remove("show");
         } else if (action === "cancel") {
           const reason = prompt("Motif d'annulation (optionnel) :") || "";
@@ -320,18 +365,34 @@ class ReservationManager {
   // ── Actions API ───────────────────────────────────────────────────────────
   async _setStatus(id, status, extra = {}) {
     try {
-      const res = await spaAuthenticatedFetch(`/api/reservations/${id}/status`, {
-        method: "PATCH",
-        body:   JSON.stringify({ status, ...extra }),
-      });
+      const res = await spaAuthenticatedFetch(
+        `/api/reservations/${id}/status`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ status, ...extra }),
+        },
+      );
       if (!res.ok) throw new Error();
       // Mise à jour locale
-      const idx = this.reservations.findIndex(r => r.reservationId === id);
-      if (idx !== -1) Object.assign(this.reservations[idx], { status, ...extra });
+      const idx = this.reservations.findIndex((r) => r.reservationId === id);
+      if (idx !== -1)
+        Object.assign(this.reservations[idx], { status, ...extra });
       this._render();
-      window.NotificationManager?.showSuccess(id, status === "confirmed" ? "Confirmée ✅" : "Mise à jour", `Réservation ${id}`, 2500);
+      window.NotificationManager?.showSuccess(
+        id,
+        status === "confirmed" ? "Confirmée ✅" : "Mise à jour",
+        `Réservation ${id}`,
+        2500,
+        "success",
+      );
     } catch {
-      window.NotificationManager?.showSuccess(id, "Erreur", "Impossible de mettre à jour", 3000);
+      window.NotificationManager?.showSuccess(
+        id,
+        "Erreur",
+        "Impossible de mettre à jour",
+        3000,
+        "error",
+      );
     }
   }
 
@@ -339,57 +400,78 @@ class ReservationManager {
     try {
       const res = await spaAuthenticatedFetch(`/api/reservations/${id}`, {
         method: "PATCH",
-        body:   JSON.stringify(data),
+        body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error();
-      const idx = this.reservations.findIndex(r => r.reservationId === id);
+      const idx = this.reservations.findIndex((r) => r.reservationId === id);
       if (idx !== -1) Object.assign(this.reservations[idx], data);
       this._render();
-      window.NotificationManager?.showSuccess(id, "Enregistré", "Réservation mise à jour", 2000);
+      window.NotificationManager?.showSuccess(
+        id,
+        "Enregistré",
+        "Réservation mise à jour",
+        2000,
+        "success",
+      );
     } catch {
-      window.NotificationManager?.showSuccess(id, "Erreur", "Impossible de sauvegarder", 3000);
+      window.NotificationManager?.showSuccess(
+        id,
+        "Erreur",
+        "Impossible de sauvegarder",
+        3000,
+        "error",
+      );
     }
   }
 
   // ── Events ────────────────────────────────────────────────────────────────
   _bindEvents() {
     // Filtre statut
-    document.getElementById("res-status-filter")?.addEventListener("change", e => {
-      this.statusFilter = e.target.value; this.load();
-    });
+    document
+      .getElementById("res-status-filter")
+      ?.addEventListener("change", (e) => {
+        this.statusFilter = e.target.value;
+        this.load();
+      });
     // Filtre date
-    document.getElementById("res-date-filter")?.addEventListener("change", e => {
-      this.dateFilter = e.target.value; this.load();
-    });
+    document
+      .getElementById("res-date-filter")
+      ?.addEventListener("change", (e) => {
+        this.dateFilter = e.target.value;
+        this.load();
+      });
     // Toggle vue
-    document.querySelectorAll(".res-view-btn").forEach(btn => {
+    document.querySelectorAll(".res-view-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         this.currentView = btn.dataset.view;
-        document.querySelectorAll(".res-view-btn").forEach(b => b.classList.remove("active"));
+        document
+          .querySelectorAll(".res-view-btn")
+          .forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         document.getElementById("res-view-content").innerHTML =
-          this.currentView === "calendar" ? this._calendarHTML() : this._listHTML();
+          this.currentView === "calendar"
+            ? this._calendarHTML()
+            : this._listHTML();
         this._bindCalendarNav();
         this._bindCalendarCells();
       });
     });
     // Boutons confirm/cancel/edit sur les cards
-    document.querySelectorAll("[data-action]").forEach(btn => {
-      btn.addEventListener("click", async e => {
+    document.querySelectorAll("[data-action]").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
         e.stopPropagation();
         const action = btn.dataset.action;
-        const id     = btn.dataset.id;
+        const id = btn.dataset.id;
         if (action === "confirm") await this._setStatus(id, "confirmed");
         else if (action === "cancel") {
           const reason = prompt("Motif (optionnel) :") || "";
           await this._setStatus(id, "cancelled", { reason });
-        }
-        else if (action === "edit") this._openModal(id);
+        } else if (action === "edit") this._openModal(id);
       });
     });
     // Clic sur card → ouvre modal
-    document.querySelectorAll(".res-card").forEach(card => {
-      card.addEventListener("click", e => {
+    document.querySelectorAll(".res-card").forEach((card) => {
+      card.addEventListener("click", (e) => {
         if (!e.target.closest("button")) this._openModal(card.dataset.id);
       });
     });
@@ -399,16 +481,24 @@ class ReservationManager {
 
   _bindCalendarNav() {
     document.getElementById("cal-prev")?.addEventListener("click", () => {
-      this.currentMonth--; if (this.currentMonth < 1) { this.currentMonth=12; this.currentYear--; }
+      this.currentMonth--;
+      if (this.currentMonth < 1) {
+        this.currentMonth = 12;
+        this.currentYear--;
+      }
       this._loadCalendar();
     });
     document.getElementById("cal-next")?.addEventListener("click", () => {
-      this.currentMonth++; if (this.currentMonth > 12) { this.currentMonth=1; this.currentYear++; }
+      this.currentMonth++;
+      if (this.currentMonth > 12) {
+        this.currentMonth = 1;
+        this.currentYear++;
+      }
       this._loadCalendar();
     });
   }
   _bindCalendarCells() {
-    document.querySelectorAll(".cal-cell.cal-has-res").forEach(cell => {
+    document.querySelectorAll(".cal-cell.cal-has-res").forEach((cell) => {
       cell.addEventListener("click", () => {
         this.dateFilter = cell.dataset.date;
         this.currentView = "list";
@@ -418,11 +508,19 @@ class ReservationManager {
   }
   async _loadCalendar() {
     try {
-      const res  = await spaAuthenticatedFetch(`/api/reservations/calendar?year=${this.currentYear}&month=${this.currentMonth}`);
+      const res = await spaAuthenticatedFetch(
+        `/api/reservations/calendar?year=${this.currentYear}&month=${this.currentMonth}`,
+      );
       const data = await res.json();
       // Reconstruire la liste à plat pour le rendu calendrier
-      this.reservations = Object.values(data.days || {}).flat().map(r => ({...r, date: Object.keys(data.days).find(d => data.days[d].includes(r))}));
-      document.getElementById("res-view-content").innerHTML = this._calendarHTML();
+      this.reservations = Object.values(data.days || {})
+        .flat()
+        .map((r) => ({
+          ...r,
+          date: Object.keys(data.days).find((d) => data.days[d].includes(r)),
+        }));
+      document.getElementById("res-view-content").innerHTML =
+        this._calendarHTML();
       this._bindCalendarNav();
       this._bindCalendarCells();
     } catch {
@@ -437,4 +535,3 @@ class ReservationManager {
 
 // ── Init (brancher dans initAdminSPA) ─────────────────────────────────────────
 window.reservationManager = new ReservationManager();
-

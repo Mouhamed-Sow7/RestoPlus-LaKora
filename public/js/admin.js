@@ -260,6 +260,7 @@ class AdminManager {
           "⚠️ QR de Table Détecté",
           `Table ${qrData.table} — ${qrData.chairs || "?"} couverts (${qrData.location || ""}). Ce QR est destiné aux clients. Scannez un QR de commande.`,
           4000,
+          "warning",
         );
 
         // Reset processing state if available
@@ -289,6 +290,7 @@ class AdminManager {
             "Erreur",
             "Impossible de traiter cette commande",
             3000,
+            "error",
           );
         });
         return;
@@ -303,6 +305,7 @@ class AdminManager {
             "Erreur",
             "Impossible de traiter cette commande",
             3000,
+            "error",
           );
         });
         return;
@@ -315,7 +318,13 @@ class AdminManager {
       ? "Ce QR est une URL externe, non compatible."
       : "QR non reconnu.";
 
-    NotificationManager.showSuccess(null, "Erreur", errorMessage, 3000);
+    NotificationManager.showSuccess(
+      null,
+      "Erreur",
+      errorMessage,
+      3000,
+      "error",
+    );
   }
 
   // Handle order scanning with table detection and fusion logic
@@ -331,6 +340,7 @@ class AdminManager {
           "Erreur",
           "Authentification requise",
           3000,
+          "error",
         );
         return;
       }
@@ -367,6 +377,7 @@ class AdminManager {
             "Commande déjà traitée",
             `Cette commande est déjà ${statusText}.`,
             3000,
+            "info",
           );
         }
         this.restartScanner();
@@ -379,6 +390,7 @@ class AdminManager {
           "Erreur",
           "Impossible de détecter la table de cette commande",
           3000,
+          "error",
         );
         return;
       }
@@ -456,6 +468,7 @@ class AdminManager {
         "Erreur",
         "Impossible de charger la commande",
         3000,
+        "error",
       );
     }
   }
@@ -704,6 +717,7 @@ class AdminManager {
         "Commande approuvée !",
         `Commande ${orderId} validée manuellement`,
         3000,
+        "success",
       );
       this.displayOrders();
     } catch (err) {
@@ -715,6 +729,7 @@ class AdminManager {
         "Erreur",
         "Impossible d'approuver la commande",
         3000,
+        "error",
       );
     }
   }
@@ -744,6 +759,7 @@ class AdminManager {
         "Commande rejetée",
         `Commande ${orderId} rejetée`,
         3000,
+        "success",
       );
       this.displayOrders();
     } catch (err) {
@@ -755,6 +771,7 @@ class AdminManager {
         "Erreur",
         "Impossible de rejeter la commande",
         3000,
+        "error",
       );
     }
   }
@@ -879,6 +896,7 @@ class AdminManager {
             "Erreur",
             `Commande ${orderId} introuvable`,
             2000,
+            "error",
           );
         }
       });
@@ -946,15 +964,20 @@ class AdminManager {
   }
 
   setupModalEventListeners() {
-    const closeBtn = document.getElementById("close-management-modal");
+    const closeBackdrop = document.getElementById("close-management-modal");
+    const closeBtn = document.getElementById("close-management-modal-btn");
     const modal = document.getElementById("order-management-modal");
 
+    const closeModal = () => modal.classList.remove("show");
     if (closeBtn) {
-      closeBtn.onclick = () => modal.classList.remove("show");
+      closeBtn.onclick = closeModal;
+    }
+    if (closeBackdrop) {
+      closeBackdrop.onclick = closeModal;
     }
 
     modal.onclick = (e) => {
-      if (e.target === modal) modal.classList.remove("show");
+      if (e.target === modal) closeModal();
     };
 
     // Injecter les boutons d'action dans le modal
@@ -985,7 +1008,7 @@ class AdminManager {
     }
 
     // Action buttons — fermeture IMMÉDIATE puis fetch en arrière-plan
-    const actionButtons = modal.querySelectorAll(".action-btn");
+    const actionButtons = modal.querySelectorAll(".mm-actions-grid button");
     actionButtons.forEach((btn) => {
       btn.onclick = (e) => {
         const action = e.currentTarget.getAttribute("data-action");
@@ -1153,6 +1176,7 @@ class AdminManager {
             "Commande supprimée !",
             `Commande ${orderId} supprimée définitivement`,
             2000,
+            "success",
           );
         }, 100);
       } else {
@@ -1171,6 +1195,7 @@ class AdminManager {
           "Statut mis à jour !",
           `Commande ${orderId} : ${this.getStatusLabel(newStatus)}`,
           2000,
+          "success",
         );
 
         // Notify frontend about status change (for real-time sync)
@@ -1205,6 +1230,7 @@ class AdminManager {
             "Erreur",
             "Impossible de supprimer la commande",
             3000,
+            "error",
           );
         }
       } else {
@@ -1213,6 +1239,7 @@ class AdminManager {
           "Erreur",
           "Impossible de mettre à jour le statut",
           3000,
+          "error",
         );
       }
     }
@@ -1352,11 +1379,12 @@ class AdminManager {
           "Scanner prêt",
           `Scannez une autre commande pour la table ${tableNumber}`,
           2000,
+          "info",
         );
       }, 300);
     };
 
-    // Decline fusion - approve orders séparately
+    // Decline fusion - approve orders separately
     declineBtn.onclick = async () => {
       // Close the modal immediately
       modal.remove();
@@ -1384,6 +1412,7 @@ class AdminManager {
           "Commandes approuvées",
           `${allOrders.length} commande(s) approuvée(s) séparément pour la table ${tableNumber}`,
           3000,
+          "success",
         );
 
         // Refresh orders list
@@ -1394,6 +1423,7 @@ class AdminManager {
           "Erreur",
           "Impossible d'approuver les commandes",
           3000,
+          "error",
         );
       } finally {
         this.restartScanner();
@@ -1435,6 +1465,7 @@ class AdminManager {
           "Commandes fusionnées !",
           `Commande ${fusedOrder.orderId} créée pour la table ${tableNumber}`,
           3000,
+          "success",
         );
 
         // Refresh orders list
@@ -1445,6 +1476,7 @@ class AdminManager {
           "Erreur",
           "Impossible de fusionner les commandes",
           3000,
+          "error",
         );
       } finally {
         this.restartScanner();
@@ -1553,6 +1585,7 @@ class AdminManager {
           "Commande rejetée",
           `Commande ${order.orderId || order.id} rejetée`,
           3000,
+          "success",
         );
       } catch (error) {
         NotificationManager.showSuccess(
@@ -1560,6 +1593,7 @@ class AdminManager {
           "Erreur",
           "Impossible de rejeter la commande",
           3000,
+          "error",
         );
       } finally {
         setTimeout(() => {
@@ -1597,6 +1631,7 @@ class AdminManager {
           "Commande approuvée !",
           `Commande ${order.orderId || order.id} approuvée et ajoutée à la gestion`,
           3000,
+          "success",
         );
 
         // Try to refresh orders list; errors here should not block UI
@@ -1611,6 +1646,8 @@ class AdminManager {
           "Erreur",
           "Impossible d'approuver la commande",
           3000,
+          "error",
+          "error",
         );
       } finally {
         setTimeout(() => {

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/admin-stats.css" />
     <link rel="stylesheet" href="css/admin-reservations.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="stylesheet" href="css/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="css/fontawesome/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -39,19 +39,31 @@
           <span class="hamburger-line"></span>
         </button>
         <nav class="admin-nav" id="admin-nav">
-          <a href="#dashboard"    class="nav-link active"><i class="fa-solid fa-gauge"></i><span>Dashboard</span></a>
-          <a href="#orders"       class="nav-link"><i class="fa-solid fa-receipt"></i><span>Commandes</span></a>
-          <a href="#stats"        class="nav-link"><i class="fa-solid fa-chart-bar"></i><span>Statistiques</span></a>
-          <a href="#tables"       class="nav-link"><i class="fa-solid fa-table-cells"></i><span>Tables</span></a>
-          <a href="#reservations" class="nav-link"><i class="fa-solid fa-calendar-days"></i><span>Réservations</span></a>
-          <button id="logout-btn" class="nav-link logout-btn">Déconnexion</button>
+          <a href="#dashboard" class="nav-link active"
+            ><i class="fa-solid fa-gauge"></i><span>Dashboard</span></a
+          >
+          <a href="#orders" class="nav-link"
+            ><i class="fa-solid fa-receipt"></i><span>Commandes</span></a
+          >
+          <a href="#stats" class="nav-link"
+            ><i class="fa-solid fa-chart-bar"></i><span>Statistiques</span></a
+          >
+          <a href="#tables" class="nav-link"
+            ><i class="fa-solid fa-table-cells"></i><span>Tables</span></a
+          >
+          <a href="#reservations" class="nav-link"
+            ><i class="fa-solid fa-calendar-days"></i
+            ><span>Réservations</span></a
+          >
+          <button id="logout-btn" class="nav-link logout-btn">
+            Déconnexion
+          </button>
         </nav>
       </div>
     </header>
 
     <!-- Admin Dashboard -->
     <main class="admin-dashboard" id="admin-dashboard">
-
       <!-- QR Scanner -->
       <section class="scanner-section">
         <div class="container">
@@ -71,15 +83,35 @@
                   </div>
                   <div class="camera-off-content">
                     <div class="camera-icon">
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/>
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <circle
+                          cx="12"
+                          cy="13"
+                          r="4"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        />
                       </svg>
                     </div>
                   </div>
                 </div>
                 <div id="qr-reader" class="qr-camera-zone"></div>
-                <div class="scan-loader" id="scan-loader-admin" style="display: none">
+                <div
+                  class="scan-loader"
+                  id="scan-loader-admin"
+                  style="display: none"
+                >
                   <div class="scan-spinner"></div>
                   <div class="scan-message">Scan en cours...</div>
                 </div>
@@ -92,8 +124,14 @@
                 >
                   🎥 Activer Caméra
                 </button>
-                <div class="camera-selection" id="camera-selection-admin" style="display: none">
-                  <label for="camera-select-admin">Sélectionner la caméra:</label>
+                <div
+                  class="camera-selection"
+                  id="camera-selection-admin"
+                  style="display: none"
+                >
+                  <label for="camera-select-admin"
+                    >Sélectionner la caméra:</label
+                  >
                   <select id="camera-select-admin" class="camera-select">
                     <option value="">Chargement...</option>
                   </select>
@@ -119,15 +157,21 @@
                 <p><strong>Commande:</strong> <span id="order-id"></span></p>
                 <p><strong>Table:</strong> <span id="order-table"></span></p>
                 <p><strong>Mode:</strong> <span id="order-mode"></span></p>
-                <p><strong>Total:</strong> <span id="order-total"></span> CFA</p>
+                <p>
+                  <strong>Total:</strong> <span id="order-total"></span> CFA
+                </p>
               </div>
               <div class="order-items" id="order-items"></div>
             </div>
             <div class="order-actions">
-              <button class="btn btn-success"  id="accept-order">Accepter</button>
-              <button class="btn btn-warning"  id="preparing-order">En préparation</button>
-              <button class="btn btn-info"     id="ready-order">Prêt</button>
-              <button class="btn btn-danger"   id="cancel-order">Annuler</button>
+              <button class="btn btn-success" id="accept-order">
+                Accepter
+              </button>
+              <button class="btn btn-warning" id="preparing-order">
+                En préparation
+              </button>
+              <button class="btn btn-info" id="ready-order">Prêt</button>
+              <button class="btn btn-danger" id="cancel-order">Annuler</button>
             </div>
           </div>
         </div>
@@ -141,7 +185,11 @@
             <div class="tables-actions">
               <button
                 class="btn btn-primary"
-                onclick="window.tableManager && window.tableManager.generateAllTableQRs && window.tableManager.generateAllTableQRs()"
+                onclick="
+                  window.tableManager &&
+                    window.tableManager.generateAllTableQRs &&
+                    window.tableManager.generateAllTableQRs()
+                "
               >
                 Générer QR Codes
               </button>
@@ -157,7 +205,9 @@
           <div class="orders-header">
             <h2>Commandes Récentes</h2>
             <div class="orders-filters">
-              <label for="status-filter" class="visually-hidden">Filtrer par statut</label>
+              <label for="status-filter" class="visually-hidden"
+                >Filtrer par statut</label
+              >
               <select id="status-filter" title="Filtrer par statut">
                 <option value="all">Toutes</option>
                 <option value="pending_scan">En attente (scan)</option>
@@ -175,26 +225,35 @@
       </section>
 
       <!-- Reservations -->
-      <section id="reservations" style="display:none;">
+      <section id="reservations" style="display: none">
         <div id="reservations-content"></div>
       </section>
 
       <!-- ─── Statistiques ─────────────────────────────────────────────── -->
-      <section class="stats-section" id="stats" style="display:none;">
+      <section class="stats-section" id="stats" style="display: none">
         <div class="container">
-
           <!-- Header -->
           <div class="stats-header">
             <div class="stats-title-block">
-              <h2> Statistiques & Revenus</h2>
-              <p class="stats-subtitle">Tableau de bord financier — RestoPlus</p>
+              <h2>Statistiques & Revenus</h2>
+              <p class="stats-subtitle">
+                Tableau de bord financier — RestoPlus
+              </p>
             </div>
             <div class="stats-controls">
               <div class="stats-filter-group">
-                <button class="stats-filter-btn active" data-period="day">Aujourd'hui</button>
-                <button class="stats-filter-btn" data-period="week">Semaine</button>
-                <button class="stats-filter-btn" data-period="month">Mois</button>
-                <button class="stats-filter-btn" data-period="year">Année</button>
+                <button class="stats-filter-btn active" data-period="day">
+                  Aujourd'hui
+                </button>
+                <button class="stats-filter-btn" data-period="week">
+                  Semaine
+                </button>
+                <button class="stats-filter-btn" data-period="month">
+                  Mois
+                </button>
+                <button class="stats-filter-btn" data-period="year">
+                  Année
+                </button>
               </div>
               <button class="stats-export-btn" id="stats-export-btn">
                 ⬇ Exporter Excel
@@ -252,8 +311,10 @@
               <div class="chart-card-header">
                 <h3>Évolution des revenus</h3>
                 <div class="chart-legend">
-                  <span class="legend-dot" style="background:#c0873f"></span> Total
-                  <span class="legend-dot" style="background:#27ae60"></span> Encaissé
+                  <span class="legend-dot" style="background: #c0873f"></span>
+                  Total
+                  <span class="legend-dot" style="background: #27ae60"></span>
+                  Encaissé
                 </div>
               </div>
               <div class="chart-wrapper">
@@ -282,7 +343,9 @@
           <div class="stats-table-card">
             <div class="stats-table-header">
               <h3>Détail des tickets</h3>
-              <span class="stats-table-count" id="stats-table-count">0 tickets</span>
+              <span class="stats-table-count" id="stats-table-count"
+                >0 tickets</span
+              >
             </div>
             <div class="stats-table-wrapper">
               <table class="stats-table" id="stats-table">
@@ -298,16 +361,16 @@
                   </tr>
                 </thead>
                 <tbody id="stats-table-body">
-                  <tr><td colspan="7" class="stats-table-empty">Chargement...</td></tr>
+                  <tr>
+                    <td colspan="7" class="stats-table-empty">Chargement...</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
           </div>
-
         </div>
       </section>
       <!-- ─── /Statistiques ────────────────────────────────────────────── -->
-
     </main>
 
     <!-- Success Notification Popup -->
@@ -330,30 +393,83 @@
     </div>
 
     <!-- Order Management Modal -->
-    
-<div id="order-management-modal" class="order-management-modal">
-  <div class="mm-backdrop"></div>
-  <div class="mm-sheet">
-    <div class="mm-handle"></div>
-    <div class="mm-header">
-      <div class="mm-header-title">
-        <span class="mm-header-icon">🎫</span>
-        <div>
-          <h3>Gestion du ticket</h3>
-          <p id="modal-order-id" class="mm-order-id">—</p>
+
+    <div id="order-management-modal" class="order-management-modal">
+      <div class="mm-backdrop" id="close-management-modal"></div>
+      <div
+        class="mm-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mm-title"
+      >
+        <div class="mm-handle" aria-hidden="true"></div>
+        <div class="mm-header">
+          <div class="mm-header-title">
+            <span class="mm-header-icon">📋</span>
+            <div>
+              <h3 id="mm-title">Gestion commande</h3>
+              <div class="mm-order-id" id="modal-order-id">—</div>
+            </div>
+          </div>
+          <button
+            class="mm-close"
+            id="close-management-modal-btn"
+            aria-label="Fermer"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="mm-body">
+          <div id="modal-order-details"><!-- injecté par JS --></div>
+        </div>
+        <div
+          class="mm-footer"
+          style="
+            padding: 0 1.5rem 1.5rem;
+            position: sticky;
+            bottom: 0;
+            background: #fff;
+            padding-top: 0.75rem;
+            border-top: 1px solid #f0f0f0;
+          "
+        >
+          <div class="modal-actions mm-actions-grid">
+            <!-- injecté par JS -->
+          </div>
         </div>
       </div>
-      <button class="mm-close" id="close-management-modal">✕</button>
     </div>
-    <div class="mm-body">
-      <div id="modal-order-details"></div>
-      <!-- modal-order-date gardé pour compat mais caché -->
-      <p id="modal-order-date" style="display:none"></p>
-      <div class="modal-actions"></div>
-    </div>
-  </div>
-</div>
-    <!-- QRCode lib -->
+    <!-- HTML5 QR Code Scanner (required first) -->
+    <script
+      src="https://unpkg.com/html5-qrcode"
+      type="text/javascript"
+    ></script>
+
+    <!-- QR Scanner Manager (depends on html5-qrcode) -->
+    <script src="js/qr-scanner-manager.js"></script>
+
+    <!-- Authentication -->
+    <script src="js/admin-auth.js"></script>
+
+    <!-- Core utilities -->
+    <script src="js/main.js"></script>
+
+    <!-- Admin functionality -->
+    <script src="js/admin.js"></script>
+    <script src="js/admin-stats.js"></script>
+    <script src="js/admin-reservations.js"></script>
+
+    <!-- Additional utilities -->
+    <script src="js/table-manager.js"></script>
+    <script src="js/order-history.js"></script>
+
+    <!-- Chart.js for statistics -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- QRCode lib (local fallback) -->
     <script>
       function loadQRCodeFallback() {
         const script = document.createElement("script");
@@ -366,33 +482,13 @@
     </script>
     <script src="js/qrcode.min.js" onerror="loadQRCodeFallback()"></script>
 
-    <!-- HTML5 QR Code Scanner -->
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-
-    <!-- Chart.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-
-    <!-- SheetJS (export Excel) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-    <!-- Authentication first -->
-    <script src="js/admin-auth.js"></script>
-
-    <!-- Core scripts -->
-    <script src="js/main.js"></script>
-    <script src="js/admin.js"></script>
-    <script src="js/admin-reservations.js"></script>
-    <script src="js/table-manager.js"></script>
-    <script src="js/order-history.js"></script>
-    <script src="js/qr-scanner-manager.js"></script>
- 
-   
-    <script src="js/admin-stats.js"></script>
-
     <script>
       // Global toggle function for admin page
       window.toggleCamAdmin = function () {
-        if (window.qrScannerAdmin && typeof window.qrScannerAdmin.toggle === "function") {
+        if (
+          window.qrScannerAdmin &&
+          typeof window.qrScannerAdmin.toggle === "function"
+        ) {
           return window.qrScannerAdmin.toggle();
         }
       };

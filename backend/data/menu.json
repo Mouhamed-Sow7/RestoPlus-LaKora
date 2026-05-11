@@ -5,28 +5,28 @@
       "name": "Poulet Yassa",
       "description": "Poulet mariné au citron et aux oignons",
       "price": 3000,
-      "image": "/img/domoda.jpg"
+      "image": "/img/poulet-yassa.jpg"
     },
     {
       "id": 2,
       "name": "Thieboudienne",
       "description": "Riz au poisson avec légumes",
       "price": 3500,
-      "image": "/img/thieboudjeune.jpg"
+      "image": "/img/thieboudienne.jpg"
     },
     {
       "id": 3,
       "name": "Thiébou Yapp",
       "description": "Riz à la viande mijotée",
       "price": 3500,
-      "image": "/img/Thiebou-yapp-riz-a-la-viande.jpg"
+      "image": "/img/thiebou-yapp.jpg"
     },
     {
       "id": 4,
       "name": "Mafé",
       "description": "Ragoût en sauce d'arachide",
       "price": 3000,
-      "image": "/img/Mafé.jpg"
+      "image": "/img/mafe.jpg"
     },
     {
       "id": 5,

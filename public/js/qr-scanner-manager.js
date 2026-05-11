@@ -7,7 +7,13 @@
 //  - Clean restart/cleanup strategy
 
 class QRScannerManager {
-  constructor(containerId, qrReaderId, toggleBtnId, cameraSelectId, cameraSelectionId) {
+  constructor(
+    containerId,
+    qrReaderId,
+    toggleBtnId,
+    cameraSelectId,
+    cameraSelectionId,
+  ) {
     this.containerId = containerId;
     this.qrReaderId = qrReaderId;
     this.toggleBtnId = toggleBtnId;
@@ -55,12 +61,14 @@ class QRScannerManager {
 
   setupShadedRegionObserver(qrReader) {
     const hide = () => {
-      const nodes = qrReader.querySelectorAll('#qr-shaded-region, [id*="qr-shaded"]');
-      nodes.forEach(n => {
-        n.style.display = 'none';
-        n.style.visibility = 'hidden';
-        n.style.opacity = '0';
-        n.style.pointerEvents = 'none';
+      const nodes = qrReader.querySelectorAll(
+        '#qr-shaded-region, [id*="qr-shaded"]',
+      );
+      nodes.forEach((n) => {
+        n.style.display = "none";
+        n.style.visibility = "hidden";
+        n.style.opacity = "0";
+        n.style.pointerEvents = "none";
       });
     };
     hide();
@@ -84,7 +92,7 @@ class QRScannerManager {
       // build options
       select.innerHTML = '<option value="">Sélectionner une caméra</option>';
       devices.forEach((dev, idx) => {
-        const opt = document.createElement('option');
+        const opt = document.createElement("option");
         opt.value = dev.id;
         const rawLabel = (dev.label || "").trim();
         const lower = rawLabel.toLowerCase();
@@ -95,25 +103,28 @@ class QRScannerManager {
           label = `Caméra ${idx + 1}`;
         } else if (/\bcamera\b/i.test(rawLabel)) {
           // Translate generic "Back/Front Camera" style labels to French.
-          if (/(back|rear|environment)/i.test(rawLabel)) label = "Caméra arrière";
+          if (/(back|rear|environment)/i.test(rawLabel))
+            label = "Caméra arrière";
           else if (/(front|user)/i.test(rawLabel)) label = "Caméra avant";
-          else if (/external|usb|webcam|camo/i.test(rawLabel)) label = "Caméra externe";
-          else if (lower.includes("camera")) label = rawLabel.replace(/\bcamera\b/gi, "Caméra");
+          else if (/external|usb|webcam|camo/i.test(rawLabel))
+            label = "Caméra externe";
+          else if (lower.includes("camera"))
+            label = rawLabel.replace(/\bcamera\b/gi, "Caméra");
         }
 
-        if (label.length > 50) label = label.substring(0,47) + '...';
+        if (label.length > 50) label = label.substring(0, 47) + "...";
         opt.textContent = label;
         select.appendChild(opt);
       });
 
       // If user already explicitly picked a camera earlier, keep it (do NOT override)
       if (this.userSelectedCameraId) {
-        const found = devices.find(d => d.id === this.userSelectedCameraId);
+        const found = devices.find((d) => d.id === this.userSelectedCameraId);
         if (found) select.value = this.userSelectedCameraId;
       } else {
         // No user pick yet: attempt to restore last used cameraId stored in this.lastCameraId
         if (this.lastCameraId) {
-          const lastFound = devices.find(d => d.id === this.lastCameraId);
+          const lastFound = devices.find((d) => d.id === this.lastCameraId);
           if (lastFound) {
             select.value = this.lastCameraId;
           } else {
@@ -136,17 +147,16 @@ class QRScannerManager {
 
       // show/hide UI group depending on how many cameras
       if (cameraSelection) {
-        cameraSelection.style.display = devices.length > 1 ? 'block' : 'none';
+        cameraSelection.style.display = devices.length > 1 ? "block" : "none";
       }
-    } catch (err) {
-    }
+    } catch (err) {}
   }
 
   setupCameraSelectionHandler() {
     const select = document.getElementById(this.cameraSelectId);
     if (!select) return;
 
-    select.addEventListener('change', async (e) => {
+    select.addEventListener("change", async (e) => {
       const selectedId = e.target.value || null;
       // record explicit user choice
       this.userSelectedCameraId = selectedId;
@@ -180,10 +190,10 @@ class QRScannerManager {
     } catch (err) {
       // Attempt to restore previous camera if available
       if (this.lastCameraId && this.lastCameraId !== deviceId) {
-        try { 
-          await this.startCameraById(this.lastCameraId); 
-        } catch (e) { 
-          this.resetCameraState(); 
+        try {
+          await this.startCameraById(this.lastCameraId);
+        } catch (e) {
+          this.resetCameraState();
         }
       } else {
         this.resetCameraState();
@@ -194,26 +204,26 @@ class QRScannerManager {
   }
 
   async startCameraById(deviceId) {
-    if (!deviceId) throw new Error('startCameraById requires deviceId');
+    if (!deviceId) throw new Error("startCameraById requires deviceId");
     const config = this.getCameraConfig();
 
     await this.html5QrCode.start(
       { deviceId },
       config,
       (decodedText) => this.onScanSuccess(decodedText),
-      (err) => this.onScanFailure(err)
+      (err) => this.onScanFailure(err),
     );
 
     // UI updates
     const qrContainer = document.getElementById(this.containerId);
-    const qrStyleZone = qrContainer?.querySelector('.qr-style-zone');
+    const qrStyleZone = qrContainer?.querySelector(".qr-style-zone");
     const toggleBtn = document.getElementById(this.toggleBtnId);
-    if (qrStyleZone) qrStyleZone.classList.remove('camera-off');
+    if (qrStyleZone) qrStyleZone.classList.remove("camera-off");
     if (qrContainer) {
-      qrContainer.classList.remove('scanning');
-      qrContainer.classList.add('camera-active');
+      qrContainer.classList.remove("scanning");
+      qrContainer.classList.add("camera-active");
     }
-    if (toggleBtn) toggleBtn.innerHTML = '⏹️ Désactiver Caméra';
+    if (toggleBtn) toggleBtn.innerHTML = "⏹️ Désactiver Caméra";
 
     this.isCameraActive = true;
   }
@@ -224,20 +234,19 @@ class QRScannerManager {
       if (this.html5QrCode.isScanning) {
         await this.html5QrCode.stop();
       }
-    } catch (err) {
-    }
+    } catch (err) {}
 
     // cleanup reader DOM
     const qrReader = document.getElementById(this.qrReaderId);
-    if (qrReader) qrReader.innerHTML = '';
+    if (qrReader) qrReader.innerHTML = "";
 
     const qrContainer = document.getElementById(this.containerId);
-    const qrStyleZone = qrContainer?.querySelector('.qr-style-zone');
+    const qrStyleZone = qrContainer?.querySelector(".qr-style-zone");
     const toggleBtn = document.getElementById(this.toggleBtnId);
 
-    if (qrStyleZone) qrStyleZone.classList.add('camera-off');
-    if (qrContainer) qrContainer.classList.remove('camera-active', 'scanning');
-    if (toggleBtn) toggleBtn.innerHTML = '🎥 Activer Caméra';
+    if (qrStyleZone) qrStyleZone.classList.add("camera-off");
+    if (qrContainer) qrContainer.classList.remove("camera-active", "scanning");
+    if (toggleBtn) toggleBtn.innerHTML = "🎥 Activer Caméra";
 
     this.isCameraActive = false;
   }
@@ -258,7 +267,7 @@ class QRScannerManager {
       }
 
       // START
-      if (toggleBtn) toggleBtn.innerHTML = '⏳ Chargement...';
+      if (toggleBtn) toggleBtn.innerHTML = "⏳ Chargement...";
 
       const select = document.getElementById(this.cameraSelectId);
       let cameraId = null;
@@ -275,14 +284,18 @@ class QRScannerManager {
         }
       }
 
-      if (!cameraId) throw new Error('No camera available to start');
+      if (!cameraId) throw new Error("No camera available to start");
 
       // Ensure UI select shows what we start
       if (select) select.value = cameraId;
 
       await this.startCameraById(cameraId);
     } catch (err) {
-      NotificationManager.showSuccess("Erreur", "Impossible d'activer la caméra", 3000);
+      NotificationManager.showSuccess(
+        "Erreur",
+        "Impossible d'activer la caméra",
+        3000,
+      );
       this.resetCameraState();
     } finally {
       this.isBusy = false;
@@ -291,24 +304,39 @@ class QRScannerManager {
 
   getCameraConfig() {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    if (isIOS) return { fps: 10, qrbox: 250 };
-    return { fps: 10, qrbox: { width: 300, height: 300 }, aspectRatio: 1.0, disableFlip: false };
+    // Optimized for better QR detection:
+    // - Increased fps for faster detection (was 10, now 15)
+    // - Adaptive qrbox: smaller for easier focal point
+    // - disableFlip: false allows auto-rotation
+    if (isIOS)
+      return { fps: 15, qrbox: 200, aspectRatio: 1.0, disableFlip: false };
+    return {
+      fps: 15,
+      qrbox: { width: 250, height: 250 },
+      aspectRatio: 1.0,
+      disableFlip: false,
+      formatsToSupport: ["QR_CODE"], // Explicit format specification for better performance
+    };
   }
 
   selectBestCamera(devices = [], lastCameraId = null) {
     if (!devices || devices.length === 0) return null;
 
     // Prefer back cameras
-    const back = devices.find(d => /back|rear|environment|arrière/gi.test(d.label || ''));
+    const back = devices.find((d) =>
+      /back|rear|environment|arrière/gi.test(d.label || ""),
+    );
     if (back) return back;
 
     // Prefer external (Camo, USB) on desktop
-    const external = devices.find(d => /camo|external|usb|webcam/gi.test(d.label || ''));
+    const external = devices.find((d) =>
+      /camo|external|usb|webcam/gi.test(d.label || ""),
+    );
     if (external) return external;
 
     // Fallback to lastCamera
     if (lastCameraId) {
-      const last = devices.find(d => d.id === lastCameraId);
+      const last = devices.find((d) => d.id === lastCameraId);
       if (last) return last;
     }
 
@@ -329,10 +357,16 @@ class QRScannerManager {
     if (this.processingScan) return;
     this.processingScan = true;
 
+    // Add auto-reset timeout to prevent lockup (max 5 seconds)
+    const resetTimeout = setTimeout(() => {
+      this.processingScan = false;
+      this.hideScanLoader();
+    }, 5000);
+
     const qrContainer = document.getElementById(this.containerId);
     try {
-      if (qrContainer) qrContainer.classList.add('scanning');
-      this.showScanLoader('Vérification en cours...');
+      if (qrContainer) qrContainer.classList.add("scanning");
+      this.showScanLoader("Vérification en cours...");
 
       // Simulate small delay for UX
       await this.delay(600);
@@ -340,25 +374,33 @@ class QRScannerManager {
       // Try JSON - distinguish between table QR and order QR
       try {
         const data = JSON.parse(decodedText);
-        
+
         // Check for order QR code first (has orderId but no url)
         if (data && (data.orderId || data.qrTicket)) {
           // This is an order QR code - should be handled by admin page
           // On home page, show error
           this.hideScanLoader();
           this.processingScan = false;
-          NotificationManager.showSuccess('Erreur', 'Ce QR code est un ticket de commande. Veuillez le scanner depuis la page admin.', 3000);
+          NotificationManager.showSuccess(
+            "Erreur",
+            "Ce QR code est un ticket de commande. Veuillez le scanner depuis la page admin.",
+            3000,
+          );
           return;
         }
-        
+
         // Check for table QR code (has both table and url)
         if (data && data.table && data.url) {
           // This is a table QR code - redirect to menu
           this.hideScanLoader();
           this.processingScan = false;
-          NotificationManager.showSuccess('Table détectée !', 'Redirection...', 1500);
-          setTimeout(() => { 
-            window.location.href = data.url || `menu.html?table=${data.table}`; 
+          NotificationManager.showSuccess(
+            "Table détectée !",
+            "Redirection...",
+            1500,
+          );
+          setTimeout(() => {
+            window.location.href = data.url || `menu.html?table=${data.table}`;
           }, 1200);
           return;
         }
@@ -371,30 +413,39 @@ class QRScannerManager {
       if (!isNaN(tableNumber)) {
         this.hideScanLoader();
         this.processingScan = false;
-        NotificationManager.showSuccess('Table détectée !', `Table ${tableNumber}`, 1500);
-        setTimeout(() => { 
-          window.location.href = `menu.html?table=${tableNumber}`; 
+        NotificationManager.showSuccess(
+          "Table détectée !",
+          `Table ${tableNumber}`,
+          1500,
+        );
+        setTimeout(() => {
+          window.location.href = `menu.html?table=${tableNumber}`;
         }, 1200);
         return;
       }
-      
+
       // Try as direct order ID (ORD-xxx format)
       if (decodedText && decodedText.startsWith("ORD-")) {
         this.hideScanLoader();
         this.processingScan = false;
-        NotificationManager.showSuccess('Erreur', 'Ce QR code est un ticket de commande. Veuillez le scanner depuis la page admin.', 3000);
+        NotificationManager.showSuccess(
+          "Erreur",
+          "Ce QR code est un ticket de commande. Veuillez le scanner depuis la page admin.",
+          3000,
+        );
         return;
       }
 
       // invalid
       this.hideScanLoader();
-      NotificationManager.showSuccess('Erreur', 'QR Code non reconnu.', 2500);
+      NotificationManager.showSuccess("Erreur", "QR Code non reconnu.", 2500);
       // keep camera running and resume
     } catch (err) {
       this.hideScanLoader();
     } finally {
-      if (qrContainer) qrContainer.classList.remove('scanning');
+      if (qrContainer) qrContainer.classList.remove("scanning");
       this.processingScan = false;
+      clearTimeout(resetTimeout); // Clear the safety timeout
     }
   }
 
@@ -403,7 +454,10 @@ class QRScannerManager {
     if (window.location.pathname.includes("admin.html")) {
       // Admin page should have overridden this method
       // If not overridden, call admin's handleQRScan directly
-      if (window.adminManager && typeof window.adminManager.handleQRScan === "function") {
+      if (
+        window.adminManager &&
+        typeof window.adminManager.handleQRScan === "function"
+      ) {
         window.adminManager.handleQRScan(decodedText);
         return;
       }
@@ -419,30 +473,34 @@ class QRScannerManager {
     this.processQRCodeScan(decodedText);
   }
 
-  showScanLoader(message = 'Scan en cours...') {
-    const loaderId = this.containerId.includes('home') ? 'scan-loader-home' : 'scan-loader-admin';
+  showScanLoader(message = "Scan en cours...") {
+    const loaderId = this.containerId.includes("home")
+      ? "scan-loader-home"
+      : "scan-loader-admin";
     const loader = document.getElementById(loaderId);
     if (!loader) return;
-    loader.style.display = 'flex';
-    const msg = loader.querySelector('.scan-message');
+    loader.style.display = "flex";
+    const msg = loader.querySelector(".scan-message");
     if (msg) msg.textContent = message;
     // Ensure spinner exists
-    let spinner = loader.querySelector('.scan-spinner');
+    let spinner = loader.querySelector(".scan-spinner");
     if (!spinner) {
-      spinner = document.createElement('div');
-      spinner.className = 'scan-spinner';
+      spinner = document.createElement("div");
+      spinner.className = "scan-spinner";
       loader.insertBefore(spinner, loader.firstChild);
     }
   }
 
   hideScanLoader() {
-    const loaderId = this.containerId.includes('home') ? 'scan-loader-home' : 'scan-loader-admin';
+    const loaderId = this.containerId.includes("home")
+      ? "scan-loader-home"
+      : "scan-loader-admin";
     const loader = document.getElementById(loaderId);
-    if (loader) loader.style.display = 'none';
-    
+    if (loader) loader.style.display = "none";
+
     const qrContainer = document.getElementById(this.containerId);
     if (qrContainer) {
-      qrContainer.classList.remove('scanning');
+      qrContainer.classList.remove("scanning");
     }
   }
 
@@ -459,28 +517,32 @@ class QRScannerManager {
       if (this.isCameraActive) {
         // if user picked camera prefer it
         const select = document.getElementById(this.cameraSelectId);
-        let cameraId = this.userSelectedCameraId || this.lastCameraId || (select && select.value) || null;
+        let cameraId =
+          this.userSelectedCameraId ||
+          this.lastCameraId ||
+          (select && select.value) ||
+          null;
         if (cameraId) await this.startCameraById(cameraId);
       }
     } catch (err) {
-      this.resetCameraState(); 
+      this.resetCameraState();
     }
   }
 
   resetCameraState() {
     const qrContainer = document.getElementById(this.containerId);
-    const qrStyleZone = qrContainer?.querySelector('.qr-style-zone');
+    const qrStyleZone = qrContainer?.querySelector(".qr-style-zone");
     const toggleBtn = document.getElementById(this.toggleBtnId);
-    if (qrStyleZone) qrStyleZone.classList.add('camera-off');
-    if (qrContainer) qrContainer.classList.remove('camera-active', 'scanning');
-    if (toggleBtn) toggleBtn.innerHTML = '🎥 Activer Caméra';
+    if (qrStyleZone) qrStyleZone.classList.add("camera-off");
+    if (qrContainer) qrContainer.classList.remove("camera-active", "scanning");
+    if (toggleBtn) toggleBtn.innerHTML = "🎥 Activer Caméra";
 
     this.isCameraActive = false;
     this.isBusy = false;
   }
 
-  delay(ms) { 
-    return new Promise(r => setTimeout(r, ms)); 
+  delay(ms) {
+    return new Promise((r) => setTimeout(r, ms));
   }
 }
 

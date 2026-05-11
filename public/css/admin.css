@@ -1236,7 +1236,10 @@
 
 /* =============================================
      Order Management Modal
+     (All modal styles moved to admin-modal.css)
      ============================================= */
+
+/* Legacy placeholder - see admin-modal.css for current styles */
 .order-management-modal {
   position: fixed;
   top: 0;
@@ -1507,7 +1510,10 @@
 
 /* =============================================
      Fusion & Approval Modals
+     (All modal styles moved to admin-modal.css)
      ============================================= */
+
+/* Legacy placeholder - see admin-modal.css for current styles */
 .order-fusion-modal,
 .order-approval-modal {
   position: fixed;
