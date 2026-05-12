@@ -961,6 +961,12 @@ class AdminManager {
 
     modal.classList.add("show");
     this.setupModalEventListeners();
+
+    // Masquer le bouton "Encaisser" si déjà payé
+    const btnPay = modal.querySelector(".mm-btn-pay");
+    if (btnPay && order.paymentStatus === "paid") {
+      btnPay.style.display = "none";
+    }
   }
 
   setupModalEventListeners() {
@@ -998,6 +1004,9 @@ class AdminManager {
           <button class="mm-btn mm-btn-serve"    data-action="served">
             <i class="fa-solid fa-bell"></i> Servie
           </button>
+          <button class="mm-btn mm-btn-pay" data-action="pay" style="background:linear-gradient(135deg,#27AE60,#219A52);color:#fff;">
+            💳 Encaisser
+          </button>
           <button class="mm-btn mm-btn-cancel"   data-action="cancelled">
             <i class="fa-solid fa-ban"></i> Annuler
           </button>
@@ -1019,6 +1028,37 @@ class AdminManager {
         // Suppression → confirmation d'abord
         if (action === "delete") {
           this._confirmDelete(orderId, modal);
+          return;
+        }
+
+        // Bouton Encaisser → appel API payment
+        if (action === "pay") {
+          const orderId = this.currentManagingOrder?.orderId || this.currentManagingOrder?.id;
+          if (!orderId) return;
+          
+          // Ne pas encaisser si déjà paid
+          if (this.currentManagingOrder?.paymentStatus === "paid") {
+            NotificationManager.showSuccess(null, "Déjà encaissé", "Cette commande est déjà marquée comme payée.", 2500, "info");
+            return;
+          }
+          
+          try {
+            const res = await spaAuthenticatedFetch(`/api/orders/${orderId}/payment`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ paymentStatus: "paid" }),
+            });
+            if (!res.ok) throw new Error("Erreur serveur");
+            const updated = await res.json();
+            this.currentManagingOrder = updated;
+            NotificationManager.showSuccess(orderId, "✅ Encaissé", `Commande ${orderId} marquée comme payée.`, 3000, "success");
+            // Rafraîchit le modal
+            this.displayOrderInModal(updated);
+            // Rafraîchit le Kanban
+            if (typeof window.ordersManager?.loadOrders === "function") window.ordersManager.loadOrders();
+          } catch (e) {
+            NotificationManager.showSuccess(null, "Erreur", "Impossible d'encaisser. Réessayez.", 3000, "error");
+          }
           return;
         }
 

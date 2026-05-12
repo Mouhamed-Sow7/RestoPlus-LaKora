@@ -141,6 +141,17 @@ exports.updateStatus = async (req, res) => {
 };
 exports.updatePayment = async (req, res) => {
   try {
+    const { paymentStatus, paymentMethod } = req.body;
+    // Empêche de repasser en "pending" si déjà "paid"
+    if (paymentStatus === "pending") {
+      const existing = await Order.findOne({ orderId: req.params.orderId }, "paymentStatus").lean();
+      if (existing?.paymentStatus === "paid") {
+        return res.status(400).json({
+          error: "Impossible de repasser en 'pending' une commande déjà payée.",
+          code: "PAYMENT_DOWNGRADE_FORBIDDEN",
+        });
+      }
+    }
     res.json(await svc.updatePaymentStatus(req.params.orderId, req.body));
   } catch (e) {
     err(res, e);
@@ -161,7 +172,9 @@ exports.remove = async (req, res) => {
 exports.revenueStats = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const match = {};
+    const match = {
+      status: { $nin: ["cancelled", "merged", "pending_approval"] },
+    };
     if (startDate || endDate) {
       match.timestamp = {};
       if (startDate) match.timestamp.$gte = new Date(startDate);

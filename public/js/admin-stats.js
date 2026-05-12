@@ -25,12 +25,28 @@ class StatsManager {
     // ─── Fetch toutes les commandes de la période ─────────────────────────
     async fetchOrders() {
       const { start, end } = this.getPeriodRange(this.currentPeriod);
+      const PAGE_SIZE = 500;
+      let page = 1;
+      let allOrders = [];
+      let hasMore = true;
+
       try {
-        const res = await spaAuthenticatedFetch(
-          `/api/orders?limit=500&startDate=${start.toISOString()}&endDate=${end.toISOString()}&includePendingApproval=true`
-        );
-        const data = await res.json();
-        this.orders = Array.isArray(data.orders) ? data.orders : [];
+        while (hasMore) {
+          const res = await spaAuthenticatedFetch(
+            `/api/orders?limit=${PAGE_SIZE}&page=${page}&startDate=${start.toISOString()}&endDate=${end.toISOString()}&includePendingApproval=true`
+          );
+          const data = await res.json();
+          const batch = Array.isArray(data.orders) ? data.orders : [];
+          allOrders = allOrders.concat(batch);
+
+          // Arrête si on a tout récupéré
+          hasMore = batch.length === PAGE_SIZE && allOrders.length < (data.total || Infinity);
+          page++;
+
+          // Sécurité anti-boucle infinie
+          if (page > 20) break;
+        }
+        this.orders = allOrders;
       } catch {
         this.orders = [];
       }
@@ -66,17 +82,32 @@ class StatsManager {
     renderKPIs() {
       const fmt = (n) => new Intl.NumberFormat("fr-FR").format(Math.round(n || 0));
   
-      const validOrders = this.orders.filter(o => o.status !== "cancelled" && o.status !== "merged");
-      const totalRevenue  = validOrders.reduce((s, o) => s + (o.total || 0), 0);
-      const paidRevenue   = validOrders.filter(o => o.paymentStatus === "paid").reduce((s, o) => s + (o.total || 0), 0);
-      const pendingRevenue= validOrders.filter(o => o.paymentStatus !== "paid").reduce((s, o) => s + (o.total || 0), 0);
-      const avgOrder      = validOrders.length ? totalRevenue / validOrders.length : 0;
+      const validOrders = this.orders.filter(o =>
+        o.status !== "cancelled" &&
+        o.status !== "merged" &&
+        o.status !== "pending_approval"
+      );
+      // Commandes en attente de validation (pour info seulement)
+      const pendingApprovalOrders = this.orders.filter(o => o.status === "pending_approval");
+      const pendingApprovalRevenue = pendingApprovalOrders.reduce((s, o) => s + (o.total || 0), 0);
+  
+      const totalRevenue   = validOrders.reduce((s, o) => s + (o.total || 0), 0);
+      const paidRevenue    = validOrders.filter(o => o.paymentStatus === "paid").reduce((s, o) => s + (o.total || 0), 0);
+      const pendingRevenue = validOrders.filter(o => o.paymentStatus !== "paid").reduce((s, o) => s + (o.total || 0), 0);
+      const avgOrder       = validOrders.length ? totalRevenue / validOrders.length : 0;
   
       document.getElementById("kpi-revenue").textContent = fmt(totalRevenue);
       document.getElementById("kpi-paid").textContent    = fmt(paidRevenue);
       document.getElementById("kpi-pending").textContent = fmt(pendingRevenue);
       document.getElementById("kpi-orders").textContent  = validOrders.length;
       document.getElementById("kpi-avg").textContent     = fmt(avgOrder);
+  
+      // Affiche le CA en attente de validation si présent
+      const kpiPendingApproval = document.getElementById("kpi-pending-approval");
+      if (kpiPendingApproval) {
+        kpiPendingApproval.textContent = fmt(pendingApprovalRevenue);
+        kpiPendingApproval.closest(".kpi-card")?.style.setProperty("display", pendingApprovalRevenue > 0 ? "" : "none");
+      }
     }
   
     // ─── Charts ───────────────────────────────────────────────────────────
@@ -248,7 +279,11 @@ class StatsManager {
   
     // ─── Séries temporelles pour la courbe ───────────────────────────────
     getTimeSeriesData() {
-      const validOrders = this.orders.filter(o => o.status !== "cancelled" && o.status !== "merged");
+      const validOrders = this.orders.filter(o =>
+        o.status !== "cancelled" &&
+        o.status !== "merged" &&
+        o.status !== "pending_approval"
+      );
   
       if (this.currentPeriod === "day") {
         // Par heure (0-23)

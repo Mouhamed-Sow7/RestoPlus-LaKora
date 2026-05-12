@@ -18,10 +18,14 @@ router.get("/dashboard", async (req, res) => {
     ]);
     res.json({
       orders: {
-        total:     todayOrders.length,
-        completed: todayOrders.filter(o => o.status === "served").length,
-        pending:   todayOrders.filter(o => ["pending","accepted","preparing","ready"].includes(o.status)).length,
-        revenue:   todayOrders.filter(o => o.paymentStatus === "paid").reduce((s, o) => s + o.total, 0),
+        total:           todayOrders.length,
+        completed:       todayOrders.filter(o => o.status === "served").length,
+        pending:         todayOrders.filter(o =>
+          ["pending", "pending_approval", "pending_scan", "accepted", "preparing", "ready"].includes(o.status)
+        ).length,
+        pendingApproval: todayOrders.filter(o => o.status === "pending_approval").length,
+        revenue:         todayOrders.filter(o => o.paymentStatus === "paid").reduce((s, o) => s + o.total, 0),
+        revenueTotal:    todayOrders.filter(o => !["cancelled","merged","pending_approval"].includes(o.status)).reduce((s, o) => s + o.total, 0),
       },
       reservations: {
         total:     todayReservations.length,
@@ -36,9 +40,33 @@ router.get("/dashboard", async (req, res) => {
 router.get("/revenue", async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const match = {};
-    if (startDate || endDate) { match.timestamp = {}; if (startDate) match.timestamp.$gte = new Date(startDate); if (endDate) match.timestamp.$lte = new Date(endDate); }
-    const [stats] = await Order.aggregate([{ $match: match }, { $group: { _id: null, totalRevenue: { $sum: "$total" }, paidRevenue: { $sum: { $cond: [{ $eq: ["$paymentStatus","paid"]}, "$total", 0] } }, pendingRevenue: { $sum: { $cond: [{ $eq: ["$paymentStatus","pending"]}, "$total", 0] } }, totalOrders: { $sum: 1 }, averageOrderValue: { $avg: "$total" } } }]);
+    const match = {
+      status: { $nin: ["cancelled", "merged", "pending_approval"] },
+    };
+    if (startDate || endDate) {
+      match.timestamp = {};
+      if (startDate) match.timestamp.$gte = new Date(startDate);
+      if (endDate) match.timestamp.$lte = new Date(endDate);
+    }
+    const [stats] = await Order.aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$total" },
+          paidRevenue: {
+            $sum: { $cond: [{ $eq: ["$paymentStatus", "paid"] }, "$total", 0] },
+          },
+          pendingRevenue: {
+            $sum: {
+              $cond: [{ $eq: ["$paymentStatus", "pending"] }, "$total", 0],
+            },
+          },
+          totalOrders: { $sum: 1 },
+          averageOrderValue: { $avg: "$total" },
+        },
+      },
+    ]);
     res.json(stats || { totalRevenue: 0, paidRevenue: 0, pendingRevenue: 0, totalOrders: 0, averageOrderValue: 0 });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

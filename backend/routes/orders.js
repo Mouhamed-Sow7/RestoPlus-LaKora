@@ -8,6 +8,16 @@ const {
   requireAdminOrServer,
 } = require("../middleware/auth");
 const { validate, schemas } = require("../middleware/validate");
+const rateLimit = require("express-rate-limit");
+
+// Rate limiter pour les endpoints publics
+const publicOrderLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30,             // 30 requêtes par minute par IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Trop de requêtes. Réessayez dans une minute." },
+});
 
 // ─── Middleware anti-spam ──────────────────────────────────────────────────
 // Bloque si une table a déjà 3 commandes pending_approval simultanées
@@ -33,8 +43,8 @@ const checkTableSpam = async (req, res, next) => {
 };
 
 // Routes statiques AVANT /:orderId (ordre obligatoire sous Express)
-router.get("/public", ctrl.publicHistory);
-router.get("/public/:orderId/status", ctrl.publicStatus);
+router.get("/public", publicOrderLimiter, ctrl.publicHistory);
+router.get("/public/:orderId/status", publicOrderLimiter, ctrl.publicStatus);
 router.get(
   "/stats/revenue",
   authenticateToken,
@@ -58,7 +68,7 @@ router.post(
   ctrl.fuse,
 );
 
-router.get("/:orderId", ctrl.getOne);
+router.get("/:orderId", publicOrderLimiter, ctrl.getOne);
 router.post("/:orderId/scan/validate", authenticateToken, ctrl.scanValidate);
 router.post("/:orderId/scan/reject", authenticateToken, ctrl.scanReject);
 router.patch(

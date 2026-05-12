@@ -38,20 +38,25 @@ async function rejectOrder(orderId, role) {
 }
 
 async function updateOrderStatus(orderId, status) {
+  const order = await Order.findOne({ orderId });
+  if (!order) throw Object.assign(new Error("Order not found"), { status: 404 });
+
   const update = {
     status,
-    ...(status === "served"    && { servedAt: new Date(), paymentStatus: "paid" }),
+    ...(status === "served" && {
+      servedAt: new Date(),
+      // Ne force paid que si pas déjà paid et pas failed
+      ...(order.paymentStatus !== "paid" && order.paymentStatus !== "failed"
+        ? { paymentStatus: "paid" }
+        : {}),
+    }),
     ...(status === "cancelled" && { cancelledAt: new Date() }),
   };
 
-  const order = await Order.findOneAndUpdate(
-    { orderId },
-    update,
-    { new: true }
-  );
-  if (!order) throw Object.assign(new Error("Order not found"), { status: 404 });
-  scheduleAnalyticsUpdate(order);
-  return order;
+  const updatedOrder = await Order.findOneAndUpdate({ orderId }, update, { new: true });
+  if (!updatedOrder) throw Object.assign(new Error("Order not found"), { status: 404 });
+  scheduleAnalyticsUpdate(updatedOrder);
+  return updatedOrder;
 }
 
 async function updatePaymentStatus(orderId, { paymentStatus, paymentMethod }) {
@@ -66,7 +71,15 @@ async function updatePaymentStatus(orderId, { paymentStatus, paymentMethod }) {
 }
 
 async function fuseOrders(orderIds, table, user) {
-  // Accepte pending_approval ET accepted (première commande déjà validée)
+  // Validation des entrées
+  if (!Array.isArray(orderIds) || orderIds.length < 2) {
+    throw Object.assign(new Error("La fusion nécessite au moins 2 commandes"), { status: 400 });
+  }
+  const uniqueIds = [...new Set(orderIds.filter(id => typeof id === "string" && id.trim()))];
+  if (uniqueIds.length !== orderIds.length) {
+    throw Object.assign(new Error("IDs de commandes invalides ou en double"), { status: 400 });
+  }
+  orderIds = uniqueIds; // utilise la version dédupliquée
   const FUSIBLE_STATUSES = ["pending_approval", "accepted"];
 
   const orders = await Order.find({

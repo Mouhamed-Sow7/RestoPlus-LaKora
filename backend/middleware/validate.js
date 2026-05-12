@@ -68,7 +68,7 @@ const schemas = {
   }),
 
   fuseOrders: Joi.object({
-    orderIds: Joi.array().items(Joi.string()).min(2).required(),
+    orderIds: Joi.array().items(Joi.string()).min(2).unique().required(),
     table:    Joi.number().integer().min(1).required(),
   }),
 

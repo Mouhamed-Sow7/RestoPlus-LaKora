@@ -55,6 +55,7 @@
 .kpi-pending  { border-color: #f39c12; }
 .kpi-orders   { border-color: #2980b9; }
 .kpi-avg      { border-color: #8e44ad; }
+.kpi-approval { border-left: 4px solid #9B59B6; }
 
 .kpi-icon { font-size: 1.8rem; line-height: 1; }
 .kpi-body { display: flex; flex-direction: column; min-width: 0; }
