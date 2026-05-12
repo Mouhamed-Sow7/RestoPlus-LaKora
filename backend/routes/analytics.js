@@ -1,8 +1,10 @@
 "use strict";
 const router = require("express").Router();
-const { authenticateToken, requireAdminOrServer } = require("../middleware/auth");
-const Analytics   = require("../models/Analytics");
-const Order       = require("../models/Order");
+const {
+  authenticateToken,
+  requireAdminOrServer,
+} = require("../middleware/auth");
+const Order = require("../models/Order");
 const Reservation = require("../models/Reservation");
 
 // Toutes les routes analytics sont désormais protégées
@@ -10,31 +12,55 @@ router.use(authenticateToken, requireAdminOrServer);
 
 router.get("/dashboard", async (req, res) => {
   try {
-    const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay   = new Date(); endOfDay.setHours(23, 59, 59, 999);
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
     const [todayOrders, todayReservations] = await Promise.all([
       Order.find({ timestamp: { $gte: startOfDay, $lte: endOfDay } }).lean(),
-      Reservation.find({ reservationDate: { $gte: startOfDay, $lte: endOfDay } }).lean(),
+      Reservation.find({
+        reservationDate: { $gte: startOfDay, $lte: endOfDay },
+      }).lean(),
     ]);
     res.json({
       orders: {
-        total:           todayOrders.length,
-        completed:       todayOrders.filter(o => o.status === "served").length,
-        pending:         todayOrders.filter(o =>
-          ["pending", "pending_approval", "pending_scan", "accepted", "preparing", "ready"].includes(o.status)
+        total: todayOrders.length,
+        completed: todayOrders.filter((o) => o.status === "served").length,
+        pending: todayOrders.filter((o) =>
+          [
+            "pending",
+            "pending_approval",
+            "pending_scan",
+            "accepted",
+            "preparing",
+            "ready",
+          ].includes(o.status),
         ).length,
-        pendingApproval: todayOrders.filter(o => o.status === "pending_approval").length,
-        revenue:         todayOrders.filter(o => o.paymentStatus === "paid").reduce((s, o) => s + o.total, 0),
-        revenueTotal:    todayOrders.filter(o => !["cancelled","merged","pending_approval"].includes(o.status)).reduce((s, o) => s + o.total, 0),
+        pendingApproval: todayOrders.filter(
+          (o) => o.status === "pending_approval",
+        ).length,
+        revenue: todayOrders
+          .filter((o) => o.paymentStatus === "paid")
+          .reduce((s, o) => s + o.total, 0),
+        revenueTotal: todayOrders
+          .filter(
+            (o) =>
+              !["cancelled", "merged", "pending_approval"].includes(o.status),
+          )
+          .reduce((s, o) => s + o.total, 0),
       },
       reservations: {
-        total:     todayReservations.length,
-        confirmed: todayReservations.filter(r => r.status === "confirmed").length,
-        seated:    todayReservations.filter(r => r.status === "seated").length,
-        completed: todayReservations.filter(r => r.status === "completed").length,
+        total: todayReservations.length,
+        confirmed: todayReservations.filter((r) => r.status === "confirmed")
+          .length,
+        seated: todayReservations.filter((r) => r.status === "seated").length,
+        completed: todayReservations.filter((r) => r.status === "completed")
+          .length,
       },
     });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 router.get("/revenue", async (req, res) => {
@@ -67,15 +93,32 @@ router.get("/revenue", async (req, res) => {
         },
       },
     ]);
-    res.json(stats || { totalRevenue: 0, paidRevenue: 0, pendingRevenue: 0, totalOrders: 0, averageOrderValue: 0 });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+    res.json(
+      stats || {
+        totalRevenue: 0,
+        paidRevenue: 0,
+        pendingRevenue: 0,
+        totalOrders: 0,
+        averageOrderValue: 0,
+      },
+    );
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 router.get("/history", async (req, res) => {
   try {
     const { period = "daily", limit = 30 } = req.query;
-    res.json(await Analytics.find({ period }).sort({ date: -1 }).limit(parseInt(limit, 10)).lean());
-  } catch (e) { res.status(500).json({ error: e.message }); }
+    res.json(
+      await Analytics.find({ period })
+        .sort({ date: -1 })
+        .limit(parseInt(limit, 10))
+        .lean(),
+    );
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 module.exports = router;
