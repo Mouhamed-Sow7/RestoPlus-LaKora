@@ -1019,7 +1019,7 @@ class AdminManager {
     // Action buttons — fermeture IMMÉDIATE puis fetch en arrière-plan
     const actionButtons = modal.querySelectorAll(".mm-actions-grid button");
     actionButtons.forEach((btn) => {
-      btn.onclick = (e) => {
+      btn.onclick = async (e) => {
         const action = e.currentTarget.getAttribute("data-action");
         if (!this.currentManagingOrder) return;
         const orderId =
