@@ -867,7 +867,6 @@
 .menu-item .menu-actions {
   display: flex;
   gap: 8px;
-  flex-direction:column;
   align-items: center;
   padding: 10px 12px 14px;
   border-top: 1px solid #f0f0f0;
@@ -957,4 +956,8 @@
   .menu-item .menu-actions {
     gap: 6px;
   }
+}
+@media (max-width: 732px) {
+  .menu-item .menu-actions {
+    flex-direction:column;}
 }
