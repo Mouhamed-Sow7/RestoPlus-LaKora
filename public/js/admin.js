@@ -107,17 +107,44 @@ class AdminManager {
 
           // Also override processQRCodeScan to ensure admin handling
           window.qrScannerAdmin.processQRCodeScan = (decodedText) => {
-            // Guard: ignore if a modal is already open or already processing
-            if (
-              window.qrScannerAdmin.processingScan ||
-              document.getElementById("order-approval-modal") ||
-              document.getElementById("order-fusion-modal")
-            ) {
-              return;
-            }
+            // Guard : ignore si déjà en cours de traitement
+            if (window.qrScannerAdmin.processingScan) return;
+
+            // Guard : ignore si un modal de validation/fusion est VISIBLE (pas juste présent dans le DOM)
+            const approvalModal = document.getElementById(
+              "order-approval-modal",
+            );
+            const fusionModal = document.getElementById("order-fusion-modal");
+            const approvalVisible =
+              approvalModal &&
+              approvalModal.style.display !== "none" &&
+              approvalModal.offsetParent !== null;
+            const fusionVisible =
+              fusionModal &&
+              fusionModal.style.display !== "none" &&
+              fusionModal.offsetParent !== null;
+            if (approvalVisible || fusionVisible) return;
+
             window.qrScannerAdmin.processingScan = true;
-            // On admin page, always use admin's handleQRScan
-            this.handleQRScan(decodedText);
+
+            // Safety timeout : débloque après 8 secondes max pour éviter tout gel
+            const safetyTimer = setTimeout(() => {
+              window.qrScannerAdmin.processingScan = false;
+              window.qrScannerAdmin.hideScanLoader?.();
+              console.warn(
+                "[AdminQR] Safety timeout triggered — scanner débloqué",
+              );
+            }, 8000);
+
+            // Enveloppe dans un try/catch pour que processingScan ne reste jamais true en cas d'erreur
+            try {
+              this.handleQRScan(decodedText);
+            } catch (err) {
+              console.error("[AdminQR] Erreur handleQRScan:", err);
+              window.qrScannerAdmin.processingScan = false;
+              window.qrScannerAdmin.hideScanLoader?.();
+              clearTimeout(safetyTimer);
+            }
           };
 
           // Store reference to admin manager for scanner
@@ -193,6 +220,7 @@ class AdminManager {
   // Camera controls are now handled by QRScannerManager
 
   restartScanner() {
+    console.debug("[AdminQR] restartScanner() called");
     if (window.qrScannerAdmin) {
       // Stop camera if active
       if (
@@ -1033,31 +1061,54 @@ class AdminManager {
 
         // Bouton Encaisser → appel API payment
         if (action === "pay") {
-          const orderId = this.currentManagingOrder?.orderId || this.currentManagingOrder?.id;
+          const orderId =
+            this.currentManagingOrder?.orderId || this.currentManagingOrder?.id;
           if (!orderId) return;
-          
+
           // Ne pas encaisser si déjà paid
           if (this.currentManagingOrder?.paymentStatus === "paid") {
-            NotificationManager.showSuccess(null, "Déjà encaissé", "Cette commande est déjà marquée comme payée.", 2500, "info");
+            NotificationManager.showSuccess(
+              null,
+              "Déjà encaissé",
+              "Cette commande est déjà marquée comme payée.",
+              2500,
+              "info",
+            );
             return;
           }
-          
+
           try {
-            const res = await spaAuthenticatedFetch(`/api/orders/${orderId}/payment`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ paymentStatus: "paid" }),
-            });
+            const res = await spaAuthenticatedFetch(
+              `/api/orders/${orderId}/payment`,
+              {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ paymentStatus: "paid" }),
+              },
+            );
             if (!res.ok) throw new Error("Erreur serveur");
             const updated = await res.json();
             this.currentManagingOrder = updated;
-            NotificationManager.showSuccess(orderId, "✅ Encaissé", `Commande ${orderId} marquée comme payée.`, 3000, "success");
+            NotificationManager.showSuccess(
+              orderId,
+              "✅ Encaissé",
+              `Commande ${orderId} marquée comme payée.`,
+              3000,
+              "success",
+            );
             // Rafraîchit le modal
             this.displayOrderInModal(updated);
             // Rafraîchit le Kanban
-            if (typeof window.ordersManager?.loadOrders === "function") window.ordersManager.loadOrders();
+            if (typeof window.ordersManager?.loadOrders === "function")
+              window.ordersManager.loadOrders();
           } catch (e) {
-            NotificationManager.showSuccess(null, "Erreur", "Impossible d'encaisser. Réessayez.", 3000, "error");
+            NotificationManager.showSuccess(
+              null,
+              "Erreur",
+              "Impossible d'encaisser. Réessayez.",
+              3000,
+              "error",
+            );
           }
           return;
         }
@@ -1392,11 +1443,14 @@ class AdminManager {
 
     const closeModal = () => {
       modal.remove();
-      if (window.qrScannerAdmin) window.qrScannerAdmin.processingScan = false;
+      if (window.qrScannerAdmin) {
+        window.qrScannerAdmin.processingScan = false;
+        window.qrScannerAdmin.hideScanLoader?.();
+      }
       // Restart scanner if declined/closed
       setTimeout(() => {
         this.restartScanner();
-      }, 500);
+      }, 300);
     };
 
     closeBtn.onclick = closeModal;
@@ -1410,7 +1464,10 @@ class AdminManager {
       this.pendingFusionOrders = allOrders;
       this.pendingFusionTable = tableNumber;
       modal.remove();
-      if (window.qrScannerAdmin) window.qrScannerAdmin.processingScan = false;
+      if (window.qrScannerAdmin) {
+        window.qrScannerAdmin.processingScan = false;
+        window.qrScannerAdmin.hideScanLoader?.();
+      }
       // Restart scanner to scan another order for the same table
       setTimeout(() => {
         this.restartScanner();
@@ -1428,7 +1485,10 @@ class AdminManager {
     declineBtn.onclick = async () => {
       // Close the modal immediately
       modal.remove();
-      if (window.qrScannerAdmin) window.qrScannerAdmin.processingScan = false;
+      if (window.qrScannerAdmin) {
+        window.qrScannerAdmin.processingScan = false;
+        window.qrScannerAdmin.hideScanLoader?.();
+      }
       try {
         const token =
           sessionStorage.getItem("adminToken") ||
@@ -1466,7 +1526,9 @@ class AdminManager {
           "error",
         );
       } finally {
-        this.restartScanner();
+        setTimeout(() => {
+          this.restartScanner();
+        }, 300);
       }
     };
 
@@ -1474,7 +1536,10 @@ class AdminManager {
     confirmBtn.onclick = async () => {
       // Close modal immediately to avoid it staying open
       modal.remove();
-      if (window.qrScannerAdmin) window.qrScannerAdmin.processingScan = false;
+      if (window.qrScannerAdmin) {
+        window.qrScannerAdmin.processingScan = false;
+        window.qrScannerAdmin.hideScanLoader?.();
+      }
       try {
         const token =
           sessionStorage.getItem("adminToken") ||
@@ -1519,7 +1584,9 @@ class AdminManager {
           "error",
         );
       } finally {
-        this.restartScanner();
+        setTimeout(() => {
+          this.restartScanner();
+        }, 300);
       }
     };
   }
@@ -1607,6 +1674,10 @@ class AdminManager {
     rejectBtn.onclick = async () => {
       modal.remove();
       if (window.qrScannerAdmin) window.qrScannerAdmin.processingScan = false;
+      if (window.qrScannerAdmin) {
+        window.qrScannerAdmin.processingScan = false;
+        window.qrScannerAdmin.hideScanLoader?.();
+      }
       try {
         const token =
           sessionStorage.getItem("adminToken") ||
@@ -1638,7 +1709,7 @@ class AdminManager {
       } finally {
         setTimeout(() => {
           this.restartScanner();
-        }, 500);
+        }, 300);
       }
     };
 
@@ -1646,6 +1717,10 @@ class AdminManager {
     acceptBtn.onclick = async () => {
       modal.remove();
       if (window.qrScannerAdmin) window.qrScannerAdmin.processingScan = false;
+      if (window.qrScannerAdmin) {
+        window.qrScannerAdmin.processingScan = false;
+        window.qrScannerAdmin.hideScanLoader?.();
+      }
       try {
         const token =
           sessionStorage.getItem("adminToken") ||
@@ -1692,8 +1767,9 @@ class AdminManager {
       } finally {
         setTimeout(() => {
           this.restartScanner();
-        }, 500);
+        }, 300);
       }
+    };
     };
   }
 

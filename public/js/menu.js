@@ -2,7 +2,7 @@
 
 // ─── Constantes session ───────────────────────────────────────────────────
 const TABLE_SESSION_KEY = "tableSession";
-const TABLE_SESSION_TTL_MS = 2 * 60 * 60 * 1000; // 2 heures
+const TABLE_SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes
 const DISH_IMAGE_MAP = {
   // Plats
   "poulet yassa":
@@ -57,7 +57,9 @@ function getTableSession() {
     const raw = sessionStorage.getItem(TABLE_SESSION_KEY);
     if (!raw) return null;
     const session = JSON.parse(raw);
-    if (Date.now() - session.startedAt > TABLE_SESSION_TTL_MS) {
+    const expiry =
+      session.expiresAt || session.startedAt + TABLE_SESSION_TTL_MS;
+    if (Date.now() > expiry) {
       clearTableSession();
       return null;
     }
@@ -68,11 +70,13 @@ function getTableSession() {
 }
 
 function setTableSession(tableNumber) {
+  const now = Date.now();
   sessionStorage.setItem(
     TABLE_SESSION_KEY,
     JSON.stringify({
       table: tableNumber,
-      startedAt: Date.now(),
+      startedAt: now,
+      expiresAt: now + TABLE_SESSION_TTL_MS,
     }),
   );
 }
@@ -84,7 +88,23 @@ function clearTableSession() {
   window.history.replaceState({}, "", url.toString());
 }
 
-function showBanner(message, color) {
+function showBanner(message, type = "info") {
+  const colors = {
+    success: { bg: "#E8F5E9", border: "#27AE60", text: "#1E7E44", icon: "✅" },
+    warning: { bg: "#FFF8E1", border: "#E67E22", text: "#B7560D", icon: "⚠️" },
+    info: { bg: "#FDF8F0", border: "#C0873F", text: "#9B6830", icon: "📍" },
+    error: { bg: "#FDE8E8", border: "#E74C3C", text: "#C0392B", icon: "❌" },
+  };
+
+  // Rétrocompatibilité : si `type` est une couleur hex (#...), détecte et convertit
+  if (typeof type === "string" && type.startsWith("#")) {
+    if (type.includes("28a745") || type.includes("27AE60")) type = "success";
+    else if (type.includes("C0873F") || type.includes("c0873f")) type = "info";
+    else type = "info";
+  }
+
+  const style = colors[type] || colors.info;
+
   const existingId = "table-session-banner";
   const existing = document.getElementById(existingId);
   if (existing) existing.remove();
@@ -93,19 +113,42 @@ function showBanner(message, color) {
   banner.id = existingId;
   banner.style.cssText = `
     position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
-    background: ${color}; color: white;
-    padding: 14px 20px; text-align: center;
-    font-family: sans-serif; font-size: 14px;
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    background: ${style.bg};
+    border-bottom: 2px solid ${style.border};
+    color: ${style.text};
+    padding: 12px 20px;
+    text-align: center;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    animation: slideDown 0.3s ease;
   `;
+
+  // Inject animation if not already present
+  if (!document.getElementById("banner-anim")) {
+    const style_el = document.createElement("style");
+    style_el.id = "banner-anim";
+    style_el.textContent = `
+      @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    `;
+    document.head.appendChild(style_el);
+  }
+
   banner.innerHTML = `
+    <span style="font-size:1.1rem">${style.icon}</span>
     <span>${message}</span>
-    <button onclick="document.getElementById('${existingId}').remove()"
-      style="background:rgba(255,255,255,0.2);border:none;color:white;
-             padding:4px 10px;border-radius:4px;cursor:pointer;font-size:13px;">✕</button>
+    <button onclick="this.parentElement.remove()" style="
+      margin-left: auto; background: none; border: none; cursor: pointer;
+      color: ${style.text}; font-size: 1rem; opacity: 0.6; padding: 0 4px; line-height: 1;
+    ">✕</button>
   `;
-  document.body.appendChild(banner);
+
+  document.body.prepend(banner);
+
+  // Auto-remove after 6 seconds
+  setTimeout(() => banner.remove(), 6000);
 }
 
 // ─── MenuManager ─────────────────────────────────────────────────────────
@@ -156,11 +199,8 @@ class MenuManager {
   }
 
   onOrderAccepted() {
-    clearTableSession();
-    showBanner(
-      "✅ Commande acceptée ! Scannez à nouveau le QR de votre table pour une nouvelle commande.",
-      "#28a745",
-    );
+    // La session a déjà été coupée à la soumission du panier.
+    // Cette méthode est conservée pour compatibilité mais ne doit plus clearTableSession.
     this.updateTableInfo();
   }
 
@@ -341,6 +381,13 @@ class MenuManager {
       const orderId = event.detail?.orderId;
       if (!orderId) return;
       localStorage.setItem("currentOrderId", orderId);
+      // Déconnecte la session table immédiatement après commande soumise
+      // Le client doit re-scanner pour commander à nouveau
+      clearTableSession();
+      showBanner(
+        "✅ Commande envoyée ! Votre ticket QR a été généré. Attendez la validation du serveur.",
+        "#C0873F",
+      );
       this.startOrderPolling(orderId, true);
     });
   }
@@ -387,8 +434,14 @@ class MenuManager {
         this.lastOrderStatus = order.status;
         this.updateOrderStatusUI(order);
 
-        // ✅ Session table expirée dès acceptation
-        if (order.status === "accepted") this.onOrderAccepted();
+        if (order.status === "accepted") {
+          // Session déjà coupée à la soumission — affiche juste la confirmation
+          showBanner(
+            "✅ Commande acceptée par le serveur ! Elle est en cours de préparation.",
+            "#27AE60",
+          );
+          this.stopOrderPolling();
+        }
       }
 
       if (order.status === "served" || order.status === "cancelled")

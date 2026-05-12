@@ -3,12 +3,23 @@ const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema(
   {
     orderId: { type: String, required: true, unique: true, index: true },
-    table:   { type: Number, required: true, index: true },
-    mode:    { type: String, enum: ["group", "individual"], default: "group" },
-    items: [{
-      id: String, name: String, price: Number, quantity: Number, category: String,
-    }],
-    total:         { type: Number, required: true },
+    orderHash: {
+      type: String,
+      index: true,
+      sparse: true, // null pour les commandes sans hash (anciennes)
+    },
+    table: { type: Number, required: true, index: true },
+    mode: { type: String, enum: ["group", "individual"], default: "group" },
+    items: [
+      {
+        id: String,
+        name: String,
+        price: Number,
+        quantity: Number,
+        category: String,
+      },
+    ],
+    total: { type: Number, required: true },
     paymentMethod: {
       type: String,
       // ✅ ajout wave + orange_money
@@ -23,27 +34,45 @@ const orderSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: [
-        "pending", "pending_scan", "pending_approval",
-        "accepted", "preparing", "ready", "served",
-        "cancelled", "merged",
+        "pending",
+        "pending_scan",
+        "pending_approval",
+        "accepted",
+        "preparing",
+        "ready",
+        "served",
+        "cancelled",
+        "merged",
       ],
       default: "pending",
     },
     qrData: {
-      orderId: String, table: Number, total: Number,
-      paymentMethod: String, paymentStatus: String, timestamp: Date,
+      orderId: String,
+      table: Number,
+      total: Number,
+      paymentMethod: String,
+      paymentStatus: String,
+      timestamp: Date,
     },
-    timestamp:   { type: Date, default: Date.now, index: true },
-    servedAt:    Date,
+    timestamp: { type: Date, default: Date.now, index: true },
+    servedAt: Date,
     cancelledAt: Date,
-    mergedAt:    Date,
-    mergedInto:  String,
-    notes:       String,
+    mergedAt: Date,
+    mergedInto: String,
+    notes: String,
     scan: {
       type: {
-        firstScannedBy:  { type: String, enum: ["server", "admin", null], default: null },
-        firstScannedAt:  { type: Date, default: null },
-        lastValidatedBy: { type: String, enum: ["server", "admin", null], default: null },
+        firstScannedBy: {
+          type: String,
+          enum: ["server", "admin", null],
+          default: null,
+        },
+        firstScannedAt: { type: Date, default: null },
+        lastValidatedBy: {
+          type: String,
+          enum: ["server", "admin", null],
+          default: null,
+        },
         lastValidatedAt: { type: Date, default: null },
         lastAction: {
           type: String,
@@ -55,7 +84,7 @@ const orderSchema = new mongoose.Schema(
       default: {},
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 orderSchema.index({ timestamp: -1 });

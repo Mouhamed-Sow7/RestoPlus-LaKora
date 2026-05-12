@@ -1,5 +1,5 @@
 "use strict";
-const { randomInt } = require("crypto");
+const { randomInt, createHash } = require("crypto");
 const Order = require("../models/Order");
 const { scheduleAnalyticsUpdate } = require("./analytics.service");
 
@@ -8,9 +8,17 @@ function generateOrderId(prefix = "ORD") {
 }
 
 async function createOrder(data) {
+  const orderId = data.orderId || generateOrderId();
+  const orderHash = createHash("sha256")
+    .update(`${orderId}:${Date.now()}`)
+    .digest("base64")
+    .slice(0, 16)
+    .replace(/[+/=]/g, "");
+
   const order = await new Order({
     ...data,
-    orderId: data.orderId || generateOrderId(),
+    orderId,
+    orderHash,
     status: "pending_approval",
   }).save();
   scheduleAnalyticsUpdate(order);
@@ -20,26 +28,46 @@ async function createOrder(data) {
 async function validateOrder(orderId, role) {
   const order = await Order.findOneAndUpdate(
     { orderId },
-    { status: "accepted", scan: { firstScannedBy: role, firstScannedAt: new Date(), lastValidatedBy: role, lastValidatedAt: new Date(), lastAction: "validated" } },
-    { new: true }
+    {
+      status: "accepted",
+      scan: {
+        firstScannedBy: role,
+        firstScannedAt: new Date(),
+        lastValidatedBy: role,
+        lastValidatedAt: new Date(),
+        lastAction: "validated",
+      },
+    },
+    { new: true },
   );
-  if (!order) throw Object.assign(new Error("Order not found"), { status: 404 });
+  if (!order)
+    throw Object.assign(new Error("Order not found"), { status: 404 });
   return order;
 }
 
 async function rejectOrder(orderId, role) {
   const order = await Order.findOneAndUpdate(
     { orderId },
-    { status: "cancelled", cancelledAt: new Date(), scan: { lastValidatedBy: role, lastValidatedAt: new Date(), lastAction: "rejected" } },
-    { new: true }
+    {
+      status: "cancelled",
+      cancelledAt: new Date(),
+      scan: {
+        lastValidatedBy: role,
+        lastValidatedAt: new Date(),
+        lastAction: "rejected",
+      },
+    },
+    { new: true },
   );
-  if (!order) throw Object.assign(new Error("Order not found"), { status: 404 });
+  if (!order)
+    throw Object.assign(new Error("Order not found"), { status: 404 });
   return order;
 }
 
 async function updateOrderStatus(orderId, status) {
   const order = await Order.findOne({ orderId });
-  if (!order) throw Object.assign(new Error("Order not found"), { status: 404 });
+  if (!order)
+    throw Object.assign(new Error("Order not found"), { status: 404 });
 
   const update = {
     status,
@@ -53,8 +81,11 @@ async function updateOrderStatus(orderId, status) {
     ...(status === "cancelled" && { cancelledAt: new Date() }),
   };
 
-  const updatedOrder = await Order.findOneAndUpdate({ orderId }, update, { new: true });
-  if (!updatedOrder) throw Object.assign(new Error("Order not found"), { status: 404 });
+  const updatedOrder = await Order.findOneAndUpdate({ orderId }, update, {
+    new: true,
+  });
+  if (!updatedOrder)
+    throw Object.assign(new Error("Order not found"), { status: 404 });
   scheduleAnalyticsUpdate(updatedOrder);
   return updatedOrder;
 }
@@ -63,9 +94,10 @@ async function updatePaymentStatus(orderId, { paymentStatus, paymentMethod }) {
   const order = await Order.findOneAndUpdate(
     { orderId },
     { paymentStatus, ...(paymentMethod && { paymentMethod }) },
-    { new: true }
+    { new: true },
   );
-  if (!order) throw Object.assign(new Error("Order not found"), { status: 404 });
+  if (!order)
+    throw Object.assign(new Error("Order not found"), { status: 404 });
   scheduleAnalyticsUpdate(order);
   return order;
 }
@@ -73,11 +105,17 @@ async function updatePaymentStatus(orderId, { paymentStatus, paymentMethod }) {
 async function fuseOrders(orderIds, table, user) {
   // Validation des entrées
   if (!Array.isArray(orderIds) || orderIds.length < 2) {
-    throw Object.assign(new Error("La fusion nécessite au moins 2 commandes"), { status: 400 });
+    throw Object.assign(new Error("La fusion nécessite au moins 2 commandes"), {
+      status: 400,
+    });
   }
-  const uniqueIds = [...new Set(orderIds.filter(id => typeof id === "string" && id.trim()))];
+  const uniqueIds = [
+    ...new Set(orderIds.filter((id) => typeof id === "string" && id.trim())),
+  ];
   if (uniqueIds.length !== orderIds.length) {
-    throw Object.assign(new Error("IDs de commandes invalides ou en double"), { status: 400 });
+    throw Object.assign(new Error("IDs de commandes invalides ou en double"), {
+      status: 400,
+    });
   }
   orderIds = uniqueIds; // utilise la version dédupliquée
   const FUSIBLE_STATUSES = ["pending_approval", "accepted"];
@@ -89,8 +127,10 @@ async function fuseOrders(orderIds, table, user) {
 
   if (orders.length !== orderIds.length) {
     throw Object.assign(
-      new Error("Certaines commandes sont introuvables ou ne peuvent pas être fusionnées"),
-      { status: 400 }
+      new Error(
+        "Certaines commandes sont introuvables ou ne peuvent pas être fusionnées",
+      ),
+      { status: 400 },
     );
   }
 
@@ -121,7 +161,9 @@ async function fuseOrders(orderIds, table, user) {
 
   // Statut paiement fusionné : paid seulement si toutes sont paid
   const fusedPaymentStatus =
-    paymentStatuses.size === 1 && paymentStatuses.has("paid") ? "paid" : "pending";
+    paymentStatuses.size === 1 && paymentStatuses.has("paid")
+      ? "paid"
+      : "pending";
 
   // Méthode paiement : priorité card > mobile > cash
   let fusedPaymentMethod = "cash";
@@ -130,21 +172,21 @@ async function fuseOrders(orderIds, table, user) {
 
   // Crée la commande fusionnée
   const fusedOrder = await new Order({
-    orderId:       generateOrderId("ORD-FUSED"),
+    orderId: generateOrderId("ORD-FUSED"),
     table,
-    mode:          "group",
-    items:         [...itemMap.values()],
-    total:         totalAmount,
+    mode: "group",
+    items: [...itemMap.values()],
+    total: totalAmount,
     paymentMethod: fusedPaymentMethod,
     paymentStatus: fusedPaymentStatus,
-    status:        "accepted",
-    timestamp:     new Date(),
+    status: "accepted",
+    timestamp: new Date(),
     scan: {
-      firstScannedBy:   user?.role || "admin",
-      firstScannedAt:   new Date(),
-      lastValidatedBy:  user?.role || "admin",
-      lastValidatedAt:  new Date(),
-      lastAction:       "fused",
+      firstScannedBy: user?.role || "admin",
+      firstScannedAt: new Date(),
+      lastValidatedBy: user?.role || "admin",
+      lastValidatedAt: new Date(),
+      lastAction: "fused",
     },
     notes: `Fusion de ${orders.length} commande(s): ${orderIds.join(", ")}`,
   }).save();
@@ -157,7 +199,7 @@ async function fuseOrders(orderIds, table, user) {
       status: "merged",
       mergedInto: fusedOrder.orderId,
       mergedAt: new Date(),
-    }
+    },
   );
 
   scheduleAnalyticsUpdate(fusedOrder);

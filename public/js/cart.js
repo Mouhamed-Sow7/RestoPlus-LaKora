@@ -3,21 +3,20 @@
 // ─── Config paiement mobile ───────────────────────────────────────────────
 const PAYMENT_CONFIG = {
   wave: {
-    phone:    "781220391",
+    phone: "781220391",
     phoneIntl: "+221781220391",
-    name:     "Wave",
-    icon:     "/img/wave-logo.png",   // à placer dans public/img/
-    color:    "#1DC8EF",
+    name: "Wave",
+    icon: "/img/wave-logo.png", // à placer dans public/img/
+    color: "#1DC8EF",
     deepLink: (amount) =>
       `https://wave.com/send?phone=%2B221781220391&amount=${amount}&currency=XOF`,
   },
   orange_money: {
-    phone:    "781220391",
-    name:     "Orange Money",
-    icon:     "/img/om-logo.png",     // à placer dans public/img/
-    color:    "#FF6600",
-    deepLink: (amount) =>
-      `tel:*144*1*781220391*${amount}#`,
+    phone: "781220391",
+    name: "Orange Money",
+    icon: "/img/om-logo.png", // à placer dans public/img/
+    color: "#FF6600",
+    deepLink: (amount) => `tel:*144*1*781220391*${amount}#`,
   },
 };
 
@@ -31,7 +30,9 @@ async function createBackendOrder(orderPayload) {
     });
     if (!res.ok) throw new Error("Order creation failed");
     return await res.json();
-  } catch (e) { throw e; }
+  } catch (e) {
+    throw e;
+  }
 }
 
 class CartManager {
@@ -53,19 +54,26 @@ class CartManager {
 
   clearModalState() {
     const qrModal = document.getElementById("qr-modal");
-    if (qrModal) { qrModal.classList.remove("show"); qrModal.style.display = "none"; }
+    if (qrModal) {
+      qrModal.classList.remove("show");
+      qrModal.style.display = "none";
+    }
     document.getElementById("payment-status-display")?.remove();
     document.getElementById("server-hint")?.remove();
   }
 
   setupEventListeners() {
-    const cartToggle  = document.getElementById("cart-toggle");
-    const cartClose   = document.getElementById("cart-close");
+    const cartToggle = document.getElementById("cart-toggle");
+    const cartClose = document.getElementById("cart-close");
     const cartSidebar = document.getElementById("cart-sidebar");
     const validateBtn = document.getElementById("validate-order");
 
-    cartToggle?.addEventListener("click", () => cartSidebar.classList.add("open"));
-    cartClose?.addEventListener("click",  () => cartSidebar.classList.remove("open"));
+    cartToggle?.addEventListener("click", () =>
+      cartSidebar.classList.add("open"),
+    );
+    cartClose?.addEventListener("click", () =>
+      cartSidebar.classList.remove("open"),
+    );
     validateBtn?.addEventListener("click", () => this.validateOrder());
     cartSidebar?.addEventListener("click", (e) => {
       if (e.target === cartSidebar) cartSidebar.classList.remove("open");
@@ -74,8 +82,17 @@ class CartManager {
 
   addItem(item, quantity) {
     const existing = this.items.find((i) => i.id === item.id);
-    if (existing) { existing.quantity += quantity; }
-    else { this.items.push({ id: item.id, name: item.name, price: item.price, quantity, image: item.image }); }
+    if (existing) {
+      existing.quantity += quantity;
+    } else {
+      this.items.push({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity,
+        image: item.image,
+      });
+    }
     this.saveCartToStorage();
     this.updateDisplay();
     this.showAddToCartFeedback(item.name);
@@ -91,7 +108,11 @@ class CartManager {
     const item = this.items.find((i) => i.id === itemId);
     if (!item) return;
     if (newQuantity <= 0) this.removeItem(itemId);
-    else { item.quantity = newQuantity; this.saveCartToStorage(); this.updateDisplay(); }
+    else {
+      item.quantity = newQuantity;
+      this.saveCartToStorage();
+      this.updateDisplay();
+    }
   }
 
   setQuantity(itemId, newQuantity) {
@@ -99,7 +120,11 @@ class CartManager {
     else this.updateQuantity(itemId, newQuantity);
   }
 
-  clearCart() { this.items = []; this.saveCartToStorage(); this.updateDisplay(); }
+  clearCart() {
+    this.items = [];
+    this.saveCartToStorage();
+    this.updateDisplay();
+  }
 
   getTotal() {
     return this.items.reduce((t, i) => t + i.price * i.quantity, 0);
@@ -120,35 +145,44 @@ class CartManager {
     const cartItems = document.getElementById("cart-items");
     if (!cartItems) return;
     if (!this.items.length) {
-      cartItems.innerHTML = '<p style="text-align:center;color:#666;padding:2rem;">Votre panier est vide</p>';
+      cartItems.innerHTML =
+        '<p style="text-align:center;color:#666;padding:2rem;">Votre panier est vide</p>';
       return;
     }
-    cartItems.innerHTML = this.items.map((item) => `
+    cartItems.innerHTML = this.items
+      .map(
+        (item) => `
       <div class="cart-item">
         <div class="cart-item-info">
           <h4>${item.name}</h4>
           <p>${window.RestoPlus.formatPrice(item.price)} CFA</p>
         </div>
         <div class="cart-item-controls">
-          <button class="cart-qty-btn" onclick="window.cartManager.updateQuantity('${item.id}',${item.quantity-1})" ${item.quantity<=1?"disabled":""}>-</button>
+          <button class="cart-qty-btn" onclick="window.cartManager.updateQuantity('${item.id}',${item.quantity - 1})" ${item.quantity <= 1 ? "disabled" : ""}>-</button>
           <input type="number" class="cart-qty-input" value="${item.quantity}" min="1"
                  onchange="window.cartManager.setQuantity('${item.id}',parseInt(this.value))">
-          <button class="cart-qty-btn" onclick="window.cartManager.updateQuantity('${item.id}',${item.quantity+1})">+</button>
+          <button class="cart-qty-btn" onclick="window.cartManager.updateQuantity('${item.id}',${item.quantity + 1})">+</button>
           <button class="cart-remove-btn" onclick="window.cartManager.removeItem('${item.id}')" title="Supprimer">×</button>
         </div>
-      </div>`).join("");
+      </div>`,
+      )
+      .join("");
   }
 
   updateCartTotal() {
     const el = document.getElementById("cart-total");
-    if (el) el.textContent = `${(window.RestoPlus?.formatPrice || this.formatPrice)(this.getTotal())} CFA`;
+    if (el)
+      el.textContent = `${(window.RestoPlus?.formatPrice || this.formatPrice)(this.getTotal())} CFA`;
   }
 
-  formatPrice(price) { return new Intl.NumberFormat("fr-FR").format(price); }
+  formatPrice(price) {
+    return new Intl.NumberFormat("fr-FR").format(price);
+  }
 
   showAddToCartFeedback(itemName) {
     const fb = document.createElement("div");
-    fb.style.cssText = "position:fixed;top:100px;right:20px;background:#28a745;color:white;padding:1rem;border-radius:5px;z-index:1000;";
+    fb.style.cssText =
+      "position:fixed;top:100px;right:20px;background:#28a745;color:white;padding:1rem;border-radius:5px;z-index:1000;";
     fb.textContent = `${itemName} ajouté au panier`;
     document.body.appendChild(fb);
     setTimeout(() => fb.remove(), 2000);
@@ -157,16 +191,25 @@ class CartManager {
   showAlert(message, type = "info") {
     const colors = { error: "#dc3545", success: "#28a745", info: "#007bff" };
     const alert = document.createElement("div");
-    alert.style.cssText = `position:fixed;top:100px;right:20px;background:${colors[type]||"#007bff"};color:white;padding:1rem;border-radius:5px;z-index:1001;max-width:300px;box-shadow:0 4px 12px rgba(0,0,0,0.15);`;
+    alert.style.cssText = `position:fixed;top:100px;right:20px;background:${colors[type] || "#007bff"};color:white;padding:1rem;border-radius:5px;z-index:1001;max-width:300px;box-shadow:0 4px 12px rgba(0,0,0,0.15);`;
     alert.textContent = message;
     document.body.appendChild(alert);
     setTimeout(() => alert.remove(), 3000);
   }
 
   validateOrder() {
-    if (!this.items.length) { this.showAlert("Votre panier est vide", "error"); return; }
+    if (!this.items.length) {
+      this.showAlert("Votre panier est vide", "error");
+      return;
+    }
     const table = window.menuManager?.getCurrentTable() || this.currentTable;
-    if (!table) { this.showAlert("Scannez le QR code de votre table pour commander.", "error"); return; }
+    if (!table) {
+      this.showAlert(
+        "Scannez le QR code de votre table pour commander.",
+        "error",
+      );
+      return;
+    }
     this.currentTable = table;
     this.showPaymentMethodModal();
   }
@@ -175,7 +218,7 @@ class CartManager {
   showPaymentMethodModal() {
     document.querySelector(".payment-modal")?.remove();
     const total = this.getTotal();
-    const fmt   = window.RestoPlus.formatPrice(total);
+    const fmt = window.RestoPlus.formatPrice(total);
 
     const modal = document.createElement("div");
     modal.className = "payment-modal";
@@ -257,23 +300,37 @@ class CartManager {
     // Highlight selected option
     modal.querySelectorAll('input[name="payment"]').forEach((radio) => {
       radio.addEventListener("change", () => {
-        modal.querySelectorAll(".payment-option-card").forEach((c) => c.classList.remove("selected"));
-        radio.closest(".payment-option").querySelector(".payment-option-card").classList.add("selected");
+        modal
+          .querySelectorAll(".payment-option-card")
+          .forEach((c) => c.classList.remove("selected"));
+        radio
+          .closest(".payment-option")
+          .querySelector(".payment-option-card")
+          .classList.add("selected");
       });
     });
     // Default highlight
-    modal.querySelector('input[value="cash"]').closest(".payment-option")
-      .querySelector(".payment-option-card").classList.add("selected");
+    modal
+      .querySelector('input[value="cash"]')
+      .closest(".payment-option")
+      .querySelector(".payment-option-card")
+      .classList.add("selected");
 
-    modal.querySelector(".payment-close").onclick     = () => modal.remove();
+    modal.querySelector(".payment-close").onclick = () => modal.remove();
     modal.querySelector(".payment-cancel-btn").onclick = () => modal.remove();
-    modal.querySelector(".payment-confirm-btn").onclick = () => this.confirmOrder(modal);
-    modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
+    modal.querySelector(".payment-confirm-btn").onclick = () =>
+      this.confirmOrder(modal);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) modal.remove();
+    });
   }
 
   confirmOrder(modal) {
     const selected = modal.querySelector('input[name="payment"]:checked');
-    if (!selected) { this.showAlert("Choisissez une méthode de paiement", "error"); return; }
+    if (!selected) {
+      this.showAlert("Choisissez une méthode de paiement", "error");
+      return;
+    }
     const method = selected.value;
 
     if (method === "cash" || method === "card") {
@@ -287,9 +344,9 @@ class CartManager {
   showMobilePaymentFlow(originalModal, method) {
     originalModal.style.display = "none";
     const config = PAYMENT_CONFIG[method];
-    const total  = this.getTotal();
-    const fmt    = window.RestoPlus.formatPrice(total);
-    const link   = config.deepLink(total);
+    const total = this.getTotal();
+    const fmt = window.RestoPlus.formatPrice(total);
+    const link = config.deepLink(total);
 
     const overlay = document.createElement("div");
     overlay.className = "payment-modal payment-mobile-overlay";
@@ -315,7 +372,9 @@ class CartManager {
 
           <!-- Instructions -->
           <div class="mobile-pay-steps">
-            ${method === "wave" ? `
+            ${
+              method === "wave"
+                ? `
               <div class="mobile-pay-step">
                 <span class="step-num">1</span>
                 <span>Appuyez sur "Ouvrir Wave" ci-dessous</span>
@@ -332,7 +391,8 @@ class CartManager {
                 <span class="step-num">4</span>
                 <span>Revenez ici et cliquez "J'ai payé"</span>
               </div>
-            ` : `
+            `
+                : `
               <div class="mobile-pay-step">
                 <span class="step-num">1</span>
                 <span>Appuyez sur "Ouvrir Orange Money"</span>
@@ -349,7 +409,8 @@ class CartManager {
                 <span class="step-num">4</span>
                 <span>Revenez ici et cliquez "J'ai payé"</span>
               </div>
-            `}
+            `
+            }
           </div>
 
           <!-- Avertissement test -->
@@ -371,8 +432,14 @@ class CartManager {
 
     document.body.appendChild(overlay);
 
-    overlay.querySelector(".payment-close").onclick = () => { overlay.remove(); originalModal.remove(); };
-    overlay.querySelector(".btn-mobile-back").onclick = () => { overlay.remove(); originalModal.style.display = "flex"; };
+    overlay.querySelector(".payment-close").onclick = () => {
+      overlay.remove();
+      originalModal.remove();
+    };
+    overlay.querySelector(".btn-mobile-back").onclick = () => {
+      overlay.remove();
+      originalModal.style.display = "flex";
+    };
     overlay.querySelector(".btn-mobile-paid").onclick = () => {
       overlay.remove();
       originalModal.remove();
@@ -387,39 +454,73 @@ class CartManager {
   }
 
   finalizeOrder(paymentMethod, paymentStatus) {
+    // ─── Vérification session table ─────────────────────────────────────
+    const TABLE_SESSION_KEY = "tableSession";
+    const TABLE_SESSION_TTL_MS = 30 * 60 * 1000; // doit correspondre à menu.js
+
+    let activeTable = null;
+    try {
+      const raw = sessionStorage.getItem(TABLE_SESSION_KEY);
+      if (raw) {
+        const session = JSON.parse(raw);
+        const expiry =
+          session.expiresAt || session.startedAt + TABLE_SESSION_TTL_MS;
+        if (Date.now() <= expiry) {
+          activeTable = session.table;
+        }
+      }
+    } catch {}
+
+    if (!activeTable) {
+      // Session expirée ou absente — bloque la commande
+      alert(
+        "⏱️ Votre session de table a expiré. Scannez à nouveau le QR code de votre table pour commander.",
+      );
+      return;
+    }
+    // ─── Suite normale de finalizeOrder ─────────────────────────────────
     const payload = {
-      table:         this.currentTable,
-      mode:          this.orderingMode,
-      items:         this.items.map((it) => ({ id: it.id, name: it.name, price: it.price, quantity: it.quantity })),
-      total:         this.getTotal(),
+      table: this.currentTable,
+      mode: this.orderingMode,
+      items: this.items.map((it) => ({
+        id: it.id,
+        name: it.name,
+        price: it.price,
+        quantity: it.quantity,
+      })),
+      total: this.getTotal(),
       paymentMethod,
       paymentStatus,
-      status:        "pending_approval",
-      timestamp:     new Date().toISOString(),
+      status: "pending_approval",
+      timestamp: new Date().toISOString(),
     };
 
     createBackendOrder(payload)
       .then((saved) => {
         const order = {
-          id:            saved.orderId || saved._id,
-          orderId:       saved.orderId || saved._id,
-          table:         saved.table,
-          mode:          saved.mode,
-          items:         saved.items,
-          total:         saved.total,
+          id: saved.orderId || saved._id,
+          orderId: saved.orderId || saved._id,
+          table: saved.table,
+          mode: saved.mode,
+          items: saved.items,
+          total: saved.total,
           paymentMethod: saved.paymentMethod,
           paymentStatus: saved.paymentStatus,
-          timestamp:     saved.timestamp || new Date().toISOString(),
-          status:        saved.status,
+          timestamp: saved.timestamp || new Date().toISOString(),
+          status: saved.status,
         };
         this.handleOrderCreated(order);
         this.generateQRTicket(order);
         this.clearCart();
 
-        const msg = paymentMethod === "wave"         ? "Commande créée — paiement Wave confirmé ✅"
-                  : paymentMethod === "orange_money"  ? "Commande créée — paiement OM confirmé ✅"
-                  : paymentMethod === "cash"           ? "Commande créée. Paiement à la caisse 💵"
-                  : "Commande créée ✅";
+        const msg =
+          paymentMethod === "wave"
+            ? "Commande créée — paiement Wave confirmé ✅"
+            : paymentMethod === "orange_money"
+              ? "Commande créée — paiement OM confirmé ✅"
+              : paymentMethod === "cash"
+                ? "Commande créée. Paiement à la caisse 💵"
+                : "Commande créée ✅";
         this.showAlert(msg, "success");
       })
       .catch(() => this.showAlert("Erreur de création de commande", "error"));
@@ -429,16 +530,27 @@ class CartManager {
     try {
       const orderId = order.orderId || order.id;
       if (!orderId) return;
-      window.dispatchEvent(new CustomEvent("orderCreated", { detail: { orderId, table: order.table, total: order.total, status: order.status, paymentStatus: order.paymentStatus, timestamp: order.timestamp } }));
+      window.dispatchEvent(
+        new CustomEvent("orderCreated", {
+          detail: {
+            orderId,
+            table: order.table,
+            total: order.total,
+            status: order.status,
+            paymentStatus: order.paymentStatus,
+            timestamp: order.timestamp,
+          },
+        }),
+      );
     } catch {}
   }
 
   generateQRTicket(order) {
-    const qrModal    = document.getElementById("qr-modal");
+    const qrModal = document.getElementById("qr-modal");
     const ticketTable = document.getElementById("ticket-table");
     const ticketOrder = document.getElementById("ticket-order");
     const ticketTotal = document.getElementById("ticket-total");
-    const qrCode      = document.getElementById("qr-code");
+    const qrCode = document.getElementById("qr-code");
 
     ticketTable.textContent = order.table;
     ticketOrder.textContent = order.id;
@@ -459,14 +571,34 @@ class CartManager {
       closeBtn.parentNode.replaceChild(newBtn, closeBtn);
       newBtn.addEventListener("click", () => this.confirmQRClose(qrModal));
     }
-    qrModal.onclick = (e) => { if (e.target === qrModal) this.confirmQRClose(qrModal); };
+    qrModal.onclick = (e) => {
+      if (e.target === qrModal) this.confirmQRClose(qrModal);
+    };
   }
 
   async generateQRCodeWithLocalLibrary(order, qrCodeElement) {
-    const qrData = { orderId: order.id, table: order.table, total: order.total, paymentMethod: order.paymentMethod, paymentStatus: order.paymentStatus, timestamp: order.timestamp };
+    const orderHash = btoa(`${order.id}:${order.timestamp || Date.now()}`)
+      .slice(0, 12)
+      .replace(/[+/=]/g, "");
+    const qrData = {
+      orderId: order.id,
+      table: order.table,
+      total: order.total,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+      timestamp: order.timestamp,
+      h: orderHash,
+    };
     if (typeof QRCode !== "undefined") {
       try {
-        new QRCode(qrCodeElement, { text: JSON.stringify(qrData), width: 200, height: 200, colorDark: "#000000", colorLight: "#FFFFFF", correctLevel: QRCode.CorrectLevel.H });
+        new QRCode(qrCodeElement, {
+          text: JSON.stringify(qrData),
+          width: 200,
+          height: 200,
+          colorDark: "#000000",
+          colorLight: "#FFFFFF",
+          correctLevel: QRCode.CorrectLevel.H,
+        });
         await new Promise((r) => setTimeout(r, 50));
         return;
       } catch {}
@@ -478,12 +610,18 @@ class CartManager {
     document.getElementById("payment-status-display")?.remove();
     document.getElementById("server-hint")?.remove();
 
-    const methodLabels = { cash: "💵 Caisse", card: "💳 Carte", wave: "🌊 Wave", orange_money: "🟠 Orange Money", mobile: "📱 Mobile" };
+    const methodLabels = {
+      cash: "💵 Caisse",
+      card: "💳 Carte",
+      wave: "🌊 Wave",
+      orange_money: "🟠 Orange Money",
+      mobile: "📱 Mobile",
+    };
     const isPaid = order.paymentStatus === "paid";
 
     const statusDisplay = document.createElement("div");
     statusDisplay.id = "payment-status-display";
-    statusDisplay.style.cssText = `margin:1rem 0;padding:0.8rem;border-radius:8px;text-align:center;font-weight:bold;background:${isPaid?"#d4edda":"#fff3cd"};color:${isPaid?"#155724":"#856404"};border:1px solid ${isPaid?"#c3e6cb":"#ffeaa7"};`;
+    statusDisplay.style.cssText = `margin:1rem 0;padding:0.8rem;border-radius:8px;text-align:center;font-weight:bold;background:${isPaid ? "#d4edda" : "#fff3cd"};color:${isPaid ? "#155724" : "#856404"};border:1px solid ${isPaid ? "#c3e6cb" : "#ffeaa7"};`;
     statusDisplay.innerHTML = `
       <div>${isPaid ? "✅ Paiement effectué" : "⏳ Paiement en attente"} — ${methodLabels[order.paymentMethod] || order.paymentMethod}</div>
       <div style="font-size:0.85rem;margin-top:0.4rem;font-weight:normal;">${isPaid ? "Commande payée — présentez ce ticket au serveur" : "Réglez à la caisse avant de recevoir votre commande"}</div>`;
@@ -493,7 +631,18 @@ class CartManager {
   }
 
   generateQRTicketFallback(order, qrCodeElement) {
-    const qrData = { orderId: order.id, table: order.table, total: order.total, paymentMethod: order.paymentMethod, paymentStatus: order.paymentStatus || "pending", timestamp: order.timestamp };
+    const orderHash = btoa(`${order.id}:${order.timestamp || Date.now()}`)
+      .slice(0, 12)
+      .replace(/[+/=]/g, "");
+    const qrData = {
+      orderId: order.id,
+      table: order.table,
+      total: order.total,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus || "pending",
+      timestamp: order.timestamp,
+      h: orderHash,
+    };
     const services = [
       `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(JSON.stringify(qrData))}`,
       `https://quickchart.io/qr?text=${encodeURIComponent(JSON.stringify(qrData))}&size=200`,
@@ -504,7 +653,7 @@ class CartManager {
   saveQRToHistory(order, qrCodeElement) {
     try {
       let dataUrl = null;
-      const img    = qrCodeElement.querySelector("img");
+      const img = qrCodeElement.querySelector("img");
       const canvas = qrCodeElement.querySelector("canvas");
       if (img?.src) dataUrl = img.src;
       else if (canvas?.toDataURL) dataUrl = canvas.toDataURL("image/png");
@@ -515,13 +664,21 @@ class CartManager {
   }
 
   tryQRCodeServices(services, element, qrData) {
-    if (!services.length) { this.showManualQR(element, qrData); return; }
+    if (!services.length) {
+      this.showManualQR(element, qrData);
+      return;
+    }
     const img = document.createElement("img");
     img.src = services[0];
     img.alt = "QR Code";
-    img.style.cssText = "width:200px;height:200px;border:1px solid #ddd;border-radius:5px;";
-    img.onload = () => { element.innerHTML = ""; element.appendChild(img); };
-    img.onerror = () => this.tryQRCodeServices(services.slice(1), element, qrData);
+    img.style.cssText =
+      "width:200px;height:200px;border:1px solid #ddd;border-radius:5px;";
+    img.onload = () => {
+      element.innerHTML = "";
+      element.appendChild(img);
+    };
+    img.onerror = () =>
+      this.tryQRCodeServices(services.slice(1), element, qrData);
     element.innerHTML = "";
     element.appendChild(img);
   }
@@ -533,8 +690,11 @@ class CartManager {
   confirmQRClose(qrModal) {
     this.showConfirmModal(
       `<div><div style="font-weight:600;margin-bottom:8px;color:#ffc107;">⚠️ Attention!</div><p style="margin:0 0 8px;">Fermer ce ticket empêchera le serveur de valider votre commande.</p><p style="margin:0;">Vous pourrez le rouvrir depuis l'historique des commandes.</p></div>`,
-      () => { qrModal.classList.remove("show"); this.showAlert("Ticket fermé. Rouvrez-le depuis l'historique.", "info"); },
-      () => {}
+      () => {
+        qrModal.classList.remove("show");
+        this.showAlert("Ticket fermé. Rouvrez-le depuis l'historique.", "info");
+      },
+      () => {},
     );
   }
 
@@ -552,14 +712,30 @@ class CartManager {
       </div>`;
     document.body.appendChild(overlay);
     const cleanup = () => overlay.remove();
-    overlay.addEventListener("click", (e) => { if (e.target === overlay) cleanup(); });
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) cleanup();
+    });
     overlay.querySelector(".confirm-close").addEventListener("click", cleanup);
-    overlay.querySelector(".btn-decline").addEventListener("click", () => { cleanup(); onNo?.(); });
-    overlay.querySelector(".btn-accept").addEventListener("click",  () => { cleanup(); onYes?.(); });
+    overlay.querySelector(".btn-decline").addEventListener("click", () => {
+      cleanup();
+      onNo?.();
+    });
+    overlay.querySelector(".btn-accept").addEventListener("click", () => {
+      cleanup();
+      onYes?.();
+    });
   }
 
-  saveCartToStorage() { localStorage.setItem("cart", JSON.stringify(this.items)); }
-  loadCartFromStorage() { try { this.items = JSON.parse(localStorage.getItem("cart") || "[]"); } catch { this.items = []; } }
+  saveCartToStorage() {
+    localStorage.setItem("cart", JSON.stringify(this.items));
+  }
+  loadCartFromStorage() {
+    try {
+      this.items = JSON.parse(localStorage.getItem("cart") || "[]");
+    } catch {
+      this.items = [];
+    }
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
