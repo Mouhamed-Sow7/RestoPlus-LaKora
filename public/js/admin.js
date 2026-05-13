@@ -1762,14 +1762,12 @@ class AdminManager {
           "Impossible d'approuver la commande",
           3000,
           "error",
-          "error",
         );
       } finally {
         setTimeout(() => {
           this.restartScanner();
         }, 300);
       }
-    };
     };
   }
 
