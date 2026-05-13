@@ -385,16 +385,6 @@ textarea {
   gap: 12px;
 }
 
-/* Cache la nav sur mobile, on garde seulement logo + titre */
-@media (max-width: 480px) {
-  .admin-header .admin-nav {
-    display: none;
-  }
-  .admin-header .menu-toggle {
-    display: none;
-  }
-}
-
 /* Le logo "R+" devient une pill carrée */
 .brand-mark {
   width: 34px;
@@ -1006,34 +996,30 @@ textarea {
   text-align: left;
 }
 
-/* Sur mobile : layout en ligne (icône + texte + bouton) */
+/* Sur mobile : stack vertical avec caméra grande/full-width */
 @media (max-width: 768px) {
   .scanner-card {
     display: flex;
-    align-items: center;
-    gap: 16px;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .scanner-card h2 {
-    font-size: 13px;
+    font-size: 0.95rem;
     font-weight: 700;
-    color: #adadad;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 4px;
+    color: #666;
+    margin: 0 0 4px 0;
   }
 
-  /* Le QR container devient compact */
-  .qr-scanner-container {
-    width: 80px !important;
-    height: 80px !important;
-    flex-shrink: 0;
-    border-radius: 10px;
+  .scanner-card .qr-scanner-container {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    max-width: none;
   }
 
-  /* Cache l'overlay d'animation quand caméra off */
-  .qr-style-zone.camera-off {
-    border-radius: 10px;
+  #qr-reader {
+    max-width: 100%;
   }
 
   .camera-icon {
@@ -1041,22 +1027,16 @@ textarea {
     height: 40px;
   }
 
-  .scanner-container {
-    flex: 1;
-    align-items: flex-start;
-  }
-
   .scanner-controls {
-    margin-top: 8px;
-    max-width: 100%;
-    align-items: flex-start;
+    display: flex;
+    gap: 8px;
+    width: 100%;
   }
 
   .toggle-cam-btn {
-    min-width: 0;
-    padding: 8px 14px;
-    font-size: 12px;
-    border-radius: 8px;
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 0.9rem;
   }
 }
 
@@ -1066,15 +1046,16 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   width: 100%;
+  gap: 12px;
 }
 
 .scanner-card .qr-scanner-container {
   background: transparent !important;
-}
-.scanner-card .scanner-container .qr-scanner-container {
-  background: transparent !important;
+  width: 100%;
+  max-width: 500px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
 }
 
 .scanner-card #qr-reader #qr-shaded-region,
@@ -1103,30 +1084,13 @@ textarea {
   ) !important;
 }
 
-.scanner-card h2 {
-  margin-bottom: 0.5rem;
-  color: #8b4513;
-  font-size: 1.8rem;
-  font-weight: 600;
-}
-
-.scanner-container {
-  position: relative;
-  background: transparent;
-  border-radius: 10px;
-  padding: 0;
-  border: none;
-  min-height: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
 #qr-reader {
-  margin: 0 auto;
-  max-width: 400px;
   width: 100%;
+  max-width: 500px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .scanner-result {
@@ -1309,11 +1273,11 @@ textarea {
 }
 
 /* =============================================
-     Responsive
+     Responsive: Hamburger visible < 768px
      ============================================= */
 @media (max-width: 768px) {
   .menu-toggle {
-    display: flex !important;
+    display: flex;
   }
   .admin-nav {
     position: absolute;
