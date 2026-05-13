@@ -372,161 +372,187 @@ textarea {
 }
 
 /* ─── Header Admin (desktop) ──────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   ADMIN HEADER — source unique de vérité
+   ═══════════════════════════════════════════════════════════ */
 .admin-header {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: #fff;
-  border-bottom: 0.5px solid #ebebeb;
-  height: 56px;
+  background: #ffffff;
+  border-bottom: 1px solid #ebebeb;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+  height: 60px;
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 20px;
   gap: 12px;
 }
 
-/* Le logo "R+" devient une pill carrée */
-.brand-mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  background: #c0873f;
-  flex-shrink: 0;
+.admin-header .container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  padding: 0;
+  max-width: none;
 }
 
-.logo-text h1 {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a1a1a;
-}
-
+/* Logo block */
 .admin-logo {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-weight: 800;
-  font-size: 1rem;
-  color: #1a1a1a;
-  text-decoration: none;
-  white-space: nowrap;
   flex-shrink: 0;
+  text-decoration: none;
 }
 
-.admin-logo-icon {
-  width: 36px;
-  height: 36px;
+.admin-logo-icon,
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
   background: linear-gradient(135deg, #c0873f, #9b6830);
   color: #fff;
-  border-radius: 10px;
+  font-weight: 800;
+  font-size: 0.85rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 1rem;
+  flex-shrink: 0;
 }
 
+.admin-logo h1,
+.logo-text h1 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  white-space: nowrap;
+  margin: 0;
+}
+
+/* Nav links */
 .admin-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   flex: 1;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.admin-nav::-webkit-scrollbar {
-  display: none;
+  overflow: hidden;
+  flex-wrap: nowrap;
 }
 
-.nav-link {
+.admin-nav .nav-link {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 14px;
+  padding: 6px 12px;
   border-radius: 9999px;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: #6b6b6b;
   text-decoration: none;
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.15s;
   white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 1;
+  min-width: 0;
 }
-.nav-link:hover {
+
+.admin-nav .nav-link:hover {
   background: #f5f0e8;
   color: #1a1a1a;
 }
-.nav-link.active {
+
+.admin-nav .nav-link.active {
   background: #fdf8f0;
   color: #c0873f;
 }
 
-.logout-btn {
-  background: #e74c3c !important;
-  color: #fff !important;
-  border-radius: 9999px;
-  padding: 7px 14px;
-}
-.logout-btn:hover {
-  background: #c0392b !important;
+.admin-nav .logout-btn,
+.admin-nav .nav-link.logout-btn {
+  background: #fee2e2;
+  color: #e74c3c;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
-/* ─── Bottom Nav (tablette + mobile ≤ 768px) ───────────────────────────── */
-@media (max-width: 768px) {
+.admin-nav .logout-btn:hover {
+  background: #e74c3c;
+  color: #fff;
+}
+
+/* ─── RESPONSIVE HEADER — règles uniques ───────────────────────────── */
+
+/* Tablette (481px - 768px) : nav horizontale scrollable, pas de bottom nav */
+@media (min-width: 481px) and (max-width: 768px) {
   .admin-header {
-    height: 56px;
     padding: 0 16px;
-    /* Cache la nav horizontale sur mobile */
+    height: 56px;
   }
 
-  /* Cache le texte des liens dans le header, garde les emojis */
-  .admin-nav .nav-link .nav-label {
+  .admin-nav {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .admin-nav::-webkit-scrollbar {
     display: none;
   }
 
-  /* Rétrécit les liens header pour qu'ils passent */
   .admin-nav .nav-link {
-    padding: 6px 10px;
-    font-size: 1.1rem; /* emojis plus visibles */
-    border-radius: 10px;
+    padding: 5px 10px;
+    font-size: 0.78rem;
   }
+
+  /* Cache le texte des liens, garde icône FA */
+  .admin-nav .nav-link span:not([class]) { display: none; }
+
+  /* Bottom nav cachée sur tablette — la nav header suffit */
+  .admin-bottom-nav { display: none !important; }
 }
 
-/* ─── Sur très petits écrans : bottom navigation bar ───────────────────── */
+/* Mobile (≤ 480px) : cache la nav header, affiche bottom nav */
 @media (max-width: 480px) {
-  /* Cache la nav du header */
-  .admin-header .admin-nav {
-    display: none;
+  .admin-header {
+    padding: 0 16px;
+    height: 52px;
   }
 
-  /* Affiche la bottom nav */
-  .admin-bottom-nav {
-    display: flex !important;
-  }
+  .admin-header .admin-nav { display: none !important; }
+  .admin-bottom-nav { display: flex !important; }
 
-  /* Espace en bas pour la bottom nav */
-  .admin-main-content,
-  #admin-content {
-    padding-bottom: 72px;
-  }
+  /* Espace pour la bottom nav */
+  .admin-dashboard,
+  #admin-content,
+  .admin-main-content { padding-bottom: 80px; }
 }
 
-/* ─── Bottom Navigation Bar ────────────────────────────────────────────── */
+/* Desktop (≥ 769px) : nav header complète, pas de bottom nav */
+@media (min-width: 769px) {
+  .admin-bottom-nav { display: none !important; }
+  .admin-nav .nav-link {
+    padding: 7px 14px;
+    font-size: 0.84rem;
+  }
+  .admin-nav .nav-link span:not([class]) { display: inline; }
+}
+
+/* ─── Bottom Navigation Bar ─────────────────────────────────────────── */
 .admin-bottom-nav {
-  display: none; /* visible seulement sur ≤ 480px */
+  display: none;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
-  background: #fff;
+  z-index: 2000;
+  background: #ffffff;
   border-top: 1px solid #ebebeb;
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
-  height: 64px;
-  padding: 0 8px;
-  padding-bottom: env(safe-area-inset-bottom); /* notch iOS */
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+  height: 60px;
+  padding: 0 4px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   justify-content: space-around;
   align-items: center;
 }
@@ -535,67 +561,49 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  font-size: 0.65rem;
+  justify-content: center;
+  gap: 3px;
+  flex: 1;
+  max-width: 80px;
+  padding: 6px 4px;
+  border-radius: 10px;
+  font-size: 0.62rem;
   font-weight: 600;
   color: #adadad;
-  text-decoration: none;
   background: none;
   border: none;
   cursor: pointer;
-  transition: all 0.15s;
-  flex: 1;
-  max-width: 72px;
+  text-decoration: none;
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
+
 .bottom-nav-item .bnav-icon {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   line-height: 1;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 .bottom-nav-item.active {
   color: #c0873f;
 }
+
 .bottom-nav-item.active .bnav-icon {
   background: #fdf8f0;
-  border-radius: 10px;
-  padding: 4px 8px;
+  border-radius: 8px;
 }
 
-.admin-nav .logout-btn {
-  background: #e74c3c;
-}
-.admin-nav .logout-btn:hover {
-  background: #c0392b;
-}
-
-.menu-toggle {
-  display: none;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: 0.5rem;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.hamburger-line {
-  width: 25px;
-  height: 3px;
-  background: #1a1a1a;
-  transition: all 0.3s ease;
-}
-
-.menu-toggle.active .hamburger-line:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
-}
-.menu-toggle.active .hamburger-line:nth-child(2) {
-  opacity: 0;
-}
-.menu-toggle.active .hamburger-line:nth-child(3) {
-  transform: rotate(-45deg) translate(7px, -6px);
-}
+/* ─── Hamburger supprimé — remplacé par bottom nav ──────────────────── */
+.menu-toggle { display: none !important; }
+.hamburger-line { display: none !important; }
+.menu-toggle.active .hamburger-line:nth-child(1) { display: none !important; }
+.menu-toggle.active .hamburger-line:nth-child(2) { display: none !important; }
+.menu-toggle.active .hamburger-line:nth-child(3) { display: none !important; }
 
 /* =============================================
      Login Modal
@@ -1272,58 +1280,7 @@ textarea {
   font-size: 0.9rem;
 }
 
-/* =============================================
-     Responsive: Hamburger visible < 768px
-     ============================================= */
-@media (max-width: 768px) {
-  .menu-toggle {
-    display: flex;
-  }
-  .admin-nav {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: linear-gradient(135deg, #2c3e50, #34495e);
-    flex-direction: column;
-    gap: 0;
-    padding: 1rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    transform: translateY(-100%);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 99;
-    max-height: calc(100vh - 80px);
-    overflow-y: auto;
-  }
-  .admin-nav.active {
-    transform: translateY(0);
-    opacity: 1;
-    visibility: visible;
-  }
-  .admin-nav .nav-link:last-child {
-    border-bottom: none;
-  }
-  .admin-nav .logout-btn {
-    padding: 0.8rem 1rem;
-    font-size: 0.9rem;
-    min-width: auto;
-    flex: none;
-    margin-top: 0.5rem;
-    width: 100%;
-  }
 
-  /* Kanban mobile : scroll horizontal */
-  .orders-list {
-    min-height: 50vh;
-  }
-  .orders-column {
-    flex: 0 0 200px;
-    min-width: 200px;
-    max-width: 200px;
-  }
-}
 
 @media (max-width: 680px) {
   .order-actions {
