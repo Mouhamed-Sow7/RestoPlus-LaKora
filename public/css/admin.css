@@ -377,12 +377,37 @@ textarea {
   top: 0;
   z-index: 1000;
   background: #fff;
-  border-bottom: 1px solid #ebebeb;
-  height: 60px;
+  border-bottom: 0.5px solid #ebebeb;
+  height: 56px;
   display: flex;
   align-items: center;
-  padding: 0 20px;
-  gap: 16px;
+  padding: 0 16px;
+  gap: 12px;
+}
+
+/* Cache la nav sur mobile, on garde seulement logo + titre */
+@media (max-width: 480px) {
+  .admin-header .admin-nav {
+    display: none;
+  }
+  .admin-header .menu-toggle {
+    display: none;
+  }
+}
+
+/* Le logo "R+" devient une pill carrée */
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: #c0873f;
+  flex-shrink: 0;
+}
+
+.logo-text h1 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
 }
 
 .admin-logo {
@@ -568,7 +593,7 @@ textarea {
 .hamburger-line {
   width: 25px;
   height: 3px;
-  background: white;
+  background: #1a1a1a;
   transition: all 0.3s ease;
 }
 
@@ -954,21 +979,85 @@ textarea {
   min-height: 80vh;
 }
 
-.scanner-section {
-  margin: 1rem auto;
-  background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
-  padding: 2rem 0;
-  border-radius: 15px;
+/* Le main dashboard doit avoir de l'espace pour la bottom nav */
+@media (max-width: 480px) {
+  .admin-dashboard {
+    padding-bottom: 72px;
+  }
 }
 
+/* Section wrapper : plus de gradient énorme */
+.scanner-section {
+  margin: 12px 16px 0;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* Card scanner : layout horizontal compact */
 .scanner-card {
-  background: white;
-  border-radius: 15px;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  max-width: 600px;
-  margin: 0 auto;
+  background: #fff;
+  border-radius: 14px;
+  border: 0.5px solid #ebebeb;
+  padding: 16px;
+  box-shadow: none;
+  max-width: 100%;
+  margin: 0;
+  text-align: left;
+}
+
+/* Sur mobile : layout en ligne (icône + texte + bouton) */
+@media (max-width: 768px) {
+  .scanner-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .scanner-card h2 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #adadad;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+
+  /* Le QR container devient compact */
+  .qr-scanner-container {
+    width: 80px !important;
+    height: 80px !important;
+    flex-shrink: 0;
+    border-radius: 10px;
+  }
+
+  /* Cache l'overlay d'animation quand caméra off */
+  .qr-style-zone.camera-off {
+    border-radius: 10px;
+  }
+
+  .camera-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .scanner-container {
+    flex: 1;
+    align-items: flex-start;
+  }
+
+  .scanner-controls {
+    margin-top: 8px;
+    max-width: 100%;
+    align-items: flex-start;
+  }
+
+  .toggle-cam-btn {
+    min-width: 0;
+    padding: 8px 14px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
 }
 
 .scanner-card .scanner-container {
