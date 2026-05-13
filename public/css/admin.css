@@ -2,12 +2,75 @@
    KANBAN ORDERS — Redesign complet
    ============================================= */
 
+/* Safe areas iOS (notch, home indicator) */
+body {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  overscroll-behavior: none; /* désactive pull-to-refresh */
+  -webkit-text-size-adjust: 100%; /* empêche zoom auto police iOS */
+}
+
+/* Touch targets minimum 44px */
+button,
+.nav-link,
+.bottom-nav-item,
+.btn {
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Inputs : min 16px pour éviter zoom auto iOS */
+input,
+select,
+textarea {
+  font-size: 16px !important; /* évite zoom auto sur focus iOS */
+}
+
+/* ─── Kanban responsive ──────────────────────────────────────────────── */
 #orders-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
   padding: 16px;
   align-items: start;
+}
+
+@media (max-width: 768px) {
+  #orders-list {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 12px;
+    padding: 12px 16px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  #orders-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .orders-column {
+    min-width: 280px;
+    max-width: 85vw;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    max-height: calc(100vh - 160px);
+  }
+}
+
+@media (max-width: 480px) {
+  .orders-column {
+    min-width: 260px;
+    max-width: 90vw;
+  }
+  .order-card-kanban {
+    padding: 10px;
+  }
+  #orders-list {
+    padding-bottom: 90px;
+  } /* bottom nav + marge */
 }
 
 .orders-column {
@@ -308,47 +371,45 @@
   white-space: nowrap;
 }
 
-/* ─── Header Admin ──────────────────────────────────────────── */
+/* ─── Header Admin (desktop) ──────────────────────────────────────────── */
 .admin-header {
   position: sticky;
   top: 0;
   z-index: 1000;
   background: #fff;
-  border-bottom: 1px solid var(--color-border, #ebebeb);
-  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.08));
+  border-bottom: 1px solid #ebebeb;
   height: 60px;
   display: flex;
   align-items: center;
-  padding: 0 var(--space-lg, 24px);
-  gap: var(--space-md, 16px);
+  padding: 0 20px;
+  gap: 16px;
 }
+
 .admin-logo {
   display: flex;
   align-items: center;
   gap: 10px;
   font-weight: 800;
   font-size: 1rem;
-  color: var(--color-text, #1a1a1a);
+  color: #1a1a1a;
   text-decoration: none;
   white-space: nowrap;
+  flex-shrink: 0;
 }
+
 .admin-logo-icon {
-  width: 34px;
-  height: 34px;
-  background: linear-gradient(
-    135deg,
-    var(--color-primary, #c0873f),
-    var(--color-primary-dark, #9b6830)
-  );
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #c0873f, #9b6830);
   color: #fff;
-  border-radius: var(--radius-sm, 8px);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 0.85rem;
-  flex-shrink: 0;
+  font-size: 1rem;
 }
+
 .admin-nav {
   display: flex;
   align-items: center;
@@ -361,38 +422,129 @@
 .admin-nav::-webkit-scrollbar {
   display: none;
 }
+
 .nav-link {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
-  border-radius: var(--radius-pill, 9999px);
+  padding: 7px 14px;
+  border-radius: 9999px;
   font-size: 0.84rem;
   font-weight: 600;
-  color: var(--color-text-muted, #6b6b6b);
+  color: #6b6b6b;
   text-decoration: none;
-  border: none;
   background: transparent;
+  border: none;
   cursor: pointer;
-  transition: all var(--transition-fast, 0.15s ease);
+  transition: all 0.15s;
   white-space: nowrap;
 }
 .nav-link:hover {
-  background: var(--color-surface-alt, #f5f0e8);
-  color: var(--color-text, #1a1a1a);
+  background: #f5f0e8;
+  color: #1a1a1a;
 }
 .nav-link.active {
-  background: var(--color-primary-bg, #fdf8f0);
-  color: var(--color-primary, #c0873f);
+  background: #fdf8f0;
+  color: #c0873f;
 }
-@media (max-width: 640px) {
+
+.logout-btn {
+  background: #e74c3c !important;
+  color: #fff !important;
+  border-radius: 9999px;
+  padding: 7px 14px;
+}
+.logout-btn:hover {
+  background: #c0392b !important;
+}
+
+/* ─── Bottom Nav (tablette + mobile ≤ 768px) ───────────────────────────── */
+@media (max-width: 768px) {
   .admin-header {
-    padding: 0 var(--space-md, 16px);
+    height: 56px;
+    padding: 0 16px;
+    /* Cache la nav horizontale sur mobile */
   }
-  .nav-link {
+
+  /* Cache le texte des liens dans le header, garde les emojis */
+  .admin-nav .nav-link .nav-label {
+    display: none;
+  }
+
+  /* Rétrécit les liens header pour qu'ils passent */
+  .admin-nav .nav-link {
     padding: 6px 10px;
-    font-size: 0.78rem;
+    font-size: 1.1rem; /* emojis plus visibles */
+    border-radius: 10px;
   }
+}
+
+/* ─── Sur très petits écrans : bottom navigation bar ───────────────────── */
+@media (max-width: 480px) {
+  /* Cache la nav du header */
+  .admin-header .admin-nav {
+    display: none;
+  }
+
+  /* Affiche la bottom nav */
+  .admin-bottom-nav {
+    display: flex !important;
+  }
+
+  /* Espace en bas pour la bottom nav */
+  .admin-main-content,
+  #admin-content {
+    padding-bottom: 72px;
+  }
+}
+
+/* ─── Bottom Navigation Bar ────────────────────────────────────────────── */
+.admin-bottom-nav {
+  display: none; /* visible seulement sur ≤ 480px */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #fff;
+  border-top: 1px solid #ebebeb;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
+  height: 64px;
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom); /* notch iOS */
+  justify-content: space-around;
+  align-items: center;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #adadad;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex: 1;
+  max-width: 72px;
+}
+.bottom-nav-item .bnav-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+.bottom-nav-item.active {
+  color: #c0873f;
+}
+.bottom-nav-item.active .bnav-icon {
+  background: #fdf8f0;
+  border-radius: 10px;
+  padding: 4px 8px;
 }
 
 .admin-nav .logout-btn {

@@ -2,7 +2,20 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <link rel="manifest" href="manifest-admin.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="R+ Admin" />
+    <meta name="theme-color" content="#C0873F" />
+    <link rel="apple-touch-icon" href="img/logo.png" />
     <title>Admin</title>
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/admin.css" />
@@ -122,7 +135,7 @@
                   class="btn btn-primary toggle-cam-btn"
                   onclick="window.toggleCamAdmin && window.toggleCamAdmin()"
                 >
-                  🎥 Activer Caméra
+                  <i class="fa-solid fa-camera"></i> Activer Caméra
                 </button>
                 <div
                   class="camera-selection"
@@ -287,14 +300,18 @@
                 <span class="kpi-unit">CFA</span>
               </div>
             </div>
-            <div class="kpi-card kpi-approval" id="kpi-approval-card" style="display:none;">
+            <div
+              class="kpi-card kpi-approval"
+              id="kpi-approval-card"
+              style="display: none"
+            >
               <div class="kpi-icon">⏳</div>
               <div class="kpi-body">
                 <span class="kpi-label">EN VALIDATION</span>
                 <span class="kpi-value" id="kpi-pending-approval">—</span>
                 <span class="kpi-unit">CFA</span>
               </div>
-              <div class="kpi-bar" style="background: #9B59B6;"></div>
+              <div class="kpi-bar" style="background: #9b59b6"></div>
             </div>
             <div class="kpi-card kpi-orders">
               <div class="kpi-icon"><i class="fa-solid fa-receipt"></i></div>
@@ -492,6 +509,16 @@
     <script src="js/qrcode.min.js" onerror="loadQRCodeFallback()"></script>
 
     <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then(() => console.debug("[PWA] SW enregistré"))
+            .catch((e) => console.warn("[PWA] SW erreur:", e));
+        });
+      }
+    </script>
+    <script>
       // Global toggle function for admin page
       window.toggleCamAdmin = function () {
         if (
@@ -502,5 +529,49 @@
         }
       };
     </script>
+
+    <!-- Bottom Navigation (mobile uniquement) -->
+    <nav class="admin-bottom-nav" id="admin-bottom-nav">
+      <button
+        class="bottom-nav-item active"
+        onclick="showSection('dashboard')"
+        id="bnav-dashboard"
+      >
+        <span class="bnav-icon"><i class="fa-solid fa-gauge"></i></span>
+        <span>Dashboard</span>
+      </button>
+      <button
+        class="bottom-nav-item"
+        onclick="showSection('orders')"
+        id="bnav-orders"
+      >
+        <span class="bnav-icon"><i class="fa-solid fa-receipt"></i></span>
+        <span>Commandes</span>
+      </button>
+      <button
+        class="bottom-nav-item"
+        onclick="showSection('scanner')"
+        id="bnav-scanner"
+      >
+        <span class="bnav-icon"><i class="fa-solid fa-qrcode"></i></span>
+        <span>Scanner</span>
+      </button>
+      <button
+        class="bottom-nav-item"
+        onclick="showSection('stats')"
+        id="bnav-stats"
+      >
+        <span class="bnav-icon"><i class="fa-solid fa-chart-bar"></i></span>
+        <span>Stats</span>
+      </button>
+      <button
+        class="bottom-nav-item"
+        onclick="showSection('tables')"
+        id="bnav-tables"
+      >
+        <span class="bnav-icon"><i class="fa-solid fa-table-cells"></i></span>
+        <span>Tables</span>
+      </button>
+    </nav>
   </body>
 </html>

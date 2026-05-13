@@ -285,7 +285,7 @@ class AdminManager {
         // This is a table QR code - show warning, do not redirect
         NotificationManager.showSuccess(
           null,
-          "⚠️ QR de Table Détecté",
+          "Attention: QR de Table Détecté",
           `Table ${qrData.table} — ${qrData.chairs || "?"} couverts (${qrData.location || ""}). Ce QR est destiné aux clients. Scannez un QR de commande.`,
           4000,
           "warning",
@@ -1825,6 +1825,15 @@ function initAdminSPA() {
     if (reservationsSection)
       reservationsSection.style.display =
         target === "reservations" ? "block" : "none";
+
+    // Sync bottom nav active state
+    const bnav = document.getElementById(`bnav-${target}`);
+    if (bnav) {
+      document
+        .querySelectorAll(".bottom-nav-item")
+        .forEach((b) => b.classList.remove("active"));
+      bnav.classList.add("active");
+    }
   }
 
   async function handleTabClick(e) {

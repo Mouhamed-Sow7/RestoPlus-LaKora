@@ -783,3 +783,80 @@ try {
 
 // Export NotificationManager globally
 window.NotificationManager = NotificationManager;
+
+// ─── PWA Install Prompt ──────────────────────────────────────────────────
+(function () {
+  let deferredPrompt = null;
+
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    // Affiche le bandeau d'install après 3 secondes si pas encore installé
+    if (localStorage.getItem("pwaInstalled")) return;
+
+    setTimeout(() => {
+      if (!deferredPrompt) return;
+
+      const banner = document.createElement("div");
+      banner.id = "pwa-install-banner";
+      banner.style.cssText = `
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 99998;
+        background: linear-gradient(135deg, #1A1A1A, #2C2C2C);
+        color: #fff;
+        padding: 16px 20px;
+        display: flex; align-items: center; gap: 12px;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+        font-family: 'Inter', system-ui, sans-serif;
+        animation: slideUpBanner 0.4s ease;
+      `;
+
+      banner.innerHTML = `
+        <img src="/img/logo.png" style="width:40px;height:40px;border-radius:10px;object-fit:cover;" onerror="this.style.display='none'" />
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:0.92rem;">Installer RestoPlus</div>
+          <div style="font-size:0.78rem;opacity:0.7;margin-top:2px;">Accès rapide depuis votre écran d'accueil</div>
+        </div>
+        <button id="pwa-install-btn" style="
+          background: #C0873F; color: #fff; border: none; border-radius: 10px;
+          padding: 10px 18px; font-weight: 700; font-size: 0.85rem; cursor: pointer;
+          white-space: nowrap;
+        ">Installer</button>
+        <button id="pwa-dismiss-btn" style="
+          background: rgba(255,255,255,0.1); color: #fff; border: none; border-radius: 8px;
+          padding: 10px 12px; cursor: pointer; font-size: 0.9rem;
+        ">✕</button>
+      `;
+
+      if (!document.getElementById("pwa-banner-anim")) {
+        const s = document.createElement("style");
+        s.id = "pwa-banner-anim";
+        s.textContent =
+          "@keyframes slideUpBanner { from { transform: translateY(100%); } to { transform: translateY(0); } }";
+        document.head.appendChild(s);
+      }
+
+      document.body.appendChild(banner);
+
+      document.getElementById("pwa-install-btn").onclick = async () => {
+        banner.remove();
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === "accepted") localStorage.setItem("pwaInstalled", "1");
+        deferredPrompt = null;
+      };
+
+      document.getElementById("pwa-dismiss-btn").onclick = () => {
+        banner.remove();
+        // Ne redemande pas pendant 7 jours
+        localStorage.setItem("pwaDismissed", Date.now());
+      };
+    }, 3000);
+  });
+
+  window.addEventListener("appinstalled", () => {
+    localStorage.setItem("pwaInstalled", "1");
+    document.getElementById("pwa-install-banner")?.remove();
+  });
+})();

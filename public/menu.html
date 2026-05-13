@@ -1,16 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Relax CSP for local dev: allow Google Fonts and external images (Unsplash/Picsum). Remove for stricter production. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://source.unsplash.com https://images.unsplash.com https://picsum.photos; connect-src 'self' https://fonts.gstatic.com;">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://source.unsplash.com https://images.unsplash.com https://picsum.photos; connect-src 'self' https://fonts.gstatic.com;"
+    />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <title>Menu - RestoPlus</title>
     <link rel="stylesheet" href="css/payment-mobile.css" />
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/menu.css" />
-    <link rel="manifest" href="manifest.json" />
+    <link rel="manifest" href="manifest-client.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -208,6 +211,16 @@
       </div>
     </div>
 
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then(() => console.debug("[PWA] SW enregistré"))
+            .catch((e) => console.warn("[PWA] SW erreur:", e));
+        });
+      }
+    </script>
     <script src="js/qrcode.min.js"></script>
     <script src="js/main.js"></script>
     <script src="js/menu.js"></script>
