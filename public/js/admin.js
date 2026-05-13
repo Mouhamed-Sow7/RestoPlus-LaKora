@@ -1836,6 +1836,9 @@ function initAdminSPA() {
     }
   }
 
+  // Expose showSection globally for bottom nav buttons
+  window.showSection = showSection;
+
   async function handleTabClick(e) {
     e.preventDefault();
     const link = e.currentTarget;

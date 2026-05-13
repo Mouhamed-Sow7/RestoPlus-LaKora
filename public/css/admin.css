@@ -1976,3 +1976,52 @@ textarea {
   align-items: center;
   justify-content: center;
 }
+
+/* ─── Image fallback & réparations ──────────────────────────────────────── */
+img {
+  object-fit: cover;
+  background: #F5F0E8;
+}
+
+/* Emoji/Icons dans headers colonnes du kanban */
+.col-emoji {
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+/* ─── Mobile responsive fixes ──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .admin-header .admin-logo-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+  
+  .bottom-nav-item {
+    font-size: 0.6rem;
+  }
+  
+  .bottom-nav-item .bnav-icon {
+    font-size: 1.2rem;
+  }
+  
+  /* Assure que les emojis/icones ne causent pas d'overflow */
+  .col-emoji i {
+    height: auto;
+    width: auto;
+  }
+  
+  /* Améliore les card kanban sur petit écran */
+  .order-card-kanban {
+    padding: 8px;
+  }
+  
+  .order-card-kanban .order-card-header {
+    gap: 4px;
+  }
+}
