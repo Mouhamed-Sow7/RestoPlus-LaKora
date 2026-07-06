@@ -1,4 +1,4 @@
-# RestoPlus-LaKora — Prompts QR, Session & UI
+# RestoPlus — Prompts QR, Session & UI
 
 > Série de corrections sur la logique QR codes, sessions table, scanner admin, et design.
 > Chaque prompt est autonome. Applique-les dans l'ordre indiqué.

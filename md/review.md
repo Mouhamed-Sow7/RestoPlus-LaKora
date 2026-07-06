@@ -409,7 +409,7 @@
    - This makes menu updates more error-prone and duplicates business data between frontend and backend.
 
  - **Global script coupling**
-   - Heavy reliance on global variables (`window.LaKora`, `window.cartManager`, `window.adminAuth`, etc.) and implicit script loading order.
+   - Heavy reliance on global variables (`window.RestoPlus`, `window.cartManager`, `window.adminAuth`, etc.) and implicit script loading order.
    - Makes refactoring, testing, and scaling the frontend more difficult.
 
  - **Minor navigation issues**

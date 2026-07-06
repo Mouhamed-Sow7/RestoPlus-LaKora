@@ -1,4 +1,4 @@
-# RestoPlus-LaKora — Phase 2 : Design Unifié & Bug Fixes
+# RestoPlus — Phase 2 : Design Unifié & Bug Fixes
 > Prompts Copilot Phase 2. À coller dans VS Code Copilot Chat (`Ctrl+Shift+I`).
 > Direction design : **"Sable & Or"** — noir-brun naturel #1C1917, or chaud #C0873F, surfaces #FAFAF8.
 > Zéro violet, zéro brun orangé saturé. Restaurant premium, sobre, authentique.
@@ -1063,7 +1063,7 @@ Supprime tout `background: purple`, `background: #4A0080`, `background: #6A0DAD`
 **Ouvre le workspace complet dans Copilot, puis colle ce prompt :**
 
 ```
-Effectue une vérification finale sur RestoPlus-LaKora après la Phase 2 de refactoring.
+Effectue une vérification finale sur RestoPlus après la Phase 2 de refactoring.
 
 1. Dans `public/css/admin.css`, vérifie qu'aucun sélecteur ne définit une couleur de fond violette ou brun saturé (cherche `purple`, `#4A`, `#6A0D`, `rgba(106`, `#8B45`). Si trouvé, remplace par `var(--color-surface-dark)` ou `var(--color-bg)` selon le contexte.
 

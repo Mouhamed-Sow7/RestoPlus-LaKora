@@ -209,14 +209,14 @@ Changements clés :
 
 - `getHistory()` → appel HTTP vers `/api/orders/public?table=X`.
 - `saveHistory()` → **supprimée**.
-- `addOrder()` → ne sauvegarde plus en localStorage. Sauvegarde uniquement **l'image QR** en cache (`lakora_qr_cache`) car c'est du cache UI, pas une donnée métier.
+- `addOrder()` → ne sauvegarde plus en localStorage. Sauvegarde uniquement **l'image QR** en cache (`restoplus_qr_cache`) car c'est du cache UI, pas une donnée métier.
 - `refreshFromBackend()` → un seul appel `getHistory()` au lieu de N appels parallèles.
 - Limit **10** (vs 50 avant) — suffisant pour l'historique d'une table sur un service.
 - Bouton 🔄 Rafraîchir dans le header du modal.
 - Statuts enrichis visuellement (couleurs + icônes).
 - Gestion d'erreur avec bouton "Réessayer".
 
-**localStorage restant :** uniquement `lakora_qr_cache` (images QR base64 — cache UI éphémère).
+**localStorage restant :** uniquement `restoplus_qr_cache` (images QR base64 — cache UI éphémère).
 
 ---
 
@@ -258,7 +258,7 @@ Mise à jour optimiste : la carte se déplace immédiatement sans rechargement.
 | Panier (items non soumis) | localStorage `cart` | Cache UI éphémère — ok |
 | Table courante | localStorage `currentTable` | Cache court terme — ok |
 | Mode commande | localStorage `orderingMode` | Préférence UI — ok |
-| Images QR | localStorage `lakora_qr_cache` | Cache UI — ok |
+| Images QR | localStorage `restoplus_qr_cache` | Cache UI — ok |
 | Configuration tables | ~~localStorage~~ → **MongoDB** ✅ | Donnée métier |
 | Historique commandes | ~~localStorage~~ → **MongoDB** ✅ | Donnée métier |
 | Réservations | localStorage seulement ⚠️ | Non connecté au backend |
@@ -505,7 +505,7 @@ Actuellement définie dans `main.js`, `cart.js`, `order-history.js`, et `admin.j
 
 ```javascript
 // Une seule définition dans main.js
-window.LaKora = {
+window.RestoPlus = {
   formatPrice: (n) => new Intl.NumberFormat("fr-FR").format(n || 0),
   // ...
 };

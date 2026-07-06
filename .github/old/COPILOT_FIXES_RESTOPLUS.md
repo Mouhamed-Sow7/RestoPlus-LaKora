@@ -1,4 +1,4 @@
-# RestoPlus-LaKora — Prompts de Correction Copilot
+# RestoPlus — Prompts de Correction Copilot
 
 > Prompts ciblés sur les vrais bugs logiques + optimisations du code existant.  
 > À appliquer **après** les 12 prompts de refactorisation CSS/UI déjà faits.

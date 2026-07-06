@@ -53,7 +53,7 @@ payment gateway or real user database.
 
 ### Products
 - Menu items are read from a static JSON file (`backend/data/menu.json`).
-- Frontend embeds this via a global `window.LaKora.menuData` or fetch (depending on page).
+- Frontend embeds this via a global `window.RestoPlus.menuData` or fetch (depending on page).
 - No API exists to modify products in runtime.
 
 ### Payments

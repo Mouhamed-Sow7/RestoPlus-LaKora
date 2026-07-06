@@ -1,6 +1,6 @@
 {
-  "name": "LaKora — Commandes",
-  "short_name": "LaKora",
+  "name": "RestoPlus — Commandes",
+  "short_name": "RestoPlus",
   "description": "Commandez directement depuis votre table",
   "start_url": "/index.html",
   "scope": "/",

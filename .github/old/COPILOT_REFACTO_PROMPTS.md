@@ -1,4 +1,4 @@
-# RestoPlus-LaKora — Prompts de Refactorisation Copilot
+# RestoPlus — Prompts de Refactorisation Copilot
 
 > À coller dans VS Code Copilot Chat (`Ctrl+Shift+I`) ou dans un fichier `.github/copilot-instructions.md`.
 > Chaque section = un prompt autonome. Lance-les dans l'ordre.
@@ -12,7 +12,7 @@
 ```
 Refactore le fichier `public/css/main.css`.
 
-Objectif : établir un design system cohérent, professionnel et responsive pour RestoPlus-LaKora (restaurant sénégalais).
+Objectif : établir un design system cohérent, professionnel et responsive pour RestoPlus (restaurant sénégalais).
 
 Règles strictes :
 1. Déclare toutes les variables CSS dans `:root` en début de fichier :
@@ -635,7 +635,7 @@ Mets à jour tous les appels `NotificationManager.showSuccess(...)` dans `admin.
 
 ```
 
-Effectue une vérification finale sur le projet RestoPlus-LaKora.
+Effectue une vérification finale sur le projet RestoPlus.
 
 1. Dans `public/css/admin.css`, vérifie qu'il n'y a pas de doublons de sélecteurs entre admin.css et admin-modal.css. Si tu trouves des définitions de `.order-management-modal`, `.order-approval-modal`, ou `.order-fusion-modal` dans admin.css, supprime-les (elles sont maintenant dans admin-modal.css).
 
