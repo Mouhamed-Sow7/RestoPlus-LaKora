@@ -80,7 +80,8 @@ textarea {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 180px);
+  min-height: 300px;
 }
 
 .orders-column-header {
@@ -151,6 +152,28 @@ textarea {
   gap: 8px;
   overflow-y: auto;
   flex: 1;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) var(--color-surface-alt);
+}
+
+/* Scrollbar styling pour les navigateurs modernes */
+.orders-column-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.orders-column-body::-webkit-scrollbar-track {
+  background: var(--color-surface-alt);
+  border-radius: 10px;
+}
+
+.orders-column-body::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 10px;
+}
+
+.orders-column-body::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
 }
 
 .order-card-kanban {

@@ -40,15 +40,32 @@ const DISH_IMAGE_MAP = {
     "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80",
 };
 
+// ─── Image proxy helper pour éviter les CORS ───────────────────────────────
+function proxyImageUrl(url, width = 400, quality = 80) {
+  // Si c'est une image locale ou data URL, ne pas proxifier
+  if (!url || url.startsWith("/") || url.startsWith("data:")) {
+    return url;
+  }
+
+  // Créer l'URL du proxy
+  const params = new URLSearchParams();
+  params.set("url", url);
+  params.set("w", width);
+  params.set("q", quality);
+  return `/api/proxy-image?${params.toString()}`;
+}
+
 function getItemImage(item, category = "plat") {
   const key = (item.name || "").toLowerCase().trim();
-  return (
+  const originalUrl =
     DISH_IMAGE_MAP[key] ||
     item.image ||
     (category === "boisson"
       ? DISH_IMAGE_MAP["__default_boisson__"]
-      : DISH_IMAGE_MAP["__default_plat__"])
-  );
+      : DISH_IMAGE_MAP["__default_plat__"]);
+
+  // Proxifier l'URL pour éviter CORS
+  return proxyImageUrl(originalUrl, 400, 80);
 }
 // ─── Helpers session table ────────────────────────────────────────────────
 
@@ -288,7 +305,12 @@ class MenuManager {
     const img = menuItem.querySelector(".thumb img");
     img.addEventListener("error", () => {
       img.onerror = null;
-      img.src = DISH_IMAGE_MAP["__default_plat__"];
+      // Fallback : image locale de secours
+      img.src = "/public/img/placeholder-food.png";
+      // Si l'image de secours échoue aussi, afficher un emoji
+      img.addEventListener("error", () => {
+        img.style.display = "none";
+      });
     });
 
     menuItem
@@ -343,7 +365,11 @@ class MenuManager {
     image.onerror = null;
     image.addEventListener("error", () => {
       image.onerror = null;
-      image.src = DISH_IMAGE_MAP["__default_plat__"];
+      // Fallback gracieux : essayer image locale, puis cacher
+      image.src = "/public/img/placeholder-food.png";
+      image.addEventListener("error", () => {
+        image.style.display = "none";
+      });
     });
 
     let content = `<p><strong>Description:</strong> ${item.description}</p>`;

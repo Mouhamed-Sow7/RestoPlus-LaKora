@@ -87,6 +87,7 @@ app.use("/api/auth", require("./routes/auth"));
 app.use("/api/orders", require("./routes/orders"));
 app.use("/api/reservations", require("./routes/reservations"));
 app.use("/api/analytics", require("./routes/analytics"));
+app.use("/api", require("./routes/image-proxy"));
 
 app.get("/api", (_req, res) =>
   res.json({ message: "API Restoplus v2 🚀", status: "ok" }),
