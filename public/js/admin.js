@@ -973,7 +973,7 @@ class AdminManager {
           .map(
             (i) => `
           <div class="mm-item">
-            <span class="mm-item-name">${i.name}</span>
+            <span class="mm-item-name truncate-1">${i.name}</span>
             <span class="mm-item-qty">×${i.quantity || 1}</span>
             <span class="mm-item-price">${this.formatPrice((i.price || 0) * (i.quantity || 1))} CFA</span>
           </div>

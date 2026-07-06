@@ -92,6 +92,9 @@
   color: #aaa;
   display: block;
   margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .approval-order-details {
@@ -132,6 +135,10 @@
   flex: 1;
   font-size: 0.88rem;
   color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .approval-item-qty {
@@ -634,6 +641,10 @@
   font-size: 0.88rem;
   color: var(--color-text);
   font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mm-item-qty {
@@ -660,6 +671,15 @@
   color: #bbb;
   margin-bottom: 1.25rem;
   padding: 0 2px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mm-footer-meta span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
 }
 
 /* Actions grid */
