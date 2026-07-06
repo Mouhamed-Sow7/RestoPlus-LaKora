@@ -284,7 +284,6 @@ class MenuManager {
           alt="${item.name}"
           loading="lazy"
           style="object-fit:cover;width:100%;height:100%;border-radius:inherit;"
-          onerror="this.onerror=null;this.src='${DISH_IMAGE_MAP["__default_plat__"]}'"
         />
       </div>
       <div class="item-content">
@@ -303,14 +302,19 @@ class MenuManager {
     `;
 
     const img = menuItem.querySelector(".thumb img");
+    let fallbackAttempted = false;
+    
     img.addEventListener("error", () => {
-      img.onerror = null;
-      // Fallback : image locale de secours
-      img.src = "/public/img/placeholder-food.png";
-      // Si l'image de secours échoue aussi, afficher un emoji
-      img.addEventListener("error", () => {
+      if (!fallbackAttempted) {
+        fallbackAttempted = true;
+        // Essayer le proxy du fallback image
+        const fallbackUrl = DISH_IMAGE_MAP["__default_plat__"];
+        const proxiedFallback = proxyImageUrl(fallbackUrl, 400, 80);
+        img.src = proxiedFallback;
+      } else {
+        // Si le fallback échoue aussi, cacher l'image
         img.style.display = "none";
-      });
+      }
     });
 
     menuItem
@@ -360,17 +364,23 @@ class MenuManager {
     const price = document.getElementById("modal-price");
 
     title.textContent = item.name;
-    image.src = getItemImage(item, item.category || "plat");
+    // Proxifier l'image pour éviter CORS
+    const proxiedImageUrl = getItemImage(item, item.category || "plat");
+    image.src = proxiedImageUrl;
     image.alt = item.name;
-    image.onerror = null;
+    
+    let modalFallbackAttempted = false;
     image.addEventListener("error", () => {
-      image.onerror = null;
-      // Fallback gracieux : essayer image locale, puis cacher
-      image.src = "/public/img/placeholder-food.png";
-      image.addEventListener("error", () => {
+      if (!modalFallbackAttempted) {
+        modalFallbackAttempted = true;
+        // Fallback proxifié aussi
+        const fallbackUrl = DISH_IMAGE_MAP["__default_plat__"];
+        const proxiedFallback = proxyImageUrl(fallbackUrl, 400, 80);
+        image.src = proxiedFallback;
+      } else {
         image.style.display = "none";
-      });
-    });
+      }
+    }, { once: false });
 
     let content = `<p><strong>Description:</strong> ${item.description}</p>`;
     if (item.ingredients)

@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Relax CSP for local dev: allow Google Fonts and external images (Unsplash/Picsum). Remove for stricter production. -->
+    <!-- Relax CSP for local dev: allow proxy API images. Remove for stricter production. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://source.unsplash.com https://images.unsplash.com https://picsum.photos; connect-src 'self' https://fonts.gstatic.com;"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: /api/proxy-image; connect-src 'self' https://fonts.gstatic.com /api/proxy-image;"
     />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <title>Menu - RestoPlus</title>
