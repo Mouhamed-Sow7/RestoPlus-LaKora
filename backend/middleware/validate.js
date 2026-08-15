@@ -42,6 +42,7 @@ const schemas = {
   createOrder: Joi.object({
     orderId:       Joi.string().optional(),
     table:         Joi.number().integer().min(1).max(50).required(),
+    sessionId:     Joi.string().max(100).allow(null).optional(),
     mode:          Joi.string().valid("group", "individual").default("group"),
     items: Joi.array().items(Joi.object({
       id:       Joi.string().required(),

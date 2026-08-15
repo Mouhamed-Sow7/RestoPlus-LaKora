@@ -3,6 +3,15 @@
 // ─── Constantes session ───────────────────────────────────────────────────
 const TABLE_SESSION_KEY = "tableSession";
 const TABLE_SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes
+// Après une commande passée, on sait que le client est bien sur place :
+// on étend la fenêtre pour couvrir tout le service (préparation + repas)
+// plutôt que de risquer une expiration en pleine attente du plat.
+const TABLE_SESSION_ORDER_TTL_MS = 3 * 60 * 60 * 1000; // 3 heures
+
+function _generateSessionId() {
+  if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+  return `sess-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
 const DISH_IMAGE_MAP = {
   // Plats
   "poulet yassa":
@@ -92,10 +101,27 @@ function setTableSession(tableNumber) {
     TABLE_SESSION_KEY,
     JSON.stringify({
       table: tableNumber,
+      sessionId: _generateSessionId(),
       startedAt: now,
       expiresAt: now + TABLE_SESSION_TTL_MS,
     }),
   );
+}
+
+function getSessionId() {
+  const session = getTableSession();
+  return session?.sessionId || null;
+}
+
+// Étend la session au lieu de la tuer — appelé juste après qu'une commande
+// est passée. Le client reste identifié sur sa table pour tout le service,
+// mais ne peut pas soumettre une nouvelle commande tant que l'actuelle
+// n'est pas "served"/"cancelled" (verrou côté backend, cf. checkTableSpam).
+function extendTableSessionForOrder() {
+  const session = getTableSession();
+  if (!session) return;
+  session.expiresAt = Date.now() + TABLE_SESSION_ORDER_TTL_MS;
+  sessionStorage.setItem(TABLE_SESSION_KEY, JSON.stringify(session));
 }
 
 function clearTableSession() {
@@ -417,9 +443,11 @@ class MenuManager {
       const orderId = event.detail?.orderId;
       if (!orderId) return;
       localStorage.setItem("currentOrderId", orderId);
-      // Déconnecte la session table immédiatement après commande soumise
-      // Le client doit re-scanner pour commander à nouveau
-      clearTableSession();
+      // La session reste vivante pour tout le service : c'est le verrou
+      // "1 commande active par session" côté backend qui empêche l'abus,
+      // pas la destruction de la session. Ça permet au client de suivre
+      // sa commande (notifs preparing/ready/served) sans re-scanner.
+      extendTableSessionForOrder();
       showBanner(
         "✅ Commande envoyée ! Votre ticket QR a été généré. Attendez la validation du serveur.",
         "#C0873F",

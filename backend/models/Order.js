@@ -9,6 +9,11 @@ const orderSchema = new mongoose.Schema(
       sparse: true, // null pour les commandes sans hash (anciennes)
     },
     table: { type: Number, required: true, index: true },
+    // Identifiant de session client (généré côté front à la détection de
+    // table, persiste dans sessionStorage). Permet de limiter l'abus par
+    // session plutôt que par table entière — une table peut légitimement
+    // avoir plusieurs sessions actives (plusieurs convives, mode "individual").
+    sessionId: { type: String, index: true, sparse: true },
     mode: { type: String, enum: ["group", "individual"], default: "group" },
     items: [
       {

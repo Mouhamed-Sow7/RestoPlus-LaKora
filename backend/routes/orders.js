@@ -19,11 +19,60 @@ const publicOrderLimiter = rateLimit({
   message: { error: "Trop de requêtes. Réessayez dans une minute." },
 });
 
-// ─── Middleware anti-spam ──────────────────────────────────────────────────
-// Bloque si une table a déjà 3 commandes pending_approval simultanées
+// Rate limiter dédié à la CRÉATION de commande — plus strict, car
+// contrairement aux GET publics, chaque appel produit un effet de bord
+// (nouvelle commande à traiter par le staff). Aucun limiter n'existait
+// jusqu'ici sur POST /api/orders.
+const createOrderLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 6, // 6 créations de commande / minute / IP — largement suffisant
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Trop de commandes créées. Réessayez dans une minute." },
+});
+
+// ─── Middleware anti-abus ───────────────────────────────────────────────────
+// Règle : 1 commande active à la fois par SESSION client (sessionId envoyé
+// par le front, généré à la détection de table). Une session ne peut pas
+// en soumettre une nouvelle tant que la précédente n'est pas
+// "served"/"cancelled" — ça bloque le flood depuis un seul scan QR sans
+// pénaliser plusieurs convives légitimes à la même table (sessions
+// différentes = pas de conflit).
+//
+// Repli : si un client legacy n'envoie pas de sessionId, on retombe sur
+// l'ancien plafond global par table (3 pending_approval simultanées) en
+// filet de sécurité, le temps que tous les clients soient à jour.
+const ACTIVE_STATUSES = [
+  "pending",
+  "pending_scan",
+  "pending_approval",
+  "accepted",
+  "preparing",
+  "ready",
+];
+
 const checkTableSpam = async (req, res, next) => {
   try {
     const table = parseInt(req.body.table, 10);
+    const sessionId = req.body.sessionId;
+
+    if (sessionId) {
+      const activeForSession = await Order.findOne({
+        sessionId,
+        status: { $in: ACTIVE_STATUSES },
+      }).lean();
+      if (activeForSession) {
+        return res.status(409).json({
+          error:
+            "Vous avez déjà une commande en cours. Attendez qu'elle soit servie avant d'en passer une nouvelle.",
+          code: "SESSION_ACTIVE_ORDER_EXISTS",
+          orderId: activeForSession.orderId,
+        });
+      }
+      return next();
+    }
+
+    // Legacy fallback (pas de sessionId) : ancien comportement.
     if (!table) return next();
     const count = await Order.countDocuments({
       table,
@@ -60,7 +109,13 @@ router.get(
   validate(schemas.queryOrders, "query"),
   ctrl.list,
 );
-router.post("/", validate(schemas.createOrder), checkTableSpam, ctrl.create);
+router.post(
+  "/",
+  createOrderLimiter,
+  validate(schemas.createOrder),
+  checkTableSpam,
+  ctrl.create,
+);
 router.post(
   "/fuse",
   authenticateToken,
