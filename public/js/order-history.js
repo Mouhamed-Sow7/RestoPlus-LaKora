@@ -10,11 +10,32 @@ class OrderHistoryManager {
   }
 
   // ─── Détection table courante ─────────────────────────────
+  // Aligné sur le même mécanisme que TableDetector (main.js) et
+  // MenuManager (menu.js) : sessionStorage, clé "currentTable" ou
+  // fallback sur le sous-objet "tableSession" (avec TTL).
+  // NB: localStorage n'est JAMAIS utilisé pour la table ailleurs
+  // dans l'app — lire localStorage ici rendait l'historique muet
+  // dès que l'utilisateur arrivait sans ?table= dans l'URL.
   _detectTable() {
     const params = new URLSearchParams(window.location.search);
     const fromUrl = params.get("table");
     if (fromUrl) return parseInt(fromUrl);
-    return parseInt(localStorage.getItem("currentTable")) || null;
+
+    const stored = sessionStorage.getItem("currentTable");
+    if (stored) return parseInt(stored);
+
+    try {
+      const raw = sessionStorage.getItem("tableSession");
+      if (raw) {
+        const session = JSON.parse(raw);
+        const ttl = session.ttl || 30 * 60 * 1000;
+        if (session.table && Date.now() - session.ts < ttl) {
+          return parseInt(session.table);
+        }
+      }
+    } catch {}
+
+    return null;
   }
 
   // ─── Cache QR (localStorage — images uniquement) ──────────
@@ -47,7 +68,7 @@ class OrderHistoryManager {
    */
   async getHistory() {
     try {
-      const table = this._table;
+      const table = this._table || (this._table = this._detectTable());
       if (!table) return [];
 
       const res = await fetch(

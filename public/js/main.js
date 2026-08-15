@@ -2,9 +2,6 @@
 
 // Notification Utility
 class NotificationManager {
-  static queue = [];
-  static isShowing = false;
-
   static formatTicket(orderId) {
     if (!orderId || typeof orderId !== "string") return null;
     // Cherche UNIQUEMENT un suffixe numérique court après le dernier tiret
@@ -21,11 +18,14 @@ class NotificationManager {
       warning: "⚠️",
       info: "ℹ️",
     };
-    const bgMap = {
-      success: "linear-gradient(135deg, #27AE60, #219A52)",
-      error: "linear-gradient(135deg, #E74C3C, #C0392B)",
-      warning: "linear-gradient(135deg, #E67E22, #D35400)",
-      info: "linear-gradient(135deg, #2980B9, #1F618D)",
+    // Couleurs sémantiques puisées dans les variables du thème
+    // (main.css :root) — plus de hex codés en dur qui divergeaient
+    // silencieusement du reste de l'UI.
+    const colorVarMap = {
+      success: "var(--color-success, #27ae60)",
+      error: "var(--color-danger, #e74c3c)",
+      warning: "var(--color-warning, #e67e22)",
+      info: "var(--color-primary, #c0873f)",
     };
     const normalizedType = ["success", "error", "warning", "info"].includes(
       type,
@@ -57,18 +57,8 @@ class NotificationManager {
 
     const toast = document.createElement("div");
     toast.className = `rp-toast rp-toast-${normalizedType}`;
-    toast.style.background = bgMap[normalizedType];
-    toast.style.color = "#fff";
-    toast.style.borderRadius = "14px";
-    toast.style.padding = "14px 16px";
-    toast.style.minWidth = "280px";
-    toast.style.maxWidth = "380px";
-    toast.style.boxShadow = "0 8px 24px rgba(0,0,0,0.25)";
-    toast.style.display = "flex";
-    toast.style.alignItems = "flex-start";
-    toast.style.gap = "10px";
+    toast.style.setProperty("--rp-toast-accent", colorVarMap[normalizedType]);
     toast.style.pointerEvents = "auto";
-    toast.style.animation = "slide-in-right 0.3s ease";
 
     toast.innerHTML = `
       <span class="rp-toast-icon">${iconMap[normalizedType]}</span>
@@ -99,42 +89,35 @@ class NotificationManager {
     const style = document.createElement("style");
     style.id = "rp-toast-styles";
     style.textContent = `
-      .rp-toast-icon { font-size: 1.2rem; flex-shrink: 0; padding-top: 2px; }
+      .rp-toast {
+        background: var(--color-surface, #fff);
+        color: var(--color-text, #1a1a1a);
+        border-radius: var(--radius-md, 12px);
+        padding: 14px 16px;
+        min-width: 280px;
+        max-width: 380px;
+        box-shadow: var(--shadow-lg, 0 12px 32px rgba(0,0,0,0.15));
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-family: var(--font-sans, "Inter", system-ui, sans-serif);
+        animation: slide-in-right 0.3s ease;
+        /* Identité de marque constante : liseré doré, quelle que soit
+           la couleur sémantique (succès/erreur/info/warning). */
+        border-left: 4px solid var(--color-primary, #c0873f);
+        border-top: 1px solid var(--color-border, #ebebeb);
+        border-right: 1px solid var(--color-border, #ebebeb);
+        border-bottom: 1px solid var(--color-border, #ebebeb);
+      }
+      .rp-toast-icon { font-size: 1.2rem; flex-shrink: 0; padding-top: 2px; color: var(--rp-toast-accent); }
       .rp-toast-body { flex: 1; }
-      .rp-toast-title { font-weight: 700; font-size: 0.9rem; line-height: 1.3; }
-      .rp-toast-msg { font-size: 0.8rem; opacity: 0.85; margin-top: 3px; }
-      .rp-toast-id { font-family: monospace; font-size: 0.7rem; opacity: 0.6; margin-top: 4px; }
-      .rp-toast-close { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; padding: 0 0 0 8px; font-size: 1rem; flex-shrink: 0; align-self: flex-start; }
+      .rp-toast-title { font-weight: 700; font-size: 0.9rem; line-height: 1.3; color: var(--rp-toast-accent); }
+      .rp-toast-msg { font-size: 0.8rem; opacity: 0.85; margin-top: 3px; color: var(--color-text, #1a1a1a); }
+      .rp-toast-id { font-family: var(--font-mono, "JetBrains Mono", monospace); font-size: 0.7rem; opacity: 0.6; margin-top: 4px; }
+      .rp-toast-close { background: none; border: none; color: var(--color-text-muted, #6b6b6b); cursor: pointer; padding: 0 0 0 8px; font-size: 1rem; flex-shrink: 0; align-self: flex-start; }
       @keyframes slide-in-right { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     `;
     document.head.appendChild(style);
-  }
-
-  static runQueue() {
-    if (this.isShowing) return;
-    if (this.queue.length === 0) return;
-
-    this.isShowing = true;
-
-    const notif = this.queue.shift();
-
-    const popup = document.getElementById("success-popup");
-    const titleEl = popup.querySelector(".popup-message h4");
-    const msgEl = popup.querySelector("#popup-table-info");
-
-    titleEl.textContent = notif.title;
-    msgEl.textContent = notif.message;
-
-    popup.classList.add("show");
-
-    setTimeout(() => {
-      popup.classList.remove("show");
-
-      setTimeout(() => {
-        this.isShowing = false;
-        this.runQueue();
-      }, 400);
-    }, notif.duration);
   }
 
   static showLoading(show = true) {

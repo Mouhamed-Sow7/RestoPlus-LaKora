@@ -470,16 +470,48 @@ class MenuManager {
         this.lastOrderStatus = order.status;
         this.updateOrderStatusUI(order);
 
-        if (order.status === "accepted") {
-          // Session déjà coupée à la soumission — affiche juste la confirmation
-          showBanner(
+        // Bannière + notif à CHAQUE étape du cycle de vie, pas seulement
+        // à l'acceptation. Avant ce fix, le polling s'arrêtait dès
+        // "accepted" et le client ne savait jamais que son plat était
+        // en préparation, prêt, ou servi.
+        const statusBanners = {
+          accepted: [
             "✅ Commande acceptée par le serveur ! Elle est en cours de préparation.",
-            "#27AE60",
-          );
-          this.stopOrderPolling();
+            "success",
+          ],
+          preparing: ["👨‍🍳 Votre commande est en préparation.", "info"],
+          ready: [
+            "🍽️ Votre commande est prête ! Le serveur arrive.",
+            "info",
+          ],
+          served: ["✅ Bon appétit ! Votre commande a été servie.", "success"],
+          cancelled: ["❌ Votre commande a été annulée.", "error"],
+        };
+
+        const banner = statusBanners[order.status];
+        if (banner) {
+          // Un seul canal visuel (bannière) + un seul toast + un seul
+          // son, et uniquement pour les transitions qui comptent pour
+          // le client. Les statuts internes (pending, pending_scan,
+          // pending_approval) restent silencieux : le client n'a pas
+          // besoin d'être notifié tant que le serveur n'a pas agi.
+          showBanner(banner[0], banner[1]);
+          if (window.NotificationManager) {
+            window.NotificationManager.showSuccess(
+              order.orderId || order.id,
+              this.getStatusLabel(order.status),
+              banner[0],
+              4000,
+              banner[1],
+            );
+          }
+          this.playNotificationSound();
         }
       }
 
+      // On arrête le polling uniquement en fin de cycle de vie réel :
+      // la commande est servie ou annulée. "accepted" n'est qu'une
+      // étape intermédiaire.
       if (order.status === "served" || order.status === "cancelled")
         this.stopOrderPolling();
     } catch {}
@@ -508,16 +540,9 @@ class MenuManager {
     if (!statusSpan) return;
     statusSpan.textContent = this.getStatusLabel(order.status);
     statusSpan.className = `status-badge status-${order.status}`;
-
-    if (window.NotificationManager) {
-      window.NotificationManager.showSuccess(
-        order.orderId || order.id,
-        "Statut mis à jour",
-        `Votre commande est maintenant : ${this.getStatusLabel(order.status)}`,
-        4000,
-      );
-    }
-    this.playNotificationSound();
+    // NB: pas de toast/son ici — un seul canal de notification est
+    // déclenché plus haut, dans fetchAndUpdateOrderStatus, uniquement
+    // pour les transitions qui comptent réellement pour le client.
   }
 
   getStatusLabel(status) {

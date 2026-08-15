@@ -292,9 +292,11 @@ class QRScannerManager {
       await this.startCameraById(cameraId);
     } catch (err) {
       NotificationManager.showSuccess(
-        "Erreur",
+        null,
+        "Erreur caméra",
         "Impossible d'activer la caméra",
         3000,
+        "error",
       );
       this.resetCameraState();
     } finally {
@@ -382,9 +384,11 @@ class QRScannerManager {
           this.hideScanLoader();
           this.processingScan = false;
           NotificationManager.showSuccess(
+            null,
             "Erreur",
             "Ce QR code est un ticket de commande. Veuillez le scanner depuis la page admin.",
             3000,
+            "error",
           );
           return;
         }
@@ -395,9 +399,11 @@ class QRScannerManager {
           this.hideScanLoader();
           this.processingScan = false;
           NotificationManager.showSuccess(
+            null,
             "Table détectée !",
             "Redirection...",
             1500,
+            "success",
           );
           setTimeout(() => {
             window.location.href = data.url || `menu.html?table=${data.table}`;
@@ -414,9 +420,11 @@ class QRScannerManager {
         this.hideScanLoader();
         this.processingScan = false;
         NotificationManager.showSuccess(
+          null,
           "Table détectée !",
           `Table ${tableNumber}`,
           1500,
+          "success",
         );
         setTimeout(() => {
           window.location.href = `menu.html?table=${tableNumber}`;
@@ -429,16 +437,24 @@ class QRScannerManager {
         this.hideScanLoader();
         this.processingScan = false;
         NotificationManager.showSuccess(
+          null,
           "Erreur",
           "Ce QR code est un ticket de commande. Veuillez le scanner depuis la page admin.",
           3000,
+          "error",
         );
         return;
       }
 
       // invalid
       this.hideScanLoader();
-      NotificationManager.showSuccess("Erreur", "QR Code non reconnu.", 2500);
+      NotificationManager.showSuccess(
+        null,
+        "Erreur",
+        "QR Code non reconnu.",
+        2500,
+        "error",
+      );
       // keep camera running and resume
     } catch (err) {
       this.hideScanLoader();
