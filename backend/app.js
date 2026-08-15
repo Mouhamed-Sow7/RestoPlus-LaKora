@@ -34,7 +34,6 @@ app.use(
           "https://source.unsplash.com",
           "https://images.unsplash.com",
         ],
-        connectSrc: ["'self'"],
         mediaSrc: ["'self'", "blob:"],
         connectSrc: ["'self'", "https://api.qrserver.com"],
       },
@@ -86,6 +85,7 @@ app.use(
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/orders", require("./routes/orders"));
 app.use("/api/reservations", require("./routes/reservations"));
+app.use("/api/tables", require("./routes/tables"));
 app.use("/api/analytics", require("./routes/analytics"));
 app.use("/api", require("./routes/image-proxy"));
 
