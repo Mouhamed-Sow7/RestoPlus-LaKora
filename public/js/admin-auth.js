@@ -218,8 +218,9 @@ class AdminAuthManager {
   }
 
   redirectToLogin() {
-    // Cache le contenu admin avant de rediriger
-    this.hideLoadingScreen();
+    // L'overlay reste visible jusqu'à la navigation effective — le
+    // retirer ici exposerait brièvement le dashboard non-authentifié
+    // pendant la transition vers login.html.
     window.location.href = "login.html";
   }
 

@@ -454,20 +454,6 @@ class CartManager {
   }
 
   finalizeOrder(paymentMethod, paymentStatus) {
-    // ─── Vérification commande active (même règle que le backend) ────────
-    const activeOrderId = localStorage.getItem("currentOrderId");
-    const activeStatus = window.menuManager?.lastOrderStatus;
-    const stillActive =
-      activeOrderId &&
-      activeStatus &&
-      !["served", "cancelled"].includes(activeStatus);
-    if (stillActive) {
-      alert(
-        "Vous avez déjà une commande en cours. Attendez qu'elle soit servie avant d'en passer une nouvelle.",
-      );
-      return;
-    }
-
     // ─── Vérification session table ─────────────────────────────────────
     const TABLE_SESSION_KEY = "tableSession";
     const TABLE_SESSION_TTL_MS = 30 * 60 * 1000; // doit correspondre à menu.js

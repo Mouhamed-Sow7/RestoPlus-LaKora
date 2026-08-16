@@ -448,10 +448,15 @@ class MenuManager {
       // pas la destruction de la session. Ça permet au client de suivre
       // sa commande (notifs preparing/ready/served) sans re-scanner.
       extendTableSessionForOrder();
-      showBanner(
-        "✅ Commande envoyée ! Votre ticket QR a été généré. Attendez la validation du serveur.",
-        "#C0873F",
-      );
+      if (window.NotificationManager) {
+        window.NotificationManager.showSuccess(
+          orderId,
+          "Commande envoyée",
+          "Votre ticket QR a été généré. Attendez la validation du serveur.",
+          4000,
+          "success",
+        );
+      }
       this.startOrderPolling(orderId, true);
     });
   }
@@ -518,12 +523,11 @@ class MenuManager {
 
         const banner = statusBanners[order.status];
         if (banner) {
-          // Un seul canal visuel (bannière) + un seul toast + un seul
-          // son, et uniquement pour les transitions qui comptent pour
-          // le client. Les statuts internes (pending, pending_scan,
-          // pending_approval) restent silencieux : le client n'a pas
-          // besoin d'être notifié tant que le serveur n'a pas agi.
-          showBanner(banner[0], banner[1]);
+          // Un seul canal désormais : le toast (thème doré unifié).
+          // La bannière top-page a été retirée d'ici — elle reste
+          // utilisée ailleurs uniquement pour des états persistants
+          // (ex: "scannez le QR de votre table"), pas pour des
+          // événements ponctuels comme un changement de statut.
           if (window.NotificationManager) {
             window.NotificationManager.showSuccess(
               order.orderId || order.id,

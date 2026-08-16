@@ -1434,6 +1434,10 @@ class AdminManager {
     `;
 
     document.body.appendChild(modal);
+    // CSS (.order-fusion-modal) est opacity:0/pointer-events:none par
+    // défaut et ne devient visible qu'avec .show — sans ce toggle le
+    // modal existait dans le DOM mais restait invisible et inerte.
+    requestAnimationFrame(() => modal.classList.add("show"));
 
     // Event handlers
     const closeBtn = modal.querySelector("#fusion-close");
@@ -1647,6 +1651,10 @@ class AdminManager {
     `;
 
     document.body.appendChild(modal);
+    // Même correctif que la modal de fusion : sans .show, le modal reste
+    // invisible (opacity:0) malgré son existence dans le DOM — c'était
+    // exactement pourquoi le scan ne montrait plus rien.
+    requestAnimationFrame(() => modal.classList.add("show"));
 
     // Event handlers
     const closeBtn = modal.querySelector("#approval-close");

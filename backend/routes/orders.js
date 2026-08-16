@@ -31,57 +31,25 @@ const createOrderLimiter = rateLimit({
   message: { error: "Trop de commandes créées. Réessayez dans une minute." },
 });
 
-// ─── Middleware anti-abus ───────────────────────────────────────────────────
-// Règle : 1 commande active à la fois par SESSION client (sessionId envoyé
-// par le front, généré à la détection de table). Une session ne peut pas
-// en soumettre une nouvelle tant que la précédente n'est pas
-// "served"/"cancelled" — ça bloque le flood depuis un seul scan QR sans
-// pénaliser plusieurs convives légitimes à la même table (sessions
-// différentes = pas de conflit).
-//
-// Repli : si un client legacy n'envoie pas de sessionId, on retombe sur
-// l'ancien plafond global par table (3 pending_approval simultanées) en
-// filet de sécurité, le temps que tous les clients soient à jour.
-const ACTIVE_STATUSES = [
-  "pending",
-  "pending_scan",
-  "pending_approval",
-  "accepted",
-  "preparing",
-  "ready",
-];
-
+// ─── Middleware anti-flood (léger) ──────────────────────────────────────────
+// Le client peut commander autant de fois qu'il veut : c'est le scan du
+// ticket QR par le serveur (validation/rejet manuel) qui fait office de
+// contrôle métier, pas une restriction côté commande. On garde uniquement
+// un plafond très lâche par table pour absorber un flood extrême
+// (ex: script qui spam), sans jamais bloquer un usage normal, même avec
+// plusieurs commandes successives légitimes.
 const checkTableSpam = async (req, res, next) => {
   try {
     const table = parseInt(req.body.table, 10);
-    const sessionId = req.body.sessionId;
-
-    if (sessionId) {
-      const activeForSession = await Order.findOne({
-        sessionId,
-        status: { $in: ACTIVE_STATUSES },
-      }).lean();
-      if (activeForSession) {
-        return res.status(409).json({
-          error:
-            "Vous avez déjà une commande en cours. Attendez qu'elle soit servie avant d'en passer une nouvelle.",
-          code: "SESSION_ACTIVE_ORDER_EXISTS",
-          orderId: activeForSession.orderId,
-        });
-      }
-      return next();
-    }
-
-    // Legacy fallback (pas de sessionId) : ancien comportement.
     if (!table) return next();
     const count = await Order.countDocuments({
       table,
       status: "pending_approval",
     });
-    if (count >= 3) {
+    if (count >= 15) {
       return res.status(429).json({
         error:
-          "Trop de commandes en attente pour cette table. Veuillez patienter.",
+          "Trop de commandes en attente pour cette table. Contactez le personnel.",
         code: "TABLE_SPAM_LIMIT",
       });
     }
