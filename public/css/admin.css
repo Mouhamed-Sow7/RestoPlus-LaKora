@@ -425,7 +425,6 @@ textarea {
 .admin-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
   flex-shrink: 0;
   text-decoration: none;
 }
@@ -445,15 +444,6 @@ textarea {
   flex-shrink: 0;
 }
 
-.admin-logo h1,
-.logo-text h1 {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a1a1a;
-  white-space: nowrap;
-  margin: 0;
-}
-
 /* Nav links */
 .admin-nav {
   display: flex;
@@ -462,6 +452,7 @@ textarea {
   flex: 1;
   overflow: hidden;
   flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .admin-nav .nav-link {
@@ -493,23 +484,37 @@ textarea {
   color: #c0873f;
 }
 
-.admin-nav .logout-btn,
-.admin-nav .nav-link.logout-btn {
+/* Bouton déconnexion — hors de .admin-nav, toujours visible quel que soit
+   le breakpoint (ce n'est PAS un lien de navigation d'onglet). */
+.header-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
   background: #fee2e2;
   color: #e74c3c;
-  margin-left: auto;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
   flex-shrink: 0;
+  margin-left: auto;
+  transition: background 0.15s, color 0.15s;
 }
 
-.admin-nav .logout-btn:hover {
+.header-logout-btn:hover {
   background: #e74c3c;
   color: #fff;
 }
 
 /* ─── RESPONSIVE HEADER — règles uniques ───────────────────────────── */
 
-/* Tablette (481px - 768px) : nav horizontale scrollable, pas de bottom nav */
-@media (min-width: 481px) and (max-width: 768px) {
+/* Tablette (481px - 900px) : nav horizontale scrollable, icônes seules,
+   pas de bottom nav. Plage élargie (768→900) pour éviter le header
+   surchargé/collé sur les tablettes ~800-900px (iPad Air et similaires). */
+@media (min-width: 481px) and (max-width: 900px) {
   .admin-header {
     padding: 0 16px;
     height: 56px;
@@ -532,11 +537,16 @@ textarea {
   /* Cache le texte des liens, garde icône FA */
   .admin-nav .nav-link span:not([class]) { display: none; }
 
+  /* Déconnexion : icône seule pour laisser de la place à la nav */
+  .header-logout-btn span { display: none; }
+  .header-logout-btn { padding: 8px; }
+
   /* Bottom nav cachée sur tablette — la nav header suffit */
   .admin-bottom-nav { display: none !important; }
 }
 
-/* Mobile (≤ 480px) : cache la nav header, affiche bottom nav */
+/* Mobile (≤ 480px) : cache la nav header, affiche bottom nav.
+   Le logo + bouton déconnexion (icône seule) restent dans le header. */
 @media (max-width: 480px) {
   .admin-header {
     padding: 0 16px;
@@ -546,14 +556,17 @@ textarea {
   .admin-header .admin-nav { display: none !important; }
   .admin-bottom-nav { display: flex !important; }
 
+  .header-logout-btn span { display: none; }
+  .header-logout-btn { padding: 8px; margin-left: auto; }
+
   /* Espace pour la bottom nav */
   .admin-dashboard,
   #admin-content,
   .admin-main-content { padding-bottom: 80px; }
 }
 
-/* Desktop (≥ 769px) : nav header complète, pas de bottom nav */
-@media (min-width: 769px) {
+/* Desktop (≥ 901px) : nav header complète, pas de bottom nav */
+@media (min-width: 901px) {
   .admin-bottom-nav { display: none !important; }
   .admin-nav .nav-link {
     padding: 7px 14px;

@@ -1,11 +1,14 @@
 /* Reservation Page Styles */
 .footer-navigation a{
   color: white;
-  text-decoration-style:none;
-  
+  text-decoration: none;
  }
 .reservation-hero {
-  background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary, #c0873f),
+    var(--color-primary-dark, #9b6830)
+  );
   color: white;
   padding: 4rem 0;
   text-align: center;
@@ -29,6 +32,25 @@
 .reservation-hero p {
   max-width: 700px;
   margin: 0.5rem auto 0;
+}
+
+.reservation-footer {
+  text-align: center;
+  padding: 1.75rem 1rem;
+  background: var(--color-surface-alt, #f5f0e8);
+  color: var(--color-text-muted, #6b6b6b);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--color-border, #ebebeb);
+}
+
+.reservation-footer a {
+  color: var(--color-primary, #c0873f);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.reservation-footer a:hover {
+  text-decoration: underline;
 }
 
 /* Reservation page (new layout aligned with main.css) */

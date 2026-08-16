@@ -85,14 +85,9 @@
       <div class="container">
         <div class="admin-logo">
           <a href="index.html" style="text-decoration: none; color: white">
-            <div class="logo-row">
-              <span class="brand-mark">
-                <span class="brand-mark-text">R+</span>
-              </span>
-              <div class="logo-text">
-                <h1>RestoPlus - Admin</h1>
-              </div>
-            </div>
+            <span class="brand-mark">
+              <span class="brand-mark-text">R+</span>
+            </span>
           </a>
         </div>
         <nav class="admin-nav" id="admin-nav">
@@ -112,10 +107,14 @@
             ><i class="fa-solid fa-calendar-days"></i
             ><span>Réservations</span></a
           >
-          <button id="logout-btn" class="nav-link logout-btn">
-            Déconnexion
-          </button>
         </nav>
+        <!-- Toujours visible, quel que soit le breakpoint (desktop, tablette,
+             mobile) — contrairement à .admin-nav qui peut être remplacée par
+             la bottom-nav sur mobile, la déconnexion reste accessible ici. -->
+        <button id="logout-btn" class="header-logout-btn" title="Déconnexion">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Déconnexion</span>
+        </button>
       </div>
     </header>
 
