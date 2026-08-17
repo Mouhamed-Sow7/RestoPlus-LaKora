@@ -312,7 +312,7 @@
                 </button>
               </div>
               <button class="stats-export-btn" id="stats-export-btn">
-                ⬇ Exporter Excel
+                <i class="fa-solid fa-file-arrow-down"></i> Exporter Excel
               </button>
             </div>
           </div>
@@ -474,7 +474,7 @@
         <div class="mm-handle" aria-hidden="true"></div>
         <div class="mm-header">
           <div class="mm-header-title">
-            <span class="mm-header-icon">📋</span>
+            <span class="mm-header-icon"><i class="fa-solid fa-clipboard-list"></i></span>
             <div>
               <h3 id="mm-title">Gestion commande</h3>
               <div class="mm-order-id" id="modal-order-id">—</div>
@@ -485,7 +485,7 @@
             id="close-management-modal-btn"
             aria-label="Fermer"
           >
-            ✕
+            &times;
           </button>
         </div>
         <div class="mm-body">
@@ -570,6 +570,41 @@
         ) {
           return window.qrScannerAdmin.toggle();
         }
+        // Le scanner n'est pas encore prêt (chargement de la librairie
+        // Html5Qrcode en cours). Avant ce fix, le clic ne produisait
+        // strictement AUCUN retour dans ce cas — bouton silencieusement
+        // inerte. On informe maintenant et on réessaie automatiquement.
+        if (window.NotificationManager) {
+          window.NotificationManager.showSuccess(
+            null,
+            "Scanner en cours de chargement",
+            "Nouvelle tentative dans un instant...",
+            2000,
+            "info",
+          );
+        }
+        let retries = 0;
+        const retryInterval = setInterval(() => {
+          retries++;
+          if (
+            window.qrScannerAdmin &&
+            typeof window.qrScannerAdmin.toggle === "function"
+          ) {
+            clearInterval(retryInterval);
+            window.qrScannerAdmin.toggle();
+          } else if (retries >= 10) {
+            clearInterval(retryInterval);
+            if (window.NotificationManager) {
+              window.NotificationManager.showSuccess(
+                null,
+                "Scanner indisponible",
+                "Rafraîchissez la page pour réessayer.",
+                4000,
+                "error",
+              );
+            }
+          }
+        }, 500);
       };
     </script>
 

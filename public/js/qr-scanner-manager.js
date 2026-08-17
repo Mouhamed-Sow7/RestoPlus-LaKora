@@ -223,7 +223,7 @@ class QRScannerManager {
       qrContainer.classList.remove("scanning");
       qrContainer.classList.add("camera-active");
     }
-    if (toggleBtn) toggleBtn.innerHTML = "⏹️ Désactiver Caméra";
+    if (toggleBtn) toggleBtn.innerHTML = '<i class="fa-solid fa-video-slash"></i> Désactiver Caméra';
 
     this.isCameraActive = true;
   }
@@ -246,7 +246,7 @@ class QRScannerManager {
 
     if (qrStyleZone) qrStyleZone.classList.add("camera-off");
     if (qrContainer) qrContainer.classList.remove("camera-active", "scanning");
-    if (toggleBtn) toggleBtn.innerHTML = "🎥 Activer Caméra";
+    if (toggleBtn) toggleBtn.innerHTML = '<i class="fa-solid fa-video"></i> Activer Caméra';
 
     this.isCameraActive = false;
   }
@@ -551,7 +551,7 @@ class QRScannerManager {
     const toggleBtn = document.getElementById(this.toggleBtnId);
     if (qrStyleZone) qrStyleZone.classList.add("camera-off");
     if (qrContainer) qrContainer.classList.remove("camera-active", "scanning");
-    if (toggleBtn) toggleBtn.innerHTML = "🎥 Activer Caméra";
+    if (toggleBtn) toggleBtn.innerHTML = '<i class="fa-solid fa-video"></i> Activer Caméra';
 
     this.isCameraActive = false;
     this.isBusy = false;

@@ -362,12 +362,12 @@ class StatsManager {
       const fmtDate = (d) => d ? new Date(d).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—";
       const payLabel = { cash: "Espèces", card: "Carte", mobile: "Mobile", wave: "Wave", orange_money: "OM" };
       const statusLabel = {
-        pending_approval: "⏳ Attente",
-        accepted: "✅ Acceptée",
-        preparing: "👨‍🍳 Prép.",
-        ready: "🍽️ Prête",
-        served: "🎉 Servie",
-        cancelled: "❌ Annulée",
+        pending_approval: '<i class="fa-solid fa-hourglass-half"></i> Attente',
+        accepted: '<i class="fa-solid fa-check"></i> Acceptée',
+        preparing: '<i class="fa-solid fa-kitchen-set"></i> Prép.',
+        ready: '<i class="fa-solid fa-utensils"></i> Prête',
+        served: '<i class="fa-solid fa-circle-check"></i> Servie',
+        cancelled: '<i class="fa-solid fa-xmark"></i> Annulée',
       };
   
       tbody.innerHTML = visible.map(o => {
@@ -383,7 +383,7 @@ class StatsManager {
             <td class="stats-td-amount">${fmt(o.total)} CFA</td>
             <td>
               <span class="stats-pay-badge ${isPaid ? "paid" : "unpaid"}">
-                ${isPaid ? "✅" : "⏳"} ${payLabel[o.paymentMethod] || o.paymentMethod || "—"}
+                ${isPaid ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-hourglass-half"></i>'} ${payLabel[o.paymentMethod] || o.paymentMethod || "—"}
               </span>
             </td>
             <td>

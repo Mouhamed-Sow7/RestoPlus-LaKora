@@ -84,6 +84,12 @@ class AdminManager {
   }
 
   initializeQRScanner() {
+    // Filet de sécurité : si un modal résiduel traîne dans le DOM (session
+    // précédente interrompue, bug futur, etc.), il ne doit jamais pouvoir
+    // bloquer indéfiniment le scan. On le retire avant toute (ré)init.
+    document.getElementById("order-approval-modal")?.remove();
+    document.getElementById("order-fusion-modal")?.remove();
+
     // Wait for Html5Qrcode to be available
     this.waitForQRScannerLibrary()
       .then(() => {
@@ -110,19 +116,19 @@ class AdminManager {
             // Guard : ignore si déjà en cours de traitement
             if (window.qrScannerAdmin.processingScan) return;
 
-            // Guard : ignore si un modal de validation/fusion est VISIBLE (pas juste présent dans le DOM)
+            // Guard : ignore si un modal de validation/fusion est VISIBLE
+            // (classe .show — c'est elle qui pilote opacity/pointer-events,
+            // PAS style.display qui reste toujours "flex" par CSS et ne
+            // reflétait donc jamais un état "fermé", bloquant silencieusement
+            // tout scan futur dès qu'un modal avait existé une fois).
             const approvalModal = document.getElementById(
               "order-approval-modal",
             );
             const fusionModal = document.getElementById("order-fusion-modal");
             const approvalVisible =
-              approvalModal &&
-              approvalModal.style.display !== "none" &&
-              approvalModal.offsetParent !== null;
+              approvalModal && approvalModal.classList.contains("show");
             const fusionVisible =
-              fusionModal &&
-              fusionModal.style.display !== "none" &&
-              fusionModal.offsetParent !== null;
+              fusionModal && fusionModal.classList.contains("show");
             if (approvalVisible || fusionVisible) return;
 
             window.qrScannerAdmin.processingScan = true;
@@ -595,12 +601,20 @@ class AdminManager {
     const PENDING_STATUSES = ["pending_approval", "pending_scan", "pending"];
 
     const statusConfig = [
-      { key: "pending_approval", title: "À valider", emoji: "🔔" },
-      { key: "accepted", title: "Acceptées", emoji: "✅" },
-      { key: "preparing", title: "En préparation", emoji: "👨‍🍳" },
-      { key: "ready", title: "Prêtes", emoji: "🍽️" },
-      { key: "served", title: "Servies", emoji: "🎉" },
-      { key: "cancelled", title: "Annulées", emoji: "❌" },
+      {
+        key: "pending_approval",
+        title: "À valider",
+        icon: "fa-bell",
+      },
+      { key: "accepted", title: "Acceptées", icon: "fa-check" },
+      {
+        key: "preparing",
+        title: "En préparation",
+        icon: "fa-kitchen-set",
+      },
+      { key: "ready", title: "Prêtes", icon: "fa-utensils" },
+      { key: "served", title: "Servies", icon: "fa-circle-check" },
+      { key: "cancelled", title: "Annulées", icon: "fa-xmark" },
     ];
 
     const grouped = {};
@@ -635,25 +649,25 @@ class AdminManager {
       const moreItems = safeItemCount > 2 ? ` +${safeItemCount - 2}` : "";
       const payBadge =
         order.paymentStatus === "paid"
-          ? `<span class="pay-badge paid">💳 Payé</span>`
-          : `<span class="pay-badge pending-pay">⏳ Impayé</span>`;
+          ? `<span class="pay-badge paid"><i class="fa-solid fa-credit-card"></i> Payé</span>`
+          : `<span class="pay-badge pending-pay"><i class="fa-solid fa-hourglass-half"></i> Impayé</span>`;
 
       const actionButtons = isPending
         ? `
           <div class="kanban-approval-actions">
             <button class="btn-kanban-approve" data-action="approve" data-order-id="${id}">
-              ✅ Approuver
+              <i class="fa-solid fa-check"></i> Approuver
             </button>
             <button class="btn-kanban-reject" data-action="reject" data-order-id="${id}">
-              ❌ Rejeter
+              <i class="fa-solid fa-xmark"></i> Rejeter
             </button>
           </div>
           <button class="btn-kanban-manage" data-action="manage" data-order-id="${id}">
-            Détails →
+            Détails
           </button>`
         : `
           <button class="btn-kanban-manage" data-action="manage" data-order-id="${id}">
-            Gérer →
+            Gérer
           </button>`;
 
       return `
@@ -725,7 +739,7 @@ class AdminManager {
     const card = btn.closest(".order-card-kanban");
     if (card) card.style.opacity = "0.5";
     btn.disabled = true;
-    btn.textContent = "⏳...";
+    btn.textContent = "...";
     try {
       const token =
         sessionStorage.getItem("adminToken") ||
@@ -751,7 +765,7 @@ class AdminManager {
     } catch (err) {
       if (card) card.style.opacity = "1";
       btn.disabled = false;
-      btn.textContent = "✅ Approuver";
+      btn.textContent = "Approuver";
       NotificationManager.showSuccess(
         orderId,
         "Erreur",
@@ -767,7 +781,7 @@ class AdminManager {
     const card = btn.closest(".order-card-kanban");
     if (card) card.style.opacity = "0.5";
     btn.disabled = true;
-    btn.textContent = "⏳...";
+    btn.textContent = "...";
     try {
       const token =
         sessionStorage.getItem("adminToken") ||
@@ -793,7 +807,7 @@ class AdminManager {
     } catch (err) {
       if (card) card.style.opacity = "1";
       btn.disabled = false;
-      btn.textContent = "❌ Rejeter";
+      btn.textContent = "Rejeter";
       NotificationManager.showSuccess(
         orderId,
         "Erreur",
@@ -879,23 +893,48 @@ class AdminManager {
 
   getStatusStyle(status) {
     const normalized = (status || "").toString().toLowerCase();
+    const ic = (name) => `<i class="fa-solid ${name}"></i>`;
     const styles = {
       pending_approval: {
         bg: "#FFF8E1",
         color: "#E67E22",
-        label: "⏳ En attente",
+        label: `${ic("fa-hourglass-half")} En attente`,
       },
-      pending_scan: { bg: "#FFF8E1", color: "#E67E22", label: "⏳ En attente" },
-      pending: { bg: "#FFF8E1", color: "#E67E22", label: "⏳ En attente" },
-      accepted: { bg: "#E8F5E9", color: "#27AE60", label: "✅ Acceptée" },
+      pending_scan: {
+        bg: "#FFF8E1",
+        color: "#E67E22",
+        label: `${ic("fa-hourglass-half")} En attente`,
+      },
+      pending: {
+        bg: "#FFF8E1",
+        color: "#E67E22",
+        label: `${ic("fa-hourglass-half")} En attente`,
+      },
+      accepted: {
+        bg: "#E8F5E9",
+        color: "#27AE60",
+        label: `${ic("fa-check")} Acceptée`,
+      },
       preparing: {
         bg: "#FDF8F0",
         color: "#C0873F",
-        label: "👨‍🍳 En préparation",
+        label: `${ic("fa-kitchen-set")} En préparation`,
       },
-      ready: { bg: "#E3F2FD", color: "#2980B9", label: "🍽️ Prête" },
-      served: { bg: "#E0F2F1", color: "#16A085", label: "🎉 Servie" },
-      cancelled: { bg: "#FDE8E8", color: "#E74C3C", label: "❌ Annulée" },
+      ready: {
+        bg: "#E3F2FD",
+        color: "#2980B9",
+        label: `${ic("fa-utensils")} Prête`,
+      },
+      served: {
+        bg: "#E0F2F1",
+        color: "#16A085",
+        label: `${ic("fa-circle-check")} Servie`,
+      },
+      cancelled: {
+        bg: "#FDE8E8",
+        color: "#E74C3C",
+        label: `${ic("fa-xmark")} Annulée`,
+      },
     };
     return (
       styles[normalized] || {
@@ -1033,7 +1072,7 @@ class AdminManager {
             <i class="fa-solid fa-bell"></i> Servie
           </button>
           <button class="mm-btn mm-btn-pay" data-action="pay" style="background:linear-gradient(135deg,#27AE60,#219A52);color:#fff;">
-            💳 Encaisser
+            <i class="fa-solid fa-money-bill-wave"></i> Encaisser
           </button>
           <button class="mm-btn mm-btn-cancel"   data-action="cancelled">
             <i class="fa-solid fa-ban"></i> Annuler
@@ -1091,7 +1130,7 @@ class AdminManager {
             this.currentManagingOrder = updated;
             NotificationManager.showSuccess(
               orderId,
-              "✅ Encaissé",
+              "Encaissé",
               `Commande ${orderId} marquée comme payée.`,
               3000,
               "success",
@@ -1147,7 +1186,7 @@ class AdminManager {
     overlay.innerHTML = `
       <div style="background:white;border-radius:14px;padding:2rem;max-width:360px;
                   width:90%;box-shadow:0 20px 40px rgba(0,0,0,0.25);text-align:center;">
-        <div style="font-size:2.5rem;margin-bottom:0.75rem;">🗑️</div>
+        <div style="font-size:2.5rem;margin-bottom:0.75rem;"><i class="fa-solid fa-trash"></i></div>
         <h3 style="margin:0 0 0.5rem;color:#1a1a1a;font-size:1.15rem;">
           Supprimer la commande ?
         </h3>
@@ -1161,14 +1200,14 @@ class AdminManager {
             style="flex:1;padding:0.75rem;background:#f0f0f0;color:#333;
                    border:none;border-radius:9px;font-size:0.95rem;
                    font-weight:600;cursor:pointer;">
-            ✕ Annuler
+            <i class="fa-solid fa-xmark"></i> Annuler
           </button>
           <button id="confirm-delete-yes"
             style="flex:1;padding:0.75rem;
                    background:linear-gradient(135deg,#e74c3c,#c0392b);
                    color:white;border:none;border-radius:9px;font-size:0.95rem;
                    font-weight:600;cursor:pointer;">
-            🗑️ Supprimer
+            <i class="fa-solid fa-trash"></i> Supprimer
           </button>
         </div>
       </div>`;
@@ -1377,7 +1416,7 @@ class AdminManager {
     modal.innerHTML = `
       <div class="fusion-modal-content">
         <div class="fusion-modal-header">
-          <h3>🔍 Détection de Table</h3>
+          <h3><i class="fa-solid fa-magnifying-glass"></i> Détection de Table</h3>
           <button class="fusion-close" id="fusion-close">&times;</button>
         </div>
         <div class="fusion-modal-body">
@@ -1421,13 +1460,13 @@ class AdminManager {
         </div>
         <div class="fusion-modal-actions">
           <button class="btn-fusion-scan" id="btn-fusion-scan">
-            📱 Scanner une autre commande
+            <i class="fa-solid fa-qrcode"></i> Scanner une autre commande
           </button>
           <button class="btn-fusion-decline" id="btn-fusion-decline">
-            ❌ Garder séparées
+            <i class="fa-solid fa-xmark"></i> Garder séparées
           </button>
           <button class="btn-fusion-confirm" id="btn-fusion-confirm">
-            ✅ Fusionner les commandes
+            <i class="fa-solid fa-check"></i> Fusionner les commandes
           </button>
         </div>
       </div>
@@ -1609,7 +1648,7 @@ class AdminManager {
     modal.innerHTML = `
       <div class="approval-modal-content">
         <div class="approval-modal-header">
-          <h3>📋 Validation de Commande</h3>
+          <h3><i class="fa-solid fa-clipboard-check"></i> Validation de Commande</h3>
           <button class="approval-close" id="approval-close">&times;</button>
         </div>
         <div class="approval-modal-body">
@@ -1619,7 +1658,7 @@ class AdminManager {
               <div><strong>Table:</strong> ${order.table}</div>
               <div><strong>Total:</strong> ${this.formatPrice(order.total)} CFA</div>
               <div><strong>Articles:</strong> ${order.items?.length || 0}</div>
-              <div><strong>Paiement:</strong> ${order.paymentStatus === "paid" ? "✅ Payé" : "⏳ En attente"}</div>
+              <div><strong>Paiement:</strong> ${order.paymentStatus === "paid" ? '<i class="fa-solid fa-check"></i> Payé' : '<i class="fa-solid fa-hourglass-half"></i> En attente'}</div>
             </div>
             <div class="approval-order-items">
               <h4>Articles:</h4>
@@ -1641,10 +1680,10 @@ class AdminManager {
         </div>
         <div class="approval-modal-actions">
           <button class="btn-approval-reject" id="btn-approval-reject">
-            ❌ Rejeter
+            <i class="fa-solid fa-xmark"></i> Rejeter
           </button>
           <button class="btn-approval-accept" id="btn-approval-accept">
-            ✅ accepter
+            <i class="fa-solid fa-check"></i> Accepter
           </button>
         </div>
       </div>

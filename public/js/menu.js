@@ -133,10 +133,30 @@ function clearTableSession() {
 
 function showBanner(message, type = "info") {
   const colors = {
-    success: { bg: "#E8F5E9", border: "#27AE60", text: "#1E7E44", icon: "✅" },
-    warning: { bg: "#FFF8E1", border: "#E67E22", text: "#B7560D", icon: "⚠️" },
-    info: { bg: "#FDF8F0", border: "#C0873F", text: "#9B6830", icon: "📍" },
-    error: { bg: "#FDE8E8", border: "#E74C3C", text: "#C0392B", icon: "❌" },
+    success: {
+      bg: "#E8F5E9",
+      border: "#27AE60",
+      text: "#1E7E44",
+      icon: '<i class="fa-solid fa-check"></i>',
+    },
+    warning: {
+      bg: "#FFF8E1",
+      border: "#E67E22",
+      text: "#B7560D",
+      icon: '<i class="fa-solid fa-triangle-exclamation"></i>',
+    },
+    info: {
+      bg: "#FDF8F0",
+      border: "#C0873F",
+      text: "#9B6830",
+      icon: '<i class="fa-solid fa-location-dot"></i>',
+    },
+    error: {
+      bg: "#FDE8E8",
+      border: "#E74C3C",
+      text: "#C0392B",
+      icon: '<i class="fa-solid fa-xmark"></i>',
+    },
   };
 
   // Rétrocompatibilité : si `type` est une couleur hex (#...), détecte et convertit
@@ -185,7 +205,7 @@ function showBanner(message, type = "info") {
     <button onclick="this.parentElement.remove()" style="
       margin-left: auto; background: none; border: none; cursor: pointer;
       color: ${style.text}; font-size: 1rem; opacity: 0.6; padding: 0 4px; line-height: 1;
-    ">✕</button>
+    ">&times;</button>
   `;
 
   document.body.prepend(banner);
@@ -229,7 +249,7 @@ class MenuManager {
       const session = getTableSession();
       if (!session) {
         showBanner(
-          "📍 Scannez le QR code de votre table pour commander.",
+          "Scannez le QR code de votre table pour commander.",
           "#8b4513",
         );
       }
@@ -367,7 +387,7 @@ class MenuManager {
       // Bloque si pas de session table active
       if (!this.getCurrentTable()) {
         showBanner(
-          "📍 Scannez le QR code de votre table pour commander.",
+          "Scannez le QR code de votre table pour commander.",
           "#c0392b",
         );
         return;
@@ -509,16 +529,16 @@ class MenuManager {
         // en préparation, prêt, ou servi.
         const statusBanners = {
           accepted: [
-            "✅ Commande acceptée par le serveur ! Elle est en cours de préparation.",
+            "Commande acceptée par le serveur ! Elle est en cours de préparation.",
             "success",
           ],
-          preparing: ["👨‍🍳 Votre commande est en préparation.", "info"],
+          preparing: ["Votre commande est en préparation.", "info"],
           ready: [
-            "🍽️ Votre commande est prête ! Le serveur arrive.",
+            "Votre commande est prête ! Le serveur arrive.",
             "info",
           ],
-          served: ["✅ Bon appétit ! Votre commande a été servie.", "success"],
-          cancelled: ["❌ Votre commande a été annulée.", "error"],
+          served: ["Votre commande a été servie. Bon appétit !", "success"],
+          cancelled: ["Votre commande a été annulée.", "error"],
         };
 
         const banner = statusBanners[order.status];

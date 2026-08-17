@@ -274,7 +274,7 @@ class TableManager {
     overlay.innerHTML = `
       <div style="background:white;border-radius:16px;padding:2rem;text-align:center;
                   max-width:340px;width:90%;box-shadow:0 20px 40px rgba(0,0,0,0.35);">
-        <h3 style="margin:0 0 0.25rem;color:#8b4513;font-size:1.4rem;">
+        <h3 style="margin:0 0 0.25rem;color:#c0873f;font-size:1.4rem;">
           Table ${table.number}
         </h3>
         <p style="margin:0 0 1.25rem;color:#666;font-size:0.9rem;">
@@ -282,21 +282,21 @@ class TableManager {
         </p>
         <div id="modal-qr-canvas"
              style="display:inline-block;padding:14px;
-                    border:3px solid #8b4513;border-radius:12px;background:white;">
+                    border:3px solid #c0873f;border-radius:12px;background:white;">
         </div>
         <p style="margin:0.75rem 0 0;font-size:0.75rem;color:#aaa;font-family:monospace;">
           ${window.location.origin}/menu.html?table=${table.number}
         </p>
         <div style="margin-top:1.25rem;display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
           <button onclick="window.tableManager.printTableQR(${table.number})"
-            style="padding:0.65rem 1.2rem;background:linear-gradient(135deg,#8b4513,#a0522d);
+            style="padding:0.65rem 1.2rem;background:linear-gradient(135deg,#c0873f,#9b6830);
                    color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">
-            🖨 Imprimer
+            <i class="fa-solid fa-print"></i> Imprimer
           </button>
           <button id="modal-voir-qr-close"
             style="padding:0.65rem 1.2rem;background:#f0f0f0;color:#333;
                    border:none;border-radius:8px;cursor:pointer;font-weight:600;">
-            ✕ Fermer
+            <i class="fa-solid fa-xmark"></i> Fermer
           </button>
         </div>
       </div>`;
@@ -346,7 +346,7 @@ class TableManager {
         <div style="width:${size}px;height:${size}px;border:1px solid #ddd;border-radius:5px;
                     display:flex;align-items:center;justify-content:center;
                     background:#f8f9fa;text-align:center;font-size:11px;color:#999;">
-          📱<br>QR Code<br>Table ${data.table}
+          <i class="fa-solid fa-qrcode"></i><br>QR Code<br>Table ${data.table}
         </div>`;
     };
     el.innerHTML = "";
@@ -365,18 +365,18 @@ class TableManager {
         @page{margin:1cm;size:A4}
         body{font-family:Arial,sans-serif;text-align:center;padding:40px 20px;
              display:flex;flex-direction:column;align-items:center;justify-content:center;
-             min-height:100vh;background:linear-gradient(135deg,#8b4513,#a0522d);}
+             min-height:100vh;background:linear-gradient(135deg,#c0873f,#9b6830);}
         .container{max-width:400px;width:100%;background:white;border-radius:15px;
                    padding:30px;box-shadow:0 10px 30px rgba(0,0,0,0.3);}
-        h1{color:#8b4513;font-size:28px;font-weight:700;}
-        h2{color:#8b4513;font-weight:600;}
-        .qr-code{border:3px solid #8b4513;border-radius:15px;padding:20px;
+        h1{color:#c0873f;font-size:28px;font-weight:700;}
+        h2{color:#c0873f;font-weight:600;}
+        .qr-code{border:3px solid #c0873f;border-radius:15px;padding:20px;
                  display:inline-block;margin:20px 0;}
         .hint{font-size:14px;color:#666;font-weight:500;}
         @media print{body{background:white!important}.container{box-shadow:none}}
       </style></head><body>
       <div class="container">
-        <h1>🍽️ RestoPlus</h1>
+        <h1>RestoPlus</h1>
         <h2>Table ${table.number}</h2>
         <p>${table.chairs} chaises • ${table.location}</p>
         <div class="qr-code">
@@ -384,7 +384,7 @@ class TableManager {
                onload="setTimeout(()=>window.print(),400)"
                onerror="this.outerHTML='<p style=color:#c00>QR indisponible</p>'">
         </div>
-        <p class="hint"><strong>📱 Scannez pour commander</strong></p>
+        <p class="hint"><strong>Scannez pour commander</strong></p>
       </div></body></html>`);
     w.document.close();
   }

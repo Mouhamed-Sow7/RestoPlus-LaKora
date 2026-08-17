@@ -13,10 +13,10 @@ class NotificationManager {
   static showSuccess(orderId, title, message, duration = 3000, type = "info") {
     const ticketNumber = this.formatTicket(orderId);
     const iconMap = {
-      success: "✅",
-      error: "❌",
-      warning: "⚠️",
-      info: "ℹ️",
+      success: '<i class="fa-solid fa-check"></i>',
+      error: '<i class="fa-solid fa-xmark"></i>',
+      warning: '<i class="fa-solid fa-triangle-exclamation"></i>',
+      info: '<i class="fa-solid fa-circle-info"></i>',
     };
     // Couleurs sémantiques puisées dans les variables du thème
     // (main.css :root) — plus de hex codés en dur qui divergeaient
@@ -67,7 +67,7 @@ class NotificationManager {
         ${message ? `<div class="rp-toast-msg">${message}</div>` : ""}
         ${orderId ? `<div class="rp-toast-id">${orderId}</div>` : ""}
       </div>
-      <button class="rp-toast-close" type="button">✕</button>
+      <button class="rp-toast-close" type="button">&times;</button>
     `;
 
     container.appendChild(toast);
@@ -232,7 +232,7 @@ class TableDetector {
 
       const btn = document.createElement("button");
       btn.id = "demo-table-btn";
-      btn.innerHTML = "🎯 Démo — Commander à la Table 1";
+      btn.innerHTML = "Démo — Commander à la Table 1";
       btn.style.cssText = `
         display: block;
         width: calc(100% - 2rem);
@@ -808,7 +808,7 @@ window.NotificationManager = NotificationManager;
         <button id="pwa-dismiss-btn" style="
           background: rgba(255,255,255,0.1); color: #fff; border: none; border-radius: 8px;
           padding: 10px 12px; cursor: pointer; font-size: 0.9rem;
-        ">✕</button>
+        ">&times;</button>
       `;
 
       if (!document.getElementById("pwa-banner-anim")) {

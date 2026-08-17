@@ -225,7 +225,7 @@ class CartManager {
     modal.innerHTML = `
       <div class="payment-modal-content">
         <div class="payment-modal-header">
-          <h3>💳 Méthode de paiement</h3>
+          <h3><i class="fa-solid fa-credit-card"></i> Méthode de paiement</h3>
           <button class="payment-close">&times;</button>
         </div>
         <div class="payment-modal-body">
@@ -239,12 +239,12 @@ class CartManager {
             <label class="payment-option">
               <input type="radio" name="payment" value="cash" checked>
               <div class="payment-option-card">
-                <span class="payment-option-icon">💵</span>
+                <span class="payment-option-icon"><i class="fa-solid fa-money-bill-wave"></i></span>
                 <div class="payment-option-info">
                   <strong>Espèces</strong>
                   <small>Paiement à la caisse</small>
                 </div>
-                <span class="payment-option-check">✓</span>
+                <span class="payment-option-check"><i class="fa-solid fa-check"></i></span>
               </div>
             </label>
 
@@ -252,12 +252,12 @@ class CartManager {
             <label class="payment-option">
               <input type="radio" name="payment" value="card">
               <div class="payment-option-card">
-                <span class="payment-option-icon">💳</span>
+                <span class="payment-option-icon"><i class="fa-solid fa-credit-card"></i></span>
                 <div class="payment-option-info">
                   <strong>Carte bancaire</strong>
                   <small>Visa, Mastercard</small>
                 </div>
-                <span class="payment-option-check">✓</span>
+                <span class="payment-option-check"><i class="fa-solid fa-check"></i></span>
               </div>
             </label>
 
@@ -265,12 +265,12 @@ class CartManager {
             <label class="payment-option">
               <input type="radio" name="payment" value="wave">
               <div class="payment-option-card payment-wave">
-                <span class="payment-option-icon">🌊</span>
+                <span class="payment-option-icon"><i class="fa-solid fa-mobile-screen-button"></i></span>
                 <div class="payment-option-info">
                   <strong style="color:#1DC8EF;">Wave</strong>
                   <small>${PAYMENT_CONFIG.wave.phone}</small>
                 </div>
-                <span class="payment-option-check">✓</span>
+                <span class="payment-option-check"><i class="fa-solid fa-check"></i></span>
               </div>
             </label>
 
@@ -278,12 +278,12 @@ class CartManager {
             <label class="payment-option">
               <input type="radio" name="payment" value="orange_money">
               <div class="payment-option-card payment-om">
-                <span class="payment-option-icon">🟠</span>
+                <span class="payment-option-icon"><i class="fa-solid fa-mobile-screen-button"></i></span>
                 <div class="payment-option-info">
                   <strong style="color:#FF6600;">Orange Money</strong>
                   <small>${PAYMENT_CONFIG.orange_money.phone}</small>
                 </div>
-                <span class="payment-option-check">✓</span>
+                <span class="payment-option-check"><i class="fa-solid fa-check"></i></span>
               </div>
             </label>
 
@@ -353,7 +353,7 @@ class CartManager {
     overlay.innerHTML = `
       <div class="payment-modal-content payment-mobile-content">
         <div class="payment-modal-header">
-          <h3>${method === "wave" ? "🌊" : "🟠"} Paiement ${config.name}</h3>
+          <h3><i class="fa-solid fa-mobile-screen-button"></i> Paiement ${config.name}</h3>
           <button class="payment-close">&times;</button>
         </div>
         <div class="payment-mobile-body">
@@ -415,7 +415,7 @@ class CartManager {
 
           <!-- Avertissement test -->
           <div class="mobile-pay-test-notice">
-            🧪 Mode démo — aucun débit réel ne sera effectué
+            Mode démo — aucun débit réel ne sera effectué
           </div>
 
         </div>
@@ -425,7 +425,7 @@ class CartManager {
             Ouvrir ${config.name} →
           </a>
           <button class="btn-mobile-paid" style="background:#27ae60;">
-            ✅ J'ai payé
+            J'ai payé
           </button>
         </div>
       </div>`;
@@ -476,7 +476,7 @@ class CartManager {
     if (!activeTable) {
       // Session expirée ou absente — bloque la commande
       alert(
-        "⏱️ Votre session de table a expiré. Scannez à nouveau le QR code de votre table pour commander.",
+        "Votre session de table a expiré. Scannez à nouveau le QR code de votre table pour commander.",
       );
       return;
     }
@@ -518,12 +518,12 @@ class CartManager {
 
         const msg =
           paymentMethod === "wave"
-            ? "Commande créée — paiement Wave confirmé ✅"
+            ? "Commande créée — paiement Wave confirmé"
             : paymentMethod === "orange_money"
-              ? "Commande créée — paiement OM confirmé ✅"
+              ? "Commande créée — paiement OM confirmé"
               : paymentMethod === "cash"
-                ? "Commande créée. Paiement à la caisse 💵"
-                : "Commande créée ✅";
+                ? "Commande créée. Paiement à la caisse"
+                : "Commande créée";
         this.showAlert(msg, "success");
       })
       .catch(() => this.showAlert("Erreur de création de commande", "error"));
@@ -614,11 +614,11 @@ class CartManager {
     document.getElementById("server-hint")?.remove();
 
     const methodLabels = {
-      cash: "💵 Caisse",
-      card: "💳 Carte",
-      wave: "🌊 Wave",
-      orange_money: "🟠 Orange Money",
-      mobile: "📱 Mobile",
+      cash: '<i class="fa-solid fa-money-bill-wave"></i> Caisse',
+      card: '<i class="fa-solid fa-credit-card"></i> Carte',
+      wave: '<i class="fa-solid fa-mobile-screen-button"></i> Wave',
+      orange_money: '<i class="fa-solid fa-mobile-screen-button"></i> Orange Money',
+      mobile: '<i class="fa-solid fa-mobile-screen-button"></i> Mobile',
     };
     const isPaid = order.paymentStatus === "paid";
 
@@ -626,7 +626,7 @@ class CartManager {
     statusDisplay.id = "payment-status-display";
     statusDisplay.style.cssText = `margin:1rem 0;padding:0.8rem;border-radius:8px;text-align:center;font-weight:bold;background:${isPaid ? "#d4edda" : "#fff3cd"};color:${isPaid ? "#155724" : "#856404"};border:1px solid ${isPaid ? "#c3e6cb" : "#ffeaa7"};`;
     statusDisplay.innerHTML = `
-      <div>${isPaid ? "✅ Paiement effectué" : "⏳ Paiement en attente"} — ${methodLabels[order.paymentMethod] || order.paymentMethod}</div>
+      <div>${isPaid ? '<i class="fa-solid fa-check"></i> Paiement effectué' : '<i class="fa-solid fa-hourglass-half"></i> Paiement en attente'} — ${methodLabels[order.paymentMethod] || order.paymentMethod}</div>
       <div style="font-size:0.85rem;margin-top:0.4rem;font-weight:normal;">${isPaid ? "Commande payée — présentez ce ticket au serveur" : "Réglez à la caisse avant de recevoir votre commande"}</div>`;
 
     const qrCode = document.getElementById("qr-code");
@@ -687,12 +687,12 @@ class CartManager {
   }
 
   showManualQR(element, qrData) {
-    element.innerHTML = `<div style="width:200px;height:200px;border:2px dashed #007bff;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f8f9fa;text-align:center;padding:15px;"><div style="font-size:24px;margin-bottom:10px;">📱</div><p style="margin:0;font-size:12px;color:#666;font-weight:bold;">QR Code</p><p style="margin:5px 0 0;font-size:10px;color:#999;">Commande: ${qrData.orderId}</p><p style="margin:2px 0 0;font-size:10px;color:#999;">Table: ${qrData.table}</p></div>`;
+    element.innerHTML = `<div style="width:200px;height:200px;border:2px dashed #007bff;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f8f9fa;text-align:center;padding:15px;"><div style="font-size:24px;margin-bottom:10px;"><i class="fa-solid fa-qrcode"></i></div><p style="margin:0;font-size:12px;color:#666;font-weight:bold;">QR Code</p><p style="margin:5px 0 0;font-size:10px;color:#999;">Commande: ${qrData.orderId}</p><p style="margin:2px 0 0;font-size:10px;color:#999;">Table: ${qrData.table}</p></div>`;
   }
 
   confirmQRClose(qrModal) {
     this.showConfirmModal(
-      `<div><div style="font-weight:600;margin-bottom:8px;color:#ffc107;">⚠️ Attention!</div><p style="margin:0 0 8px;">Fermer ce ticket empêchera le serveur de valider votre commande.</p><p style="margin:0;">Vous pourrez le rouvrir depuis l'historique des commandes.</p></div>`,
+      `<div><div style="font-weight:600;margin-bottom:8px;color:#ffc107;"><i class="fa-solid fa-triangle-exclamation"></i> Attention</div><p style="margin:0 0 8px;">Fermer ce ticket empêchera le serveur de valider votre commande.</p><p style="margin:0;">Vous pourrez le rouvrir depuis l'historique des commandes.</p></div>`,
       () => {
         qrModal.classList.remove("show");
         this.showAlert("Ticket fermé. Rouvrez-le depuis l'historique.", "info");

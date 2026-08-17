@@ -51,7 +51,7 @@ class ReservationManager {
         <!-- Toolbar -->
         <div class="res-toolbar">
           <div class="res-toolbar-left">
-            <h2 class="res-title">📅 Réservations</h2>
+            <h2 class="res-title"><i class="fa-solid fa-calendar-days"></i> Réservations</h2>
             <span class="res-count-badge">${this.reservations.length}</span>
           </div>
           <div class="res-toolbar-right">
@@ -59,17 +59,17 @@ class ReservationManager {
             <select class="res-filter-select" id="res-status-filter">
               <option value="all"      ${this.statusFilter === "all" ? "selected" : ""}>Toutes</option>
               <option value="pending"  ${this.statusFilter === "pending" ? "selected" : ""}>⏳ En attente</option>
-              <option value="confirmed"${this.statusFilter === "confirmed" ? "selected" : ""}>✅ Confirmées</option>
-              <option value="cancelled"${this.statusFilter === "cancelled" ? "selected" : ""}>❌ Annulées</option>
-              <option value="completed"${this.statusFilter === "completed" ? "selected" : ""}>🏁 Terminées</option>
-              <option value="no_show"  ${this.statusFilter === "no_show" ? "selected" : ""}>👻 No-show</option>
+              <option value="confirmed"${this.statusFilter === "confirmed" ? "selected" : ""}>Confirmées</option>
+              <option value="cancelled"${this.statusFilter === "cancelled" ? "selected" : ""}>Annulées</option>
+              <option value="completed"${this.statusFilter === "completed" ? "selected" : ""}>Terminées</option>
+              <option value="no_show"  ${this.statusFilter === "no_show" ? "selected" : ""}>No-show</option>
             </select>
             <!-- Filtre date -->
             <input type="date" class="res-date-input" id="res-date-filter" value="${this.dateFilter}" placeholder="Filtrer par date" />
             <!-- Vue -->
             <div class="res-view-toggle">
-              <button class="res-view-btn ${this.currentView === "list" ? "active" : ""}" data-view="list">☰ Liste</button>
-              <button class="res-view-btn ${this.currentView === "calendar" ? "active" : ""}" data-view="calendar">📅 Calendrier</button>
+              <button class="res-view-btn ${this.currentView === "list" ? "active" : ""}" data-view="list"><i class="fa-solid fa-list"></i> Liste</button>
+              <button class="res-view-btn ${this.currentView === "calendar" ? "active" : ""}" data-view="calendar"><i class="fa-solid fa-calendar-days"></i> Calendrier</button>
             </div>
           </div>
         </div>
@@ -101,7 +101,7 @@ class ReservationManager {
   _listHTML() {
     if (!this.reservations.length) {
       return `<div class="res-empty">
-        <div style="font-size:3rem;margin-bottom:1rem;">📭</div>
+        <div style="font-size:3rem;margin-bottom:1rem;"><i class="fa-solid fa-inbox"></i></div>
         <p>Aucune réservation pour ce filtre</p>
       </div>`;
     }
@@ -143,37 +143,37 @@ class ReservationManager {
   _cardHTML(r) {
     const statusConf = {
       pending: { icon: "⏳", label: "En attente", cls: "pending" },
-      confirmed: { icon: "✅", label: "Confirmée", cls: "confirmed" },
-      cancelled: { icon: "❌", label: "Annulée", cls: "cancelled" },
-      completed: { icon: "🏁", label: "Terminée", cls: "completed" },
-      no_show: { icon: "👻", label: "No-show", cls: "no-show" },
+      confirmed: { icon: '<i class="fa-solid fa-check"></i>', label: "Confirmée", cls: "confirmed" },
+      cancelled: { icon: '<i class="fa-solid fa-xmark"></i>', label: "Annulée", cls: "cancelled" },
+      completed: { icon: '<i class="fa-solid fa-flag-checkered"></i>', label: "Terminée", cls: "completed" },
+      no_show: { icon: '<i class="fa-solid fa-user-slash"></i>', label: "No-show", cls: "no-show" },
     };
     const sc = statusConf[r.status] || { icon: "•", label: r.status, cls: "" };
 
     return `
       <div class="res-card res-card-${sc.cls}" data-id="${r.reservationId}">
         <div class="res-card-top">
-          <span class="res-card-time">🕐 ${r.time}</span>
+          <span class="res-card-time"><i class="fa-solid fa-clock"></i> ${r.time}</span>
           <span class="res-status-badge res-status-${sc.cls}">${sc.icon} ${sc.label}</span>
         </div>
         <div class="res-card-name">${r.name}</div>
         <div class="res-card-meta">
-          <span>👥 ${r.guests} pers.</span>
-          <span>📞 ${r.phone}</span>
-          ${r.assignedTable ? `<span>🪑 Table ${r.assignedTable}</span>` : ""}
-          ${r.emails?.notifiedClient ? `<span title="Email envoyé">📧✓</span>` : ""}
+          <span><i class="fa-solid fa-users"></i> ${r.guests} pers.</span>
+          <span><i class="fa-solid fa-phone"></i> ${r.phone}</span>
+          ${r.assignedTable ? `<span><i class="fa-solid fa-chair"></i> Table ${r.assignedTable}</span>` : ""}
+          ${r.emails?.notifiedClient ? `<span title="Email envoyé"><i class="fa-solid fa-envelope-circle-check"></i></span>` : ""}
         </div>
-        ${r.note ? `<div class="res-card-note">💬 ${r.note}</div>` : ""}
+        ${r.note ? `<div class="res-card-note"><i class="fa-solid fa-comment"></i> ${r.note}</div>` : ""}
         <div class="res-card-actions">
           ${
             r.status === "pending"
               ? `
-            <button class="res-btn res-btn-confirm" data-action="confirm" data-id="${r.reservationId}">✅ Confirmer</button>
-            <button class="res-btn res-btn-cancel"  data-action="cancel"  data-id="${r.reservationId}">❌ Refuser</button>
+            <button class="res-btn res-btn-confirm" data-action="confirm" data-id="${r.reservationId}"><i class="fa-solid fa-check"></i> Confirmer</button>
+            <button class="res-btn res-btn-cancel"  data-action="cancel"  data-id="${r.reservationId}"><i class="fa-solid fa-xmark"></i> Refuser</button>
           `
               : ""
           }
-          <button class="res-btn res-btn-edit" data-action="edit" data-id="${r.reservationId}">✏️ Détails</button>
+          <button class="res-btn res-btn-edit" data-action="edit" data-id="${r.reservationId}"><i class="fa-solid fa-pen"></i> Détails</button>
         </div>
       </div>`;
   }
@@ -258,23 +258,23 @@ class ReservationManager {
           <h3 style="margin:0;font-size:1rem;font-weight:700;">Réservation</h3>
           <p style="margin:2px 0 0;font-size:0.72rem;color:#bbb;font-family:monospace;">${r.reservationId}</p>
         </div>
-        <button class="mm-close" id="res-modal-close">✕</button>
+        <button class="mm-close" id="res-modal-close">&times;</button>
       </div>
       <div style="padding:1.25rem 1.5rem 1.5rem;">
 
         <!-- Infos client -->
         <div class="res-info-block">
-          <div class="res-info-row"><span>👤 Nom</span><strong>${r.name}</strong></div>
-          <div class="res-info-row"><span>📞 Tél.</span><strong>${r.phone}</strong></div>
-          <div class="res-info-row"><span>📧 Email</span><strong style="font-size:0.82rem;">${r.email}</strong></div>
+          <div class="res-info-row"><span><i class="fa-solid fa-user"></i> Nom</span><strong>${r.name}</strong></div>
+          <div class="res-info-row"><span><i class="fa-solid fa-phone"></i> Tél.</span><strong>${r.phone}</strong></div>
+          <div class="res-info-row"><span><i class="fa-solid fa-envelope"></i> Email</span><strong style="font-size:0.82rem;">${r.email}</strong></div>
         </div>
 
         <!-- Détails résa -->
         <div class="res-info-block" style="margin-top:10px;">
-          <div class="res-info-row"><span>📅 Date</span><strong>${dateLabel}</strong></div>
-          <div class="res-info-row"><span>🕐 Heure</span><strong>${r.time}</strong></div>
-          <div class="res-info-row"><span>👥 Personnes</span><strong>${r.guests}</strong></div>
-          ${r.note ? `<div class="res-info-row"><span>💬 Note</span><em style="font-size:0.85rem;color:#666;">${r.note}</em></div>` : ""}
+          <div class="res-info-row"><span><i class="fa-solid fa-calendar-days"></i> Date</span><strong>${dateLabel}</strong></div>
+          <div class="res-info-row"><span><i class="fa-solid fa-clock"></i> Heure</span><strong>${r.time}</strong></div>
+          <div class="res-info-row"><span><i class="fa-solid fa-users"></i> Personnes</span><strong>${r.guests}</strong></div>
+          ${r.note ? `<div class="res-info-row"><span><i class="fa-solid fa-comment"></i> Note</span><em style="font-size:0.85rem;color:#666;">${r.note}</em></div>` : ""}
         </div>
 
         <!-- Table assignée -->
@@ -298,17 +298,17 @@ class ReservationManager {
           ${
             r.status === "pending"
               ? `
-            <button class="mm-btn mm-btn-accept"  data-modal-action="confirm" data-id="${r.reservationId}">✅ Confirmer</button>
-            <button class="mm-btn mm-btn-cancel"  data-modal-action="cancel"  data-id="${r.reservationId}">❌ Refuser</button>
+            <button class="mm-btn mm-btn-accept"  data-modal-action="confirm" data-id="${r.reservationId}"><i class="fa-solid fa-check"></i> Confirmer</button>
+            <button class="mm-btn mm-btn-cancel"  data-modal-action="cancel"  data-id="${r.reservationId}"><i class="fa-solid fa-xmark"></i> Refuser</button>
           `
               : ""
           }
-          <button class="mm-btn mm-btn-prepare"   data-modal-action="save"    data-id="${r.reservationId}" style="grid-column:1/-1;">💾 Enregistrer</button>
+          <button class="mm-btn mm-btn-prepare"   data-modal-action="save"    data-id="${r.reservationId}" style="grid-column:1/-1;"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
           ${
             r.status !== "cancelled" && r.status !== "completed"
               ? `
           <button class="mm-btn" data-modal-action="no_show" data-id="${r.reservationId}"
-            style="background:#fff3cd;color:#856404;grid-column:1/-1;">👻 No-show</button>`
+            style="background:#fff3cd;color:#856404;grid-column:1/-1;"><i class="fa-solid fa-user-slash"></i> No-show</button>`
               : ""
           }
         </div>
@@ -317,8 +317,8 @@ class ReservationManager {
         <div style="margin-top:12px;font-size:0.75rem;color:#bbb;text-align:center;">
           ${
             r.emails?.notifiedClient
-              ? `📧 Email envoyé au client le ${new Date(r.emails.lastEmailAt).toLocaleDateString("fr-FR")}`
-              : "📧 Aucun email envoyé au client"
+              ? `<i class="fa-solid fa-envelope-circle-check"></i> Email envoyé au client le ${new Date(r.emails.lastEmailAt).toLocaleDateString("fr-FR")}`
+              : '<i class="fa-solid fa-envelope"></i> Aucun email envoyé au client'
           }
         </div>
       </div>`;
@@ -380,7 +380,7 @@ class ReservationManager {
       this._render();
       window.NotificationManager?.showSuccess(
         id,
-        status === "confirmed" ? "Confirmée ✅" : "Mise à jour",
+        status === "confirmed" ? "Confirmée" : "Mise à jour",
         `Réservation ${id}`,
         2500,
         "success",
